@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-    --color-lightBlue: #cfe1f1;
+    --color-lightBlue: #e8f1f8;
     --color-darkBlue: #090cb6;
     --color-primaryBlue: #0040b6;
     --color-accentBlue: #0082d8;
@@ -15,6 +15,10 @@
 
 body {
     background-color: var(--color-lightBlue);
+    color: var(--color-primaryBlue);
+}
+
+h1, h2, h3, h4, h5, h6 {
     color: var(--color-darkBlue);
 }
 

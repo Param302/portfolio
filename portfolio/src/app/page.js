@@ -5,7 +5,7 @@ import Projects from './components/Projects';
 
 export default function Home() {
     return (
-        <main className="w-2/5 flex flex-col items-center space-y-12">
+        <main className="w-2/5 flex flex-col space-y-12">
             <About/>
             {/* <Experience/> */}
             <Projects/>
