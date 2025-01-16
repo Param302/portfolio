@@ -9,12 +9,16 @@
     --color-accentBlue: #0082d8;
 }
 
+.me {
+    background-color: orange;
+}
+
 body {
     background-color: var(--color-lightBlue);
     color: var(--color-darkBlue);
 }
 
-::selection {
+*::selection {
     background-color: var(--color-primaryBlue);
     color: var(--color-lightBlue);
 }

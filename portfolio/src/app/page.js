@@ -1,10 +1,14 @@
 import About from '@/app/components/About';
+import Experience from './components/Experience';
+import Projects from './components/Projects';
 
 
 export default function Home() {
     return (
-        <main className="w-1/2 flex flex-col items-center space-y-8">
+        <main className="w-2/5 flex flex-col items-center space-y-12">
             <About/>
+            {/* <Experience/> */}
+            <Projects/>
         </main>
     );
 }

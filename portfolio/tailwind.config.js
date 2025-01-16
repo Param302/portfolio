@@ -12,8 +12,8 @@ module.exports = {
                 accentBlue: '0082d8'
             },
             fontFamily: {
-                serif: ['Merriweather', 'serif'], // Heading font
-                mono: ['Fira Code', 'monospace'], // Descriptive/secondary font
+                heading: ['Roboto'], // Heading font
+                desc: ['Tomorrow', 'Fira Code'], // Descriptive/secondary font
             },
         },
     },

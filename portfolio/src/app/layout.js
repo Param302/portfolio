@@ -1,16 +1,22 @@
-import { Merriweather, Fira_Code } from "next/font/google";
+import { Roboto, Fira_Code } from "next/font/google";
 import "@/app/styles/globals.css";
 
-
-const headingFont = Merriweather({
-    variable: "--font-merriweather",
+const headingFont = Roboto({
+    display: "swap",
+    variable: "--font-roboto",
     subsets: ["latin"],
-    weight: ["300", "400", "700", "900"],
+    weight: ["300", "400", "500", "700"],
+    adjustFontFallback: false,
+    preload: false
 });
 
 const descriptionFont = Fira_Code({
-    variable: "--font-fira-code",
+    display: "swap",
+    variable: "--font-tomorrow",
     subsets: ["latin"],
+    weight: ["300", "400", "500", "600", "700"],
+    adjustFontFallback: false,
+    preload: false
 });
 
 export const metadata = {
