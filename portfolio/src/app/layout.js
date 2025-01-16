@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body
-                className={`${headingFont.className} ${descriptionFont.className} antialiased`}
+                className={`${headingFont.className} ${descriptionFont.className} antialiased flex flex-col items-center py-24`}
             >
                 {children}
             </body>
