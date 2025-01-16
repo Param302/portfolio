@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-lightBlue: #c2def8;
+    --color-darkBlue: #090cb6;
+    --color-primaryBlue: #0040b6;
+    --color-accentBlue: #0082d8;
+}
+
+body {
+    background-color: var(--color-lightBlue);
+    color: var(--color-darkBlue);
+}
+
+::selection {
+    background-color: var(--color-primaryBlue);
+    color: var(--color-lightBlue);
+}

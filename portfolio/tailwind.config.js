@@ -6,9 +6,10 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                lightBlue: '#f0f8ff', // Very light blue
-                primaryBlue: '#007bff', // Main theme blue
-                darkBlue: '#0056b3', // Darker blue for contrast
+                lightBlue: '#c2def8',
+                primaryBlue: '#0040b6',
+                darkBlue: '#090cb6',
+                accentBlue: '0082d8'
             },
             fontFamily: {
                 serif: ['Merriweather', 'serif'], // Heading font
