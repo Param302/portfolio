@@ -1,6 +1,6 @@
 export default function Education() {
     return (
-        <section id="education" className="flex flex-col space-y-4">
+        <section id="education" className="flex flex-col space-y-2">
             <h2 className="text-3xl font-medium font-heading">Education</h2>
             <div>
                 <article className="flex flex-col space-y-1">
