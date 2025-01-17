@@ -7,7 +7,7 @@ import CoCurricular from './components/CoCurricular';
 
 export default function Home() {
     return (
-        <main className="w-2/5 flex flex-col space-y-8">
+        <main className="w-4/5 lg:w-3/5 2xl:w-2/5 flex flex-col space-y-8">
             <About/>
             {/* <Experience/> */}
             <Projects/>
