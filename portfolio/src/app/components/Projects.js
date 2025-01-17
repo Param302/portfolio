@@ -5,7 +5,7 @@ export default function Projects() {
             <div className="flex flex-col space-y-4">
                 <article>
                     <div className="flex flex-row items-center gap-2">
-                        <h3 className="text-md md:text-lg md:text-xl font-medium font-heading">Code Track</h3>
+                        <h3 className="text-lg md:text-xl font-medium font-heading">Code Track</h3>
                         <a href="https://github.com/Param302/CodeTrack/" target="_blank" rel="noopener noreferrer"><img src="github.svg" alt="Github" className="h-6 w-6"/></a>
                         <span className="md:self-end text-xs md:text-lg">(<a className="underline font-medium" href="https://code-track.vercel.app/" target="_blank" rel="noopener noreferrer">code-track.vercel.app</a>)</span>
                     </div>
@@ -20,7 +20,7 @@ export default function Projects() {
                 </article>
                 <article>
                     <div className="flex flex-row items-center gap-2">
-                        <h3 className="text-md md:text-lg md:text-xl font-medium font-heading">E-Pustakalya</h3>
+                        <h3 className="text-lg md:text-xl font-medium font-heading">E-Pustakalya</h3>
                         <a href="https://github.com/Param302/Library-Management-System/" target="_blank" rel="noopener noreferrer"><img src="github.svg" alt="Github" className="h-6 w-6"/></a>
                     </div>
                     <ul className="list-disc list-inside italic flex flex-row gap-4 text-sm pl-2 font-heading font-medium">
