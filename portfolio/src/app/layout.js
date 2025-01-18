@@ -34,6 +34,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
     return (
         <html lang="en">
+            <head>
+            <meta name="google-site-verification" content="WO5xWIFDFFe6h7lIEMnhEEMK7rDztpeIoiTKkHe7OLs" />
+            </head>
             <body
                 className={`${headingFont.className} ${descriptionFont.className} antialiased flex flex-col items-center py-12 md:py-16 lg:py-24`}
             >
