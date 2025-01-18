@@ -22,6 +22,13 @@ const descriptionFont = Fira_Code({
 export const metadata = {
     title: "Parampreet Singh Portfolio",
     description: "A minimal portfolio of Parampreet Singh",
+    keywords: [
+        'Parampreet Singh', 'Param', 'Singh', 'Developer Portfolio', 'Machine Learning', 'Python Developer', 'Python sessions', 'Python playlist', 'Machine Learning sessions', 'Machine Learning playlist', 'AI', 'ML',
+        'Next.js Projects', 'Artificial Intelligence', 'Data Science', 'IIT Madras',
+        'Heart Disease Predictor', 'E-Pustakalya', 'Code Track', 'GUI Development',
+        'Deep Learning', 'Flask Projects', 'TensorFlow', 'Tkinter Applications'
+    ],
+    authors: [{ name: "Parampreet Singh", url: "https://param302.vercel.app" }],
 };
 
 export default function RootLayout({ children }) {
