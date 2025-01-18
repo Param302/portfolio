@@ -1,5 +1,5 @@
 export default function sitemap() {
-    const baseUrl = "https://param302.vercel.app";
+    const baseUrl = "https://parampreetsingh.me";
     
     const staticPages = [
         { url: "/", lastModified: new Date(), changefreq: "weekly", priority: 1.0 },

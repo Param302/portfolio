@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react"
 import { Roboto_Slab, Fira_Code } from "next/font/google";
 import "@/app/styles/globals.css";
 
@@ -28,7 +29,7 @@ export const metadata = {
         'Heart Disease Predictor', 'E-Pustakalya', 'Code Track', 'GUI Development',
         'Deep Learning', 'Flask Projects', 'TensorFlow', 'Tkinter Applications'
     ],
-    authors: [{ name: "Parampreet Singh", url: "https://param302.vercel.app" }],
+    authors: [{ name: "Parampreet Singh", url: "https://parampreetsingh.me" }],
 };
 
 export default function RootLayout({ children }) {
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
                 className={`${headingFont.className} ${descriptionFont.className} antialiased flex flex-col items-center py-12 md:py-16 lg:py-24`}
             >
                 {children}
+                <Analytics/>
             </body>
         </html>
     );

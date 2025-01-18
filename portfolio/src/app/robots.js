@@ -6,6 +6,6 @@ export default function robots() {
                 allow: "/",
             }
         ],
-        sitemap: "https://param302.vercel.app/sitemap.xml"
+        sitemap: "https://parampreetsingh.me/sitemap.xml"
     }
 }
