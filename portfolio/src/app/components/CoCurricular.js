@@ -1,6 +1,6 @@
 export default function CoCurricular() {
     return (
-        <section id="cocurricular" className="flex flex-col space-y-2">
+        <section id="co-curricular" className="flex flex-col space-y-2">
             <h2 className="text-2xl md:text-3xl font-medium font-heading">Co-Curricular</h2>
             <ul className="list-disc list-inside flex flex-col space-y-2 font-medium text-base md:text-lg">
                 <li>Presented a <span className="font-semibold">Talk</span> on <a href="https://www.youtube.com/watch?v=08owIqXQebs" target="_blank" rel="noopener noreferrer" className="underline">Python 1 Liners</a>.</li>
