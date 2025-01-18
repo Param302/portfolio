@@ -1,9 +1,9 @@
-import { Roboto, Fira_Code } from "next/font/google";
+import { Roboto_Slab, Fira_Code } from "next/font/google";
 import "@/app/styles/globals.css";
 
-const headingFont = Roboto({
+const headingFont = Roboto_Slab({
     display: "swap",
-    variable: "--font-roboto",
+    variable: "--font-roboto-slab",
     subsets: ["latin"],
     weight: ["300", "400", "500", "700"],
     adjustFontFallback: false,

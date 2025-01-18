@@ -12,7 +12,7 @@ module.exports = {
                 accentBlue: '0082d8'
             },
             fontFamily: {
-                heading: ['Roboto'], // Heading font
+                heading: ['Roboto Slab'], // Heading font
                 desc: ['Tomorrow', 'Fira Code'], // Descriptive/secondary font
             },
         },
