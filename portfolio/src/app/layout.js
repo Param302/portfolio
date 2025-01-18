@@ -36,6 +36,7 @@ export default function RootLayout({ children }) {
         <html lang="en">
             <head>
             <meta name="google-site-verification" content="WO5xWIFDFFe6h7lIEMnhEEMK7rDztpeIoiTKkHe7OLs" />
+            <meta name="msvalidate.01" content="D3DA4D66F5C210EDBD5F78589E4A7DD1" />
             </head>
             <body
                 className={`${headingFont.className} ${descriptionFont.className} antialiased flex flex-col items-center py-12 md:py-16 lg:py-24`}
