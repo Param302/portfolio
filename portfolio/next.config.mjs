@@ -59,6 +59,11 @@ const nextConfig = {
                 destination: "https://www.youtube.com/playlist?list=PLClULgPbRPsD-t0AYG8hR5iLIt2ZaNTkv",
                 permanent: true
             },
+            {
+                source: "/(diplomacourselection|diplomacourse|diplomacourseselectionvideo|diplomacoursevideo)",
+                destination: "https://youtu.be/jVCW6NY4yOI?si=X69R7T8rSXLlRe2M",
+                permanent: true
+            },
             // projects
             {
                 source: "/(codetrack|code-track)",
