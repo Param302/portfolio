@@ -107,7 +107,7 @@ const nextConfig = {
                 permanent: true
             },
             {
-                source: "/(pythontalk|python1liner)",
+                source: "/(pythontalk|python1liner|python1linertalk)",
                 destination: "https://www.youtube.com/watch?v=08owIqXQebs",
                 permanent: true
             },
