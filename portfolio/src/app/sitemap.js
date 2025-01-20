@@ -62,7 +62,9 @@ export default function sitemap() {
         { url: "/maths2notes" },
         { url: "/pythontalk" },
         { url: "/python1liner" },
+        { url: "/python1liners" },
         { url: "/python1linertalk" },
+        { url: "/python1linerstalk" },
         { url: "/mlguide" },
         { url: "/resume" }
     ];
