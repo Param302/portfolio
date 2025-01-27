@@ -22,7 +22,7 @@ const descriptionFont = Fira_Code({
 
 export const metadata = {
     title: "Parampreet Singh Portfolio",
-    description: "A minimal portfolio of Parampreet Singh",
+    description: "A Developer, python student and an ML enthusiast.",
     keywords: [
         'Parampreet Singh', 'Param', 'Singh', 'Developer Portfolio', 'Machine Learning', 'Python Developer', 'Python sessions', 'Python playlist', 'Machine Learning sessions', 'Machine Learning playlist', 'AI', 'ML',
         'Next.js Projects', 'Artificial Intelligence', 'Data Science', 'IIT Madras',

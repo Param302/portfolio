@@ -2,7 +2,7 @@ export default function manifset() {
     return {
         name: "Parampreet Singh Portfolio",
         short_name: "Portfolio",
-        description: "A minimal portfolio of Parampreet Singh",
+        description: "A Developer, python student and an ML enthusiast.",
         start_url: "/",
         display: "minimal-ui",
         theme_color: "#0040b6",
