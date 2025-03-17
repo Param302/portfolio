@@ -112,7 +112,7 @@ const nextConfig = {
                 permanent: true
             },
             {
-                source: "/mlguide",
+                source: "/(mlguide|mlroadmap)",
                 destination: "https://twitter.com/Param3021/status/1540740439095246848?t=DTPxi4Nd07sAt5zcQtUsUg&s=19",
                 permanent: true
             },

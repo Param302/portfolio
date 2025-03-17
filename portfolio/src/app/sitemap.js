@@ -66,6 +66,7 @@ export default function sitemap() {
         { url: "/python1linertalk" },
         { url: "/python1linerstalk" },
         { url: "/mlguide" },
+        { url: "/mlroadmap" },
         { url: "/resume" }
     ];
 
