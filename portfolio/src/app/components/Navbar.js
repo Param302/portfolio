@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useTheme } from "@/app/ThemeContext";
 import {
   BriefcaseBusiness,
   CodeXml,
@@ -26,23 +27,6 @@ const spring = {
   stiffness: 380,
   damping: 32,
 };
-
-const storageKey = "theme-preference";
-
-function applyTheme(theme) {
-  const root = document.documentElement;
-  root.classList.toggle("dark", theme === "dark");
-  root.dataset.theme = theme;
-}
-
-function getPreferredTheme() {
-  const stored = window.localStorage.getItem(storageKey);
-  if (stored === "light" || stored === "dark") {
-    return stored;
-  }
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
 
 function ThemeToggle({ theme, mounted, onToggle }) {
   return (
@@ -130,45 +114,12 @@ function MobileNav({ activeSection, indicator, navRef, onNavigate }) {
 }
 
 export default function Navbar() {
-  const [theme, setTheme] = useState("light");
-  const [mounted, setMounted] = useState(false);
+  const { theme, mounted, toggleTheme } = useTheme();
   const [activeSection, setActiveSection] = useState("home");
   const [desktopIndicator, setDesktopIndicator] = useState(null);
   const [mobileIndicator, setMobileIndicator] = useState(null);
   const desktopNavRef = useRef(null);
   const mobileNavRef = useRef(null);
-
-  useEffect(() => {
-    const resolvedTheme = getPreferredTheme();
-    applyTheme(resolvedTheme);
-    setTheme(resolvedTheme);
-    setMounted(true);
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleMediaChange = (event) => {
-      if (window.localStorage.getItem(storageKey)) {
-        return;
-      }
-
-      const nextTheme = event.matches ? "dark" : "light";
-      applyTheme(nextTheme);
-      setTheme(nextTheme);
-    };
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleMediaChange);
-    } else {
-      mediaQuery.addListener(handleMediaChange);
-    }
-
-    return () => {
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener("change", handleMediaChange);
-      } else {
-        mediaQuery.removeListener(handleMediaChange);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     const sections = NAV_ITEMS.map((item) => document.getElementById(item.id)).filter(Boolean);
@@ -262,13 +213,6 @@ export default function Navbar() {
       window.removeEventListener("resize", updateIndicators);
     };
   }, [activeSection]);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    window.localStorage.setItem(storageKey, nextTheme);
-    applyTheme(nextTheme);
-    setTheme(nextTheme);
-  };
 
   return (
     <header className="fixed inset-x-0 top-0 z-[100]">

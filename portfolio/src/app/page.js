@@ -10,8 +10,8 @@ export default function Home() {
     <>
       <Navbar />
       <HeroSection />
+      <About />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-32 sm:px-6 sm:pb-20 lg:px-8">
-        <About />
         <Work />
         <Projects />
         <Contact />

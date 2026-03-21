@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import { Sparkle } from "lucide-react";
+import { useTheme } from "@/app/ThemeContext";
 
 const phrases = [
   "You're looking for :)",
@@ -27,10 +28,10 @@ const gridBackground = {
 };
 
 export default function HeroSection() {
+  const { theme } = useTheme();
   const sectionRef = useRef(null);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [interactiveGrid, setInteractiveGrid] = useState(false);
-  const [theme, setTheme] = useState("light");
   const cursorX = useMotionValue(-320);
   const cursorY = useMotionValue(-320);
   const smoothX = useSpring(cursorX, { stiffness: 180, damping: 26, mass: 0.2 });
@@ -43,26 +44,6 @@ export default function HeroSection() {
     }, 3000);
 
     return () => window.clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const syncTheme = () => {
-      const nextTheme =
-        root.dataset.theme === "dark" || root.classList.contains("dark") ? "dark" : "light";
-
-      setTheme((currentTheme) => (currentTheme === nextTheme ? currentTheme : nextTheme));
-    };
-
-    syncTheme();
-
-    const observer = new MutationObserver(syncTheme);
-    observer.observe(root, {
-      attributes: true,
-      attributeFilter: ["class", "data-theme"],
-    });
-
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -187,7 +168,7 @@ export default function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className={`absolute inset-0 -z-10 bg-gradient-to-b to-sky-surge/55 ${isDarkTheme ? 'from-ink-black/35 via-ink-black/30' : 'from-papaya-whip/35 via-papaya-whip/30'}`} />
+      <div className={`absolute inset-0 -z-10 bg-gradient-to-b to-sky-surge ${isDarkTheme ? 'from-ink-black/35 via-ink-black/30' : 'from-papaya-whip/35 via-papaya-whip/30'}`} />
 
       {!isDarkTheme ? (
         <motion.div
@@ -237,16 +218,16 @@ export default function HeroSection() {
             I help people build their dream AI applications, be it - <span className="font-bold">classical</span>, <span className="font-bold">Agentic</span> or <span className="font-bold">fine-tuned</span> workflows with End-to-End deployment.
           </p>
 
-          <div className="mt-6 sm:mt-14 flex flex-col items-center gap-6 sm:flex-row">
+          <div className="mt-6 sm:mt-14 flex flex-col items-center gap-6 sm:gap-12 sm:flex-row">
             <a
               href="#work"
-              className="inline-flex min-w-44 items-center justify-center rounded-full bg-sky-surge px-8 py-5 font-description text-lg font-bold text-ink-black transition hover:-translate-y-0.5 hover:shadow-cta-glow cursor-pointer"
+              className="inline-flex min-w-44 items-center justify-center rounded-2xl bg-sky-surge px-8 py-5 font-description text-lg font-bold text-ink-black transition hover:-translate-y-0.5 hover:shadow-cta-glow cursor-pointer"
             >
               View Work
             </a>
             <a
               href="#contact"
-              className="inline-flex min-w-44 items-center justify-center rounded-full border border-papaya-whip/70 bg-papaya-whip px-8 py-5 font-description text-lg font-bold text-prussian-blue transition hover:-translate-y-0.5 hover:border-papaya-whip hover:shadow-[0_18px_40px_rgba(255,237,212,0.25)] cursor-pointer"
+              className="inline-flex min-w-44 items-center justify-center rounded-2xl border border-papaya-whip/70 bg-papaya-whip px-8 py-5 font-description text-lg font-bold text-prussian-blue transition hover:-translate-y-0.5 hover:border-papaya-whip hover:shadow-[0_18px_40px_rgba(255,237,212,0.25)] cursor-pointer"
             >
               Reach Out
             </a>

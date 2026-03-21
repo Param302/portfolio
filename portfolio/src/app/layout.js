@@ -1,6 +1,7 @@
 import { Analytics } from "@vercel/analytics/react";
 import { Geist, Inter, Instrument_Serif } from "next/font/google";
 import "@/app/globals.css";
+import { ThemeProvider } from "@/app/ThemeContext";
 
 const headingFont = Geist({
   display: "swap",
@@ -74,7 +75,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${headingFont.variable} ${descriptionFont.variable} ${accentFont.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>
