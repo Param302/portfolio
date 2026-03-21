@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   BriefcaseBusiness,
@@ -48,7 +49,7 @@ function ThemeToggle({ theme, mounted, onToggle }) {
     <button
       type="button"
       onClick={onToggle}
-      className="glass-card hidden h-12 w-12 items-center justify-center rounded-full text-prussian-blue transition hover:border-sky-surge hover:text-sky-surge dark:text-bright-snow sm:inline-flex"
+      className="glass-card inline-flex h-12 w-12 items-center justify-center rounded-full text-prussian-blue transition hover:border-sky-surge hover:text-sky-surge dark:text-bright-snow"
       aria-label={mounted ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : "Toggle theme"}
     >
       {mounted && theme === "dark" ? <SunMedium className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
@@ -76,11 +77,10 @@ function DesktopNav({ activeSection, indicator, navRef, onNavigate }) {
             data-nav-id={item.id}
             href={`#${item.id}`}
             onClick={() => onNavigate(item.id)}
-            className={`relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full px-4 font-heading text-sm font-medium transition ${
-              activeSection === item.id
-                ? "text-prussian-blue dark:text-bright-snow"
-                : "text-prussian-blue/70 hover:text-sky-surge dark:text-bright-snow/75 dark:hover:text-papaya-whip"
-            }`}
+            className={`relative inline-flex h-12 items-center justify-center overflow-hidden rounded-full px-4 font-heading text-sm font-medium transition ${activeSection === item.id
+              ? "text-prussian-blue dark:text-bright-snow"
+              : "text-prussian-blue/70 hover:text-sky-surge dark:text-bright-snow/75 dark:hover:text-papaya-whip"
+              }`}
             aria-label={item.label}
           >
             <span className="relative z-10 inline-flex items-center gap-2">
@@ -115,11 +115,10 @@ function MobileNav({ activeSection, indicator, navRef, onNavigate }) {
             data-nav-id={item.id}
             href={`#${item.id}`}
             onClick={() => onNavigate(item.id)}
-            className={`relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full transition ${
-              activeSection === item.id
-                ? "text-prussian-blue dark:text-bright-snow"
-                : "text-prussian-blue/70 hover:text-sky-surge dark:text-bright-snow/75 dark:hover:text-papaya-whip"
-            }`}
+            className={`relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full transition ${activeSection === item.id
+              ? "text-prussian-blue dark:text-bright-snow"
+              : "text-prussian-blue/70 hover:text-sky-surge dark:text-bright-snow/75 dark:hover:text-papaya-whip"
+              }`}
             aria-label={item.label}
           >
             <Icon className="relative z-10 h-4 w-4" />
@@ -275,11 +274,26 @@ export default function Navbar() {
     <header className="fixed inset-x-0 top-0 z-[100]">
       <div className="relative mx-auto flex max-w-7xl items-start justify-between px-4 pt-4 sm:px-6 lg:px-8">
         <div className="flex min-h-12 items-center">
-          <p className="hidden h-12 items-center rounded-full border border-alice-blue/60 bg-bright-snow/65 px-5 font-heading text-sm font-medium text-prussian-blue shadow-soft dark:border-alice-blue/10 dark:bg-prussian-blue/45 dark:text-bright-snow sm:inline-flex">
-          {/* <p className="hidden font-heading text-xl font-heading font-medium text-prussian-blue dark:text-bright-snow bg-bright-snow/65 sm:inline-flex"> */}
+          <p className="hidden h-14 items-center gap-3 rounded-full border border-alice-blue/60 bg-bright-snow/65 px-4 font-heading text-base font-semibold text-prussian-blue shadow-soft dark:border-alice-blue/10 dark:bg-prussian-blue/45 dark:text-bright-snow sm:inline-flex">
+            <Image
+              src="/parampreet.png"
+              alt="Parampreet Singh"
+              width={30}
+              height={30}
+              className="h-[30px] w-[30px] rounded-full object-cover"
+              priority
+            />
             Parampreet Singh
           </p>
-          <p className="font-heading text-lg font-bold text-prussian-blue dark:text-bright-snow sm:hidden">
+          <p className="inline-flex items-center gap-2 px-2 font-heading text-xl font-bold text-prussian-blue dark:text-bright-snow sm:hidden">
+            <Image
+              src="/parampreet.png"
+              alt="Parampreet Singh"
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-full object-cover"
+              priority
+            />
             Parampreet Singh
           </p>
         </div>
@@ -293,7 +307,7 @@ export default function Navbar() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-4">
           <ThemeToggle theme={theme} mounted={mounted} onToggle={toggleTheme} />
           <a
             href="mailto:hey@itsparam.dev"
