@@ -95,3 +95,8 @@ html.dark {
     scroll-margin-top: 7.5rem;
   }
 }
+
+.impact-carousel-mask {
+  mask-image: linear-gradient(to bottom, black 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 42%, transparent 100%);
+}

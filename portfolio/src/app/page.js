@@ -4,6 +4,7 @@ import GurmatDarbarSpotlight from "@/app/components/GurmatDarbarSpotlight";
 import HeroSection from "@/app/components/HeroSection";
 import Navbar from "@/app/components/Navbar";
 import Projects from "@/app/components/Projects";
+import TeachingImpact from "@/app/components/TeachingImpact";
 import Work from "@/app/components/Work";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
       <About />
       <GurmatDarbarSpotlight />
       <Work />
+      <TeachingImpact />
       <Projects />
       <Contact />
     </main>

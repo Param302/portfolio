@@ -188,7 +188,7 @@ export default function HeroSection() {
           </div> */}
 
           <h1 className="mt-6 sm:mt-14 text-5xl font-medium leading-tight tracking-tighter text-ink-black dark:text-bright-snow sm:text-5xl lg:text-7xl">
-            I&apos;m The
+            I&apos;m the
             <br className="inline sm:hidden" />
             <span
               className="px-6 font-accent italic font-semibold text-papaya-whip tracking-normal"
