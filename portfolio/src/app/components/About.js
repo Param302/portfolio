@@ -179,7 +179,7 @@ export default function About() {
       ref={sectionRef}
       onMouseMove={handlePointerMove}
       onMouseLeave={handlePointerLeave}
-      className="section-anchor relative flex flex-col items-center w-screen overflow-hidden bg-sky-surge px-20 py-16 sm:py-20"
+      className="section-anchor relative flex flex-col items-center w-screen overflow-hidden bg-sky-surge px-8 py-16 sm:px-20 sm:py-20"
     >
       <canvas
         ref={canvasRef}

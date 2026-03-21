@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowUpRight,
   Database,
@@ -5,6 +7,7 @@ import {
   Users,
 } from "lucide-react";
 import Image from "next/image";
+import { useTheme } from "@/app/ThemeContext";
 
 const stats = [
   {
@@ -13,12 +16,12 @@ const stats = [
     icon: Users,
   },
   {
-    title: "Largest Samagam Platform",
+    title: "Largest Sikhi Samagam Platform",
     detail: "Find Samagams Near Me feature.",
     icon: MapPinned,
   },
   {
-    title: "Largest Curated Sikhi Database",
+    title: "Biggest Curated Sikhi Database",
     detail: "Structured multilingual data extraction.",
     icon: Database,
   },
@@ -33,10 +36,13 @@ const techStack = [
 ];
 
 export default function GurmatDarbarSpotlight() {
+  const { theme } = useTheme();
+  const isDarkTheme = theme === "dark";
+
   return (
     <section className="w-screen">
       <div className="grid lg:grid-cols-[6fr_4fr]">
-        <div className="bg-papaya-whip px-6 py-8 text-prussian-blue sm:px-8 sm:py-10 lg:px-10 lg:py-12 dark:bg-[#352a21] dark:text-papaya-whip">
+        <div className="bg-papaya-whip px-8 py-8 text-prussian-blue sm:px-8 sm:py-10 lg:px-10 lg:py-12">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
               Gurmat Darbar
@@ -71,7 +77,7 @@ export default function GurmatDarbarSpotlight() {
                   key={stat.title}
                   className="rounded-[1.5rem] bg-bright-snow p-5 text-prussian-blue shadow-[0_12px_32px_rgba(11,15,25,0.08)] dark:bg-prussian-blue dark:text-papaya-whip"
                 >
-                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-surge/12 text-sky-surge dark:bg-papaya-whip/10 dark:text-papaya-whip">
+                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-surge/12 dark:bg-papaya-whip/10 dark:text-papaya-whip">
                     <Icon className="h-5 w-5" />
                   </div>
                   <p className="mt-4 font-heading text-lg font-semibold leading-snug">
@@ -101,13 +107,20 @@ export default function GurmatDarbarSpotlight() {
           </p>
         </div>
 
-        <div className="bg-bright-snow px-6 py-8 sm:px-8 sm:py-10 lg:px-8 lg:py-12 dark:bg-ink-black">
+        <div className="bg-bright-snow px-8 py-8 sm:px-8 sm:py-10 lg:px-8 lg:py-12 dark:bg-ink-black flex flex-col items-center justify-center gap-6">
+          <Image
+            src="/gurmatdarbar_logo.png"
+            alt="Gurmat Darbar logo"
+            width={200}
+            height={1000}
+            className={`px-4 py-2 object-cover bg-papaya-whip rounded-xl border-2  ${isDarkTheme ? 'border-papaya-whip' : 'border-prussian-blue'}`}
+          />
           <Image
             src="/gurmatdarbar.png"
             alt="Gurmat Darbar platform preview"
             width={800}
             height={1000}
-            className="h-full w-full rounded-[1.5rem] border border-alice-blue/70 object-cover dark:border-alice-blue/10"
+            className={`w-full object-cover rounded-xl border-2 ${isDarkTheme ? 'border-papaya-whip' : 'border-prussian-blue'}`}
           />
         </div>
       </div>
