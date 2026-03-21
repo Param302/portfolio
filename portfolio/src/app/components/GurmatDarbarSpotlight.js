@@ -41,7 +41,7 @@ export default function GurmatDarbarSpotlight() {
 
   return (
     <section className="w-screen">
-      <div className="grid lg:grid-cols-[6fr_4fr]">
+      <div className={`grid lg:grid-cols-[6fr_4fr] border-b ${isDarkTheme ? 'border-papaya-whip' : 'border-prussian-blue'}`}>
         <div className="bg-papaya-whip px-8 py-8 text-prussian-blue sm:px-8 sm:py-10 lg:px-10 lg:py-12">
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">

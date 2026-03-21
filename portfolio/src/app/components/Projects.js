@@ -1,89 +1,212 @@
-export default function Projects() {
-  const projects = [
-    {
-      name: "Code Track",
-      href: "https://code-track.vercel.app/",
-      repo: "https://github.com/Param302/CodeTrack/",
-      stack: ["Next.js", "Tailwind", "GraphQL"],
-      description:
-        "A focused contribution dashboard that turns GitHub activity into a clean, embeddable portfolio signal.",
-    },
-    {
-      name: "E-Pustakalya",
-      href: "https://github.com/Param302/Library-Management-System/",
-      repo: "https://github.com/Param302/Library-Management-System/",
-      stack: ["Flask", "REST API", "JavaScript"],
-      description:
-        "An end-to-end library system with API-first backend design and a lightweight user interface.",
-    },
-    {
-      name: "Heart Disease Predictor",
-      href: "https://github.com/Param302/Heart-Disease-predictor/",
-      repo: "https://github.com/Param302/Heart-Disease-predictor/",
-      stack: ["ANN", "TensorFlow", "Tkinter"],
-      description:
-        "A desktop prediction workflow that packages machine learning into an accessible application experience.",
-    },
-  ];
+import { ArrowUpRight, Zap } from "lucide-react";
+import Image from "next/image";
+
+const projects = [
+  {
+    name: "Pocket-Coder",
+    theme: "surface",
+    description:
+      "A lightning-fast, 1.2B parameter local AI coding assistant designed to run flawlessly on CPUs and GPUs. Fine-tuned on a custom code-instruction dataset, it acts as a fully offline, zero-latency copilot inside Jupyter Notebooks and VS Code, completely bypassing cloud APIs.",
+    pointers: [
+      "Jupyter %%code Magic Command",
+      "VS Code MCP Server Integration",
+    ],
+    skills: ["LFM 2.5", "Ollama", "Python", "MCP", "GGUF"],
+    image: "/projects/pocket-coder.png",
+    repo: "https://github.com/param302/pocket-coder",
+  },
+  {
+    name: "GRWM - Get README With Me",
+    theme: "brand",
+    description:
+      "A production-grade, multi-agent GenAI platform that autonomously generates highly personalized GitHub READMEs. Orchestrated using LangGraph, it features three specialized AI agents working in tandem. The system utilizes real-time Server-Sent Events (SSE) for fluid streaming and is deployed securely on GCP Cloud Run.",
+    pointers: [
+      "LangGraph Agent Orchestration",
+      "100+ Unique Users in 16 Hours",
+    ],
+    skills: ["LangGraph", "FastAPI", "Next.js", "GCP"],
+    image: "/projects/grwm.png",
+    repo: "https://github.com/param302/grwm",
+    live: "https://getreadmewithme.vercel.app/",
+  },
+  {
+    name: "Hand Gesture LNN",
+    theme: "surface",
+    description:
+      "An exploratory deep learning research project implementing Liquid Neural Networks (LNNs) to handle 32-dimensional continuous-time motion data. By building custom Liquid Time-Constant (LTC) cells from scratch, the architecture improved temporal adaptability and significantly outperformed standard LSTMs.",
+    pointers: [
+      "Custom Liquid Time-Constant Cells",
+      "+9.6% Accuracy vs standard LSTM",
+    ],
+    skills: ["PyTorch", "Time-Series Data", "RNNs", "LNNs"],
+    image: "/projects/hand-gesture.png",
+    repo: "https://github.com/param302/hand-gesture-lnn",
+  },
+  {
+    name: "Quizzo-V2",
+    theme: "accent",
+    description:
+      "A highly scalable, full-stack quiz management platform engineered with a robust asynchronous backend. It utilizes Redis and Celery for distributed background task queues to handle concurrent user loads, automating complex workflows like API rate limiting and dynamic certificate generation.",
+    pointers: [
+      "Redis & Celery Task Queues",
+      "Automated Email & Certificates",
+    ],
+    skills: ["Flask", "Vue.js", "Redis", "Celery", "PostgreSQL"],
+    image: "/projects/quizzo-v2.png",
+    repo: "https://github.com/param302/quizzo-v2",
+  },
+];
+
+function projectTheme(theme) {
+  if (theme === "brand") {
+    return {
+      wrapper: "bg-sky-surge text-ink-black",
+      title: "text-ink-black",
+      body: "text-ink-black/80",
+      pointer: "bg-ink-black/8 text-ink-black",
+      chip: "border-ink-black/20 text-ink-black",
+      button: "bg-ink-black text-bright-snow hover:bg-prussian-blue",
+      imageShell: "bg-bright-snow/24 border-ink-black/12",
+      accent: "bg-ink-black/18 text-ink-black",
+    };
+  }
+
+  if (theme === "accent") {
+    return {
+      wrapper: "bg-papaya-whip text-prussian-blue",
+      title: "text-prussian-blue",
+      body: "text-prussian-blue/82",
+      pointer: "bg-prussian-blue/8 text-prussian-blue",
+      chip: "border-prussian-blue/18 text-prussian-blue",
+      button: "bg-prussian-blue text-bright-snow hover:bg-ink-black",
+      imageShell: "bg-bright-snow/35 border-prussian-blue/12",
+      accent: "bg-prussian-blue/10 text-prussian-blue",
+    };
+  }
+
+  return {
+    wrapper: "bg-bright-snow text-prussian-blue dark:bg-ink-black dark:text-bright-snow",
+    title: "text-prussian-blue dark:text-bright-snow",
+    body: "text-prussian-blue/78 dark:text-bright-snow/78",
+    pointer:
+      "bg-prussian-blue/6 text-prussian-blue dark:bg-bright-snow/10 dark:text-bright-snow",
+    chip:
+      "border-prussian-blue/16 text-prussian-blue dark:border-bright-snow/16 dark:text-bright-snow",
+    button:
+      "bg-prussian-blue text-bright-snow hover:bg-ink-black dark:bg-bright-snow dark:text-ink-black dark:hover:bg-papaya-whip",
+    imageShell:
+      "bg-prussian-blue/6 border-prussian-blue/12 dark:bg-bright-snow/6 dark:border-bright-snow/10",
+    accent: "bg-sky-surge/12 text-sky-surge",
+  };
+}
+
+function ProjectBlock({ project, isEven }) {
+  const theme = projectTheme(project.theme);
+  const imageOrderClass = isEven ? "order-1 lg:order-2" : "order-1 lg:order-1";
+  const contentOrderClass = isEven ? "order-2 lg:order-1" : "order-2 lg:order-2";
 
   return (
-    <section id="projects" className="section-anchor">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="font-heading text-sm uppercase tracking-[0.3em] text-sky-surge">Projects</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-prussian-blue dark:text-bright-snow sm:text-4xl">
-            Selected builds with strong product edges.
-          </h2>
+    <article className={`${theme.wrapper} grid min-h-full grid-cols-1 gap-7 p-8 sm:p-10 lg:grid-cols-2 lg:gap-12 lg:p-12`}>
+      <div className={imageOrderClass}>
+        <div className={`aspect-video overflow-hidden rounded-[1.5rem] border p-2 shadow-lg ${theme.imageShell}`}>
+          <Image
+            src={project.image}
+            alt={`${project.name} preview`}
+            width={1200}
+            height={675}
+            className="h-full w-full rounded-[1.1rem] object-cover"
+          />
         </div>
-        <p className="max-w-xl font-description text-sm leading-6 text-prussian-blue/70 dark:text-bright-snow/70 sm:text-base">
-          Interface quality, engineering clarity, and practical delivery all matter. These projects reflect that balance.
-        </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
-        {projects.map((project) => (
-          <article key={project.name} className="glass-card rounded-[2rem] p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="font-heading text-2xl font-semibold text-prussian-blue dark:text-bright-snow">
-                  {project.name}
-                </h3>
-                <a
-                  href={project.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex font-description text-sm text-sky-surge transition hover:text-prussian-blue dark:hover:text-papaya-whip"
-                >
-                  View project
-                </a>
-              </div>
-              <a
-                href={project.repo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full border border-alice-blue/70 bg-bright-snow/60 p-3 text-prussian-blue transition hover:border-sky-surge hover:text-sky-surge dark:border-alice-blue/10 dark:bg-prussian-blue/70 dark:text-bright-snow"
-                aria-label={`Open ${project.name} repository`}
-              >
-                <img src="/github.svg" alt="" className="h-5 w-5" />
-              </a>
-            </div>
+      <div className={`${contentOrderClass} flex flex-col`}>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <h3 className={`font-heading text-3xl font-bold tracking-tight sm:text-4xl ${theme.title}`}>
+            {project.name}
+          </h3>
+          {project.live && (
+            <a
+              href={project.live}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-fit items-center gap-2 rounded-full border border-prussian-blue/15 bg-bright-snow/75 px-4 py-2 font-description text-sm font-medium text-prussian-blue transition hover:-translate-y-0.5 hover:border-sky-surge hover:text-sky-surge"
+            >
+              getreadmewithme.vercel.app
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+          )}
+        </div>
 
-            <p className="mt-5 font-description text-sm leading-7 text-prussian-blue/75 dark:text-bright-snow/75">
-              {project.description}
-            </p>
+        <p className={`mt-6 font-description text-base leading-8 sm:text-lg ${theme.body}`}>
+          {project.description}
+        </p>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {project.stack.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-sky-surge/15 bg-sky-surge/10 px-3 py-1 font-description text-xs uppercase tracking-[0.2em] text-prussian-blue dark:text-bright-snow"
-                >
-                  {item}
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          {project.pointers.map((pointer) => (
+            <article
+              key={pointer}
+              className={`rounded-2xl px-4 py-4 shadow-sm ring-1 ring-current/10 ${theme.pointer}`}
+            >
+              <div className="flex items-start gap-2.5">
+                <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${theme.accent}`}>
+                  <Zap className="h-4 w-4" />
                 </span>
-              ))}
+                <p className="font-description text-sm font-medium leading-6">{pointer}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-2.5">
+          {project.skills.map((skill) => (
+            <span
+              key={skill}
+              className={`rounded-full border px-3 py-1.5 font-description text-xs uppercase tracking-[0.18em] ${theme.chip}`}
+            >
+              {skill}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-8">
+          <a
+            href={project.repo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center gap-2 rounded-full px-5 py-3 font-heading text-sm font-semibold ${theme.button}`}
+          >
+            <Image
+              src="/socials/github.png"
+              alt="GitHub"
+              width={16}
+              height={16}
+              className="h-4 w-4"
+            />
+            Github
+          </a>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default function Projects() {
+  return (
+    <section id="projects" className="section-anchor relative left-1/2 w-screen -translate-x-1/2">
+      <div className="mx-auto w-full max-w-[1600px]">
+        <div className="px-4 pb-8 sm:px-6 lg:px-8">
+          <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">
+            Projects
+          </h2>
+        </div>
+
+        <div className="space-y-0">
+          {projects.map((project, index) => (
+            <div key={project.name} className="w-full">
+              <ProjectBlock project={project} isEven={index % 2 === 1} />
             </div>
-          </article>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
