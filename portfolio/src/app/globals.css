@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-ink-black: #0b0f19;
+  --color-bright-snow: #f8fafc;
+  --color-sky-surge: #1bb6e0;
+  --color-papaya-whip: #ffedd4;
+  --color-prussian-blue: #1a2235;
+  --color-alice-blue: #e2e8f0;
+
+  --color-background: #f8fafc;
+  --color-foreground: #1a2235;
+  --color-primary: #1bb6e0;
+  --color-secondary: #ffedd4;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-accent: #ffedd4;
+
+  --grid-line-color: rgba(27, 182, 224, 0.05);
+  --glass-card-background: rgba(255, 255, 255, 0.6);
+  --glass-card-border: rgba(15, 23, 42, 0.05);
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-background: #0b0f19;
+  --color-foreground: #f8fafc;
+  --color-primary: #1bb6e0;
+  --color-secondary: #ffedd4;
+  --color-surface: #1a2235;
+  --color-border: rgba(226, 232, 240, 0.14);
+  --color-accent: #ffedd4;
+
+  --grid-line-color: rgba(26, 34, 53, 0.05);
+  --glass-card-background: rgba(26, 34, 53, 0.4);
+  --glass-card-border: rgba(226, 232, 240, 0.1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--color-background);
+    background-image:
+      linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px),
+      radial-gradient(circle at top, rgb(27 182 224 / 0.12), transparent 34%);
+    background-size: 40px 40px, 40px 40px, auto;
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-inter), sans-serif;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-geist), sans-serif;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  * {
+    border-color: var(--color-border);
+  }
+
+  *::selection {
+    background-color: var(--color-sky-surge);
+    color: var(--color-bright-snow);
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: var(--glass-card-background);
+    border: 1px solid var(--glass-card-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 20px 80px rgba(11, 15, 25, 0.08);
+  }
+
+  .section-anchor {
+    scroll-margin-top: 7.5rem;
+  }
+}

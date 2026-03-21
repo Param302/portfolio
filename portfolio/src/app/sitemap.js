@@ -1,5 +1,5 @@
 export default function sitemap() {
-    const baseUrl = "https://parampreetsingh.me";
+    const baseUrl = "https://itsparam.dev";
     
     const staticPages = [
         { url: "/", lastModified: new Date(), changefreq: "weekly", priority: 1.0 },
