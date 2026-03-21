@@ -64,8 +64,10 @@ export default function GurmatDarbarSpotlight() {
             </a>
           </div>
 
-          <p className="mt-7 max-w-3xl font-description text-base leading-8 text-prussian-blue/80 dark:text-papaya-whip/84 sm:text-lg">
-            Building the biggest digital ecosystem for the Sikh community. I engineered a Full-Stack platform to solve event discovery and data fragmentation using modern AI pipelines.
+          <p className="mt-7 max-w-3xl font-description text-base leading-8 text-prussian-blue dark:text-background sm:text-lg">
+            Building the biggest digital ecosystem for the Sikh community.
+            <br/>
+            Lead & engineered a Full-Stack platform to solve event discovery and data fragmentation using modern AI pipelines.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -102,7 +104,7 @@ export default function GurmatDarbarSpotlight() {
             ))}
           </div>
 
-          <p className="mt-5 font-accent text-xl italic text-prussian-blue/85 dark:text-papaya-whip/85">
+          <p className="mt-5 font-accent text-xl italic text-prussian-blue dark:text-background">
             Architecture focused on multilingual data extraction and auto-poster generation
           </p>
         </div>
