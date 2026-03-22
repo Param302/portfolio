@@ -47,12 +47,6 @@ html.dark {
   body {
     min-height: 100vh;
     background-color: var(--color-background);
-    background-image:
-      linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px),
-      radial-gradient(circle at top, rgb(27 182 224 / 0.12), transparent 34%);
-    background-size: 40px 40px, 40px 40px, auto;
-    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-inter), sans-serif;
     text-rendering: optimizeLegibility;

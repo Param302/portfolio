@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 
@@ -222,10 +223,24 @@ export default function About() {
         </div>
 
         <div className="relative">
-          <p className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-            Parampreet Singh
-          </p>
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <p className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+              Parampreet Singh
+            </p>
+            <Link
+              href="/resume"
+              className="hidden sm:inline-flex items-center justify-center rounded-full bg-prussian-blue px-5 py-2.5 font-heading text-sm font-semibold text-bright-snow transition hover:-translate-y-0.5 hover:bg-ink-black"
+            >
+              Resume
+            </Link>
+          </div>
           <p className="mt-2 font-accent text-2xl italic text-papaya-whip sm:text-3xl leading-tighter">Based in India</p>
+          <Link
+            href="/resume"
+            className="mt-4 inline-flex sm:hidden items-center justify-center rounded-full bg-prussian-blue px-5 py-2.5 font-heading text-sm font-semibold text-bright-snow transition hover:-translate-y-0.5 hover:bg-ink-black"
+          >
+            Resume
+          </Link>
 
           <p className="mt-6 max-w-[66ch] font-description text-base font-medium leading-8 text-foreground">
             I am an AI/ML Engineer specialized in building production-grade AI systems. Currently, I&apos;m focused on finetuning Small Language Models (SLMs) and scaling Gurmat Darbar, a full-stack platform for the Sikh community.

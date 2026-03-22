@@ -1,7 +1,7 @@
 export const impactStats = [
-  { value: "100K+", label: "Learners" },
+  { value: "175K+", label: "Learners" },
   { value: "70+", label: "Live Sessions" },
-  { value: "300+", label: "Student Feedbacks" },
+  { value: "500+", label: "Student Feedbacks" },
 ];
 
 export const feedbacks = {
