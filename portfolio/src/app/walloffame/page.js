@@ -4,6 +4,25 @@ const allFeedbacks = [...feedbacks.row1, ...feedbacks.row2, ...feedbacks.row3];
 
 export const metadata = {
   title: "Wall of Fame | itsparam.dev",
+  description:
+    "Learner testimonials, teaching impact, and student feedback from Python and machine learning sessions by Parampreet Singh.",
+  alternates: {
+    canonical: "/walloffame",
+  },
+  openGraph: {
+    title: "Wall of Fame | Parampreet Singh",
+    description:
+      "Real student feedback and teaching impact from Python and machine learning sessions.",
+    url: "https://itsparam.dev/walloffame",
+    images: ["https://itsparam.dev/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wall of Fame | Parampreet Singh",
+    description:
+      "Student feedback and learning outcomes from Python and machine learning sessions.",
+    images: ["https://itsparam.dev/og-image.png"],
+  },
 };
 
 export default function WallOfFamePage() {

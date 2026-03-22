@@ -45,7 +45,7 @@ const nextConfig = {
             },
             {
                 source: "/(email|mail|contact|contactme|mailme)",
-                destination: "mailto:connectwithparam.30@gmail.com",
+                destination: "mailto:hey@itsparam.dev",
                 permanent: true
             },
             // playlist
@@ -116,11 +116,6 @@ const nextConfig = {
                 destination: "https://twitter.com/Param3021/status/1540740439095246848?t=DTPxi4Nd07sAt5zcQtUsUg&s=19",
                 permanent: true
             },
-            {
-                source: "/resume",
-                destination: "https://drive.google.com/file/d/1Gtjs8xT8WaPJ9FO1poC-u3Hnw9rHHRKY/view",
-                permanent: true
-            }
         ]
     }
 };

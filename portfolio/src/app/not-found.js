@@ -4,6 +4,15 @@ import Link from "next/link";
 import ForwardPassNetwork from "@/app/components/ForwardPassNetwork";
 import SelfAttentionPlayground from "@/app/components/SelfAttentionPlayground";
 
+export const metadata = {
+  title: "404 | Page Not Found",
+  description: "The requested page was not found on itsparam.dev.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
 export default function NotFound() {
   return (
     <main className="min-h-screen bg-background">
@@ -59,4 +68,4 @@ export default function NotFound() {
     </main>
   );
 }
-  
+

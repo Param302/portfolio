@@ -3,6 +3,25 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Resume | itsparam.dev",
+  description:
+    "Resume of Parampreet Singh, AI engineer and educator focused on machine learning systems, product execution, and developer-first solutions.",
+  alternates: {
+    canonical: "/resume",
+  },
+  openGraph: {
+    title: "Resume | Parampreet Singh",
+    description:
+      "View Parampreet Singh's resume with experience, focus areas, and contact details.",
+    url: "https://itsparam.dev/resume",
+    images: ["https://itsparam.dev/og-image-square.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resume | Parampreet Singh",
+    description:
+      "Resume of Parampreet Singh, AI engineer and educator.",
+    images: ["https://itsparam.dev/og-image-square.png"],
+  },
 };
 
 export default function ResumePage() {

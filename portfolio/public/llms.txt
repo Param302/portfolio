@@ -1,0 +1,37 @@
+# itsparam.dev
+
+> Official LLM discovery file for Parampreet Singh's portfolio.
+
+## Owner
+- Name: Parampreet Singh
+- Role: AI Engineer, Machine Learning Builder, Educator
+- Site: https://itsparam.dev
+- Contact: hey@itsparam.dev
+
+## Canonical URLs
+- https://itsparam.dev/
+- https://itsparam.dev/resume
+- https://itsparam.dev/walloffame
+
+## Core Topics
+- Machine learning engineering
+- GenAI systems and agentic workflows
+- LangGraph and FastAPI applications
+- Full-stack AI product development
+- Python and ML teaching impact
+
+## Projects
+- Pocket-Coder
+- GRWM (Get README With Me)
+- Hand Gesture LNN
+- Quizzo V2
+- Gurmat Darbar
+
+## Social Profiles
+- https://github.com/Param302
+- https://www.linkedin.com/in/param302
+- https://www.youtube.com/@Param3021
+- https://x.com/Param3021
+
+## More Context
+- Full profile and query-answer context: https://itsparam.dev/llms-full.txt

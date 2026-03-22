@@ -1,8 +1,10 @@
 export default function sitemap() {
     const baseUrl = "https://itsparam.dev";
-    
+
     const staticPages = [
         { url: "/", lastModified: new Date(), changefreq: "weekly", priority: 1.0 },
+        { url: "/resume", lastModified: new Date(), changefreq: "weekly", priority: 0.92 },
+        { url: "/walloffame", lastModified: new Date(), changefreq: "weekly", priority: 0.9 },
     ];
 
     const redirects = [
@@ -22,7 +24,7 @@ export default function sitemap() {
         { url: "/contact" },
         { url: "/contactme" },
         { url: "/mailme" },
-    
+
         // Playlist
         { url: "/mlplaylist" },
         { url: "/mlp" },
@@ -36,7 +38,7 @@ export default function sitemap() {
         { url: "/diplomacourse" },
         { url: "/diplomacourseselectionvideo" },
         { url: "/diplomacoursevideo" },
-    
+
         // Projects
         { url: "/codetrack" },
         { url: "/code-track" },
@@ -44,7 +46,7 @@ export default function sitemap() {
         { url: "/heartdiseasepredictor" },
         { url: "/heart-disease-predictor" },
         { url: "/socialrepo" },
-    
+
         // Notes
         { url: "/notes/ml" },
         { url: "/mlnotes" },
@@ -66,8 +68,7 @@ export default function sitemap() {
         { url: "/python1linertalk" },
         { url: "/python1linerstalk" },
         { url: "/mlguide" },
-        { url: "/mlroadmap" },
-        { url: "/resume" }
+        { url: "/mlroadmap" }
     ];
 
     return [
