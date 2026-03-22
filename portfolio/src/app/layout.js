@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 import { Geist, Inter, Instrument_Serif } from "next/font/google";
+import Script from "next/script";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/ThemeContext";
 import {
@@ -144,6 +145,18 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-DK123XJTT0"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DK123XJTT0');
+          `}
+        </Script>
         <meta name="theme-color" content="#0B0F19" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
