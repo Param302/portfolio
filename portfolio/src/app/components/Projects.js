@@ -1,5 +1,8 @@
+"use client";
+
 import { ArrowUpRight, Zap } from "lucide-react";
 import Image from "next/image";
+import { useTheme } from "@/app/ThemeContext";
 
 const projects = [
   {
@@ -11,7 +14,7 @@ const projects = [
       "Jupyter %%code Magic Command",
       "VS Code MCP Server Integration",
     ],
-    skills: ["LFM 2.5", "Ollama", "Python", "MCP", "GGUF"],
+    skills: ["Finetuning", "SFT", "PEFT LoRA", "LFM 2.5", "Ollama", "MCP"],
     image: "/projects/pocket-coder.png",
     repo: "https://github.com/param302/pocket-coder",
   },
@@ -24,7 +27,7 @@ const projects = [
       "LangGraph Agent Orchestration",
       "100+ Unique Users in 16 Hours",
     ],
-    skills: ["LangGraph", "FastAPI", "Next.js", "GCP"],
+    skills: ["LangGraph", "FastAPI", "Next.js", "GCP", "SSE"],
     image: "/projects/grwm.png",
     repo: "https://github.com/param302/grwm",
     live: "https://getreadmewithme.vercel.app/",
@@ -38,7 +41,7 @@ const projects = [
       "Custom Liquid Time-Constant Cells",
       "+9.6% Accuracy vs standard LSTM",
     ],
-    skills: ["PyTorch", "Time-Series Data", "RNNs", "LNNs"],
+    skills: ["RNNs", "LSTM", "Liquid Neural Networks (LNN)", "Time-Series Data"],
     image: "/projects/hand-gesture.png",
     repo: "https://github.com/param302/hand-gesture-lnn",
   },
@@ -63,10 +66,10 @@ function projectTheme(theme) {
       wrapper: "bg-sky-surge text-ink-black",
       title: "text-ink-black",
       body: "text-ink-black/80",
-      pointer: "bg-ink-black/8 text-ink-black",
+      pointer: "bg-bright-snow text-ink-black",
       chip: "border-ink-black/20 text-ink-black",
       button: "bg-ink-black text-bright-snow hover:bg-prussian-blue",
-      imageShell: "bg-bright-snow/24 border-ink-black/12",
+      // imageShell: "bg-bright-snow/24",
       accent: "bg-ink-black/18 text-ink-black",
     };
   }
@@ -76,10 +79,10 @@ function projectTheme(theme) {
       wrapper: "bg-papaya-whip text-prussian-blue",
       title: "text-prussian-blue",
       body: "text-prussian-blue/82",
-      pointer: "bg-prussian-blue/8 text-prussian-blue",
+      pointer: "bg-bright-snow text-prussian-blue",
       chip: "border-prussian-blue/18 text-prussian-blue",
       button: "bg-prussian-blue text-bright-snow hover:bg-ink-black",
-      imageShell: "bg-bright-snow/35 border-prussian-blue/12",
+      // imageShell: "bg-bright-snow/35 border-prussian-blue/12",
       accent: "bg-prussian-blue/10 text-prussian-blue",
     };
   }
@@ -89,7 +92,7 @@ function projectTheme(theme) {
     title: "text-prussian-blue dark:text-bright-snow",
     body: "text-prussian-blue/78 dark:text-bright-snow/78",
     pointer:
-      "bg-prussian-blue/6 text-prussian-blue dark:bg-bright-snow/10 dark:text-bright-snow",
+      "bg-papaya-whip text-ink-black",
     chip:
       "border-prussian-blue/16 text-prussian-blue dark:border-bright-snow/16 dark:text-bright-snow",
     button:
@@ -100,7 +103,7 @@ function projectTheme(theme) {
   };
 }
 
-function ProjectBlock({ project, isEven }) {
+function ProjectBlock({ project, isEven, isDarkTheme }) {
   const theme = projectTheme(project.theme);
   const imageOrderClass = isEven ? "order-1 lg:order-2" : "order-1 lg:order-1";
   const contentOrderClass = isEven ? "order-2 lg:order-1" : "order-2 lg:order-2";
@@ -108,7 +111,7 @@ function ProjectBlock({ project, isEven }) {
   return (
     <article className={`${theme.wrapper} grid min-h-full grid-cols-1 gap-7 p-8 sm:p-10 lg:grid-cols-2 lg:gap-12 lg:p-12`}>
       <div className={imageOrderClass}>
-        <div className={`aspect-video overflow-hidden rounded-[1.5rem] border p-2 shadow-lg ${theme.imageShell}`}>
+        <div className={`aspect-video overflow-hidden rounded-[1.5rem] border-2 shadow-lg ${isDarkTheme ? "border-bright-snow" : "border-ink-black"}`}>
           <Image
             src={project.image}
             alt={`${project.name} preview`}
@@ -145,13 +148,13 @@ function ProjectBlock({ project, isEven }) {
           {project.pointers.map((pointer) => (
             <article
               key={pointer}
-              className={`rounded-2xl px-4 py-4 shadow-sm ring-1 ring-current/10 ${theme.pointer}`}
+              className={`rounded-2xl px-4 py-2 shadow-md ${theme.pointer}`}
             >
-              <div className="flex items-start gap-2.5">
-                <span className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${theme.accent}`}>
+              <div className="flex items-center gap-2.5">
+                <span className={`inline-flex h-8 w-fit shrink-0 items-center justify-center rounded-xl bg-transparent text-ink-black ${theme.pointer}`}>
                   <Zap className="h-4 w-4" />
                 </span>
-                <p className="font-description text-sm font-medium leading-6">{pointer}</p>
+                <p className="font-accent italic font-medium leading-6">{pointer}</p>
               </div>
             </article>
           ))}
@@ -173,15 +176,17 @@ function ProjectBlock({ project, isEven }) {
             href={project.repo}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex items-center gap-2 rounded-full px-5 py-3 font-heading text-sm font-semibold ${theme.button}`}
+            className={`inline-flex items-center gap-3 rounded-full px-3 pr-6 py-3 font-heading text-base font-semibold ${theme.button}`}
           >
-            <Image
-              src="/socials/github.png"
-              alt="GitHub"
-              width={16}
-              height={16}
-              className="h-4 w-4"
-            />
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-bright-snow">
+              <Image
+                src="/socials/github.png"
+                alt="GitHub"
+                width={20}
+                height={20}
+                className="h-5 w-5"
+              />
+            </span>
             Github
           </a>
         </div>
@@ -191,10 +196,13 @@ function ProjectBlock({ project, isEven }) {
 }
 
 export default function Projects() {
+  const { theme } = useTheme();
+  const isDarkTheme = theme === "dark";
+
   return (
-    <section id="projects" className="section-anchor relative left-1/2 w-screen -translate-x-1/2">
+    <section id="projects" className="pt-12 bsection-anchor relative w-screen bg-bright-snow dark:bg-ink-black">
       <div className="mx-auto w-full max-w-[1600px]">
-        <div className="px-4 pb-8 sm:px-6 lg:px-8">
+        <div className="px-4 sm:py-8 sm:px-6 lg:px-8">
           <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">
             Projects
           </h2>
@@ -203,7 +211,7 @@ export default function Projects() {
         <div className="space-y-0">
           {projects.map((project, index) => (
             <div key={project.name} className="w-full">
-              <ProjectBlock project={project} isEven={index % 2 === 1} />
+              <ProjectBlock project={project} isEven={index % 2 === 1} isDarkTheme={isDarkTheme} />
             </div>
           ))}
         </div>

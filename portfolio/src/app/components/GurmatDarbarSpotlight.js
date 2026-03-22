@@ -105,7 +105,7 @@ export default function GurmatDarbarSpotlight() {
           </div>
 
           <p className="mt-5 font-accent text-xl italic text-prussian-blue dark:text-background">
-            Architecture focused on multilingual data extraction and auto-poster generation
+            Architecture focused on multilingual data extraction and auto-poster generation.
           </p>
         </div>
 

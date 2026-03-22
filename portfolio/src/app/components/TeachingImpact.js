@@ -158,7 +158,7 @@ export default function TeachingImpact() {
                     {index === 0 ? "Reach" : index === 1 ? "Live" : "Love"}
                   </span>
                 </div>
-                <p className={`mt-5 font-description text-sm leading-6 ${labelClasses[index]}`}>
+                <p className={`mt-5 font-accent italic ${labelClasses[index]}`}>
                   {index === 0
                     ? "Concept-first teaching that helps learners move from basics to confidence."
                     : index === 1
