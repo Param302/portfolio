@@ -1,5 +1,6 @@
 import About from "@/app/components/About";
 import Contact from "@/app/components/Contact";
+import Footer from "@/app/components/Footer";
 import GurmatDarbarSpotlight from "@/app/components/GurmatDarbarSpotlight";
 import HeroSection from "@/app/components/HeroSection";
 import Navbar from "@/app/components/Navbar";
@@ -46,6 +47,7 @@ export default function Home() {
       <TeachingImpact />
       <Projects />
       <Contact />
+      <Footer />
     </main>
   );
 }
