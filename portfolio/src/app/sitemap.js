@@ -24,6 +24,7 @@ export default function sitemap() {
         { url: "/contact" },
         { url: "/contactme" },
         { url: "/mailme" },
+        { url: "/resumelink" },
 
         // Playlist
         { url: "/mlplaylist" },

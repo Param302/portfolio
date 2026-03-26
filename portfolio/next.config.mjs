@@ -48,6 +48,11 @@ const nextConfig = {
                 destination: "mailto:hey@itsparam.in",
                 permanent: true
             },
+            {
+                source: "/resumelink",
+                destination: "https://drive.google.com/file/d/1Gtjs8xT8WaPJ9FO1poC-u3Hnw9rHHRKY/view",
+                permanent: true
+            },
             // playlist
             {
                 source: "/(mlplaylist|mlp|mlpsessions|mlsessions|ml)",
