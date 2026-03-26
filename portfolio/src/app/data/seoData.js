@@ -3,6 +3,8 @@ export const siteConfig = {
     siteName: "itsparam.in",
     domain: "itsparam.in",
     url: "https://itsparam.in",
+    logo: "https://itsparam.in/icon-512.png",
+    image: "https://itsparam.in/og-image.png",
     email: "hey@itsparam.in",
     title: "Parampreet Singh | AI Engineer",
     shortBio:
@@ -10,6 +12,13 @@ export const siteConfig = {
     location: "India",
     locale: "en_US",
     creator: "@Param3021",
+    sameAs: [
+        "https://github.com/Param302",
+        "https://www.linkedin.com/in/param302",
+        "https://www.youtube.com/@Param3021",
+        "https://x.com/Param3021",
+        "https://www.kaggle.com/param302",
+    ],
 };
 
 export const keywordLibrary = {
@@ -108,6 +117,16 @@ export const keywordLibrary = {
         "AI ML engineer portfolio India",
         "SLM fine tuning engineer",
         "LLM engineer portfolio",
+        "Parampreet Singh resume",
+        "itsparam contact",
+        "Parampreet Singh projects",
+    ],
+    searchIntent: [
+        "hire AI engineer India",
+        "AI consultant portfolio",
+        "ML engineer for collaboration",
+        "GenAI product builder",
+        "portfolio with AI projects and resume",
     ],
 };
 
@@ -231,6 +250,8 @@ export const personSchema = {
     url: siteConfig.url,
     email: siteConfig.email,
     image: `${siteConfig.url}/parampreet_singh.png`,
+    nationality: "Indian",
+    knowsLanguage: ["English", "Hindi", "Punjabi"],
     jobTitle: ["AI Engineer", "Machine Learning Engineer", "Educator"],
     alumniOf: {
         "@type": "CollegeOrUniversity",
@@ -244,26 +265,42 @@ export const personSchema = {
             url: "https://gurmatdarbar.com",
         },
     ],
-    sameAs: [
-        "https://github.com/Param302",
-        "https://www.linkedin.com/in/param302",
-        "https://www.youtube.com/@Param3021",
-        "https://x.com/Param3021",
-        "https://www.kaggle.com/param302",
-    ],
+    sameAs: siteConfig.sameAs,
     mainEntityOfPage: siteConfig.url,
     knowsAbout: allKeywords,
     inLanguage: ["en", "hi", "pa"],
+};
+
+export const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteConfig.siteName,
+    url: siteConfig.url,
+    logo: siteConfig.logo,
+    email: siteConfig.email,
+    founder: {
+        "@type": "Person",
+        name: siteConfig.name,
+        url: siteConfig.url,
+    },
+    sameAs: siteConfig.sameAs,
 };
 
 export const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: `${siteConfig.name} Portfolio`,
+    alternateName: [siteConfig.siteName, "itsparam", "Param302 Portfolio"],
     url: siteConfig.url,
     description: siteConfig.shortBio,
+    keywords: allKeywords.join(", "),
     inLanguage: ["en", "hi", "pa"],
     publisher: {
+        "@type": "Organization",
+        name: siteConfig.siteName,
+        url: siteConfig.url,
+    },
+    about: {
         "@type": "Person",
         name: siteConfig.name,
         url: siteConfig.url,
@@ -320,4 +357,54 @@ export const projectItemListSchema = {
             name: "Parampreet Singh",
         },
     })),
+};
+
+export const homePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Parampreet Singh | AI Engineer Portfolio",
+    url: siteConfig.url,
+    description: siteConfig.shortBio,
+    isPartOf: {
+        "@type": "WebSite",
+        name: `${siteConfig.name} Portfolio`,
+        url: siteConfig.url,
+    },
+    primaryImageOfPage: siteConfig.image,
+    about: {
+        "@type": "Person",
+        name: siteConfig.name,
+        url: siteConfig.url,
+    },
+    mainEntity: {
+        "@type": "Person",
+        name: siteConfig.name,
+        url: siteConfig.url,
+    },
+    inLanguage: ["en", "hi", "pa"],
+};
+
+export const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+        {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${siteConfig.url}/`,
+        },
+        {
+            "@type": "ListItem",
+            position: 2,
+            name: "Resume",
+            item: `${siteConfig.url}/resume`,
+        },
+        {
+            "@type": "ListItem",
+            position: 3,
+            name: "Wall of Fame",
+            item: `${siteConfig.url}/walloffame`,
+        },
+    ],
 };

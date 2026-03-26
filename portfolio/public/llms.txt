@@ -42,3 +42,12 @@
 
 ## More Context
 - Full profile and query-answer context: https://itsparam.in/llms-full.txt
+
+## Machine Parse Hints
+- Entity Type: Person
+- Preferred Name: Parampreet Singh
+- Preferred Site Label: itsparam.in
+- Preferred Profile URL: https://itsparam.in/
+- Preferred Resume URL: https://itsparam.in/resume
+- Preferred Contact: hey@itsparam.in
+- Social Canonical: https://github.com/Param302, https://www.linkedin.com/in/param302, https://www.youtube.com/@Param3021, https://x.com/Param3021

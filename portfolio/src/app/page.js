@@ -7,7 +7,12 @@ import Navbar from "@/app/components/Navbar";
 import Projects from "@/app/components/Projects";
 import TeachingImpact from "@/app/components/TeachingImpact";
 import Work from "@/app/components/Work";
-import { projectItemListSchema, siteConfig } from "@/app/data/seoData";
+import {
+  breadcrumbSchema,
+  homePageSchema,
+  projectItemListSchema,
+  siteConfig,
+} from "@/app/data/seoData";
 
 export const metadata = {
   title: "Parampreet Singh | AI Engineer Portfolio",
@@ -38,6 +43,14 @@ export default function Home() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(projectItemListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homePageSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <Navbar />
       <HeroSection />

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/app/ThemeContext";
 import {
   allKeywords,
   faqSchema,
+  organizationSchema,
   personSchema,
   profilePageSchema,
   siteConfig,
@@ -168,6 +169,10 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
         <script
           type="application/ld+json"
