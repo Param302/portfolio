@@ -45,7 +45,7 @@ const nextConfig = {
             },
             {
                 source: "/(email|mail|contact|contactme|mailme)",
-                destination: "mailto:hey@itsparam.dev",
+                destination: "mailto:hey@itsparam.in",
                 permanent: true
             },
             // playlist

@@ -1,5 +1,5 @@
 export default function sitemap() {
-    const baseUrl = "https://itsparam.dev";
+    const baseUrl = "https://itsparam.in";
 
     const staticPages = [
         { url: "/", lastModified: new Date(), changefreq: "weekly", priority: 1.0 },

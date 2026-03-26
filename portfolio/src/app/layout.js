@@ -7,6 +7,7 @@ import {
   allKeywords,
   faqSchema,
   personSchema,
+  profilePageSchema,
   siteConfig,
   websiteSchema,
 } from "@/app/data/seoData";
@@ -51,14 +52,27 @@ export const metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.title,
-    template: "%s | itsparam.dev",
+    template: "%s | itsparam.in",
   },
   description: siteConfig.shortBio,
-  applicationName: "itsparam.dev",
+  applicationName: "itsparam.in",
   keywords: allKeywords,
   category: "technology",
   creator: siteConfig.name,
   publisher: siteConfig.name,
+  classification: "Portfolio",
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   referrer: "origin-when-cross-origin",
   formatDetection: {
     telephone: false,
@@ -103,18 +117,6 @@ export const metadata = {
     description: siteConfig.shortBio,
     images: [`${siteConfig.url}/og-image.png`],
   },
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -131,7 +133,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "itsparam.dev",
+    title: "itsparam.in",
   },
   verification: {
     google: "WO5xWIFDFFe6h7lIEMnhEEMK7rDztpeIoiTKkHe7OLs",
@@ -166,6 +168,10 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
         />
         <script
           type="application/ld+json"

@@ -1,24 +1,31 @@
-# itsparam.dev
+# itsparam.in
 
 > Official LLM discovery file for Parampreet Singh's portfolio.
 
 ## Owner
 - Name: Parampreet Singh
+- Aliases: Param, Param302, Param3021, @Param302, @Param3021, itsparam
 - Role: AI Engineer, Machine Learning Builder, Educator
-- Site: https://itsparam.dev
-- Contact: hey@itsparam.dev
+- Site: https://itsparam.in
+- Contact: hey@itsparam.in
 
 ## Canonical URLs
-- https://itsparam.dev/
-- https://itsparam.dev/resume
-- https://itsparam.dev/walloffame
+- https://itsparam.in/
+- https://itsparam.in/resume
+- https://itsparam.in/walloffame
 
 ## Core Topics
 - Machine learning engineering
 - GenAI systems and agentic workflows
+- Small Language Model (SLM) fine-tuning
 - LangGraph and FastAPI applications
 - Full-stack AI product development
 - Python and ML teaching impact
+
+## Discovery Hints
+- Relevant identity phrases: Parampreet Singh AI Engineer, Parampreet Singh portfolio, Param302 portfolio
+- Relevant handles: @Param302, @Param3021
+- Relevant intent phrases: SLM fine-tuning engineer, LLM engineer portfolio, AI ML engineer India
 
 ## Projects
 - Pocket-Coder
@@ -34,4 +41,4 @@
 - https://x.com/Param3021
 
 ## More Context
-- Full profile and query-answer context: https://itsparam.dev/llms-full.txt
+- Full profile and query-answer context: https://itsparam.in/llms-full.txt

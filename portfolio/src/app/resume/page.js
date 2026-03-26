@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Resume | itsparam.dev",
+  title: "Resume | itsparam.in",
   description:
     "Resume of Parampreet Singh, AI engineer and educator focused on machine learning systems, product execution, and developer-first solutions.",
   alternates: {
@@ -12,15 +12,15 @@ export const metadata = {
     title: "Resume | Parampreet Singh",
     description:
       "View Parampreet Singh's resume with experience, focus areas, and contact details.",
-    url: "https://itsparam.dev/resume",
-    images: ["https://itsparam.dev/og-image-square.png"],
+    url: "https://itsparam.in/resume",
+    images: ["https://itsparam.in/og-image-square.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Resume | Parampreet Singh",
     description:
       "Resume of Parampreet Singh, AI engineer and educator.",
-    images: ["https://itsparam.dev/og-image-square.png"],
+    images: ["https://itsparam.in/og-image-square.png"],
   },
 };
 
@@ -55,7 +55,7 @@ export default function ResumePage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
-                href="mailto:hey@itsparam.dev"
+                href="mailto:hey@itsparam.in"
                 className="inline-flex items-center justify-center rounded-full bg-sky-surge px-6 py-3 font-heading text-sm font-semibold text-ink-black transition hover:-translate-y-0.5"
               >
                 Contact Me

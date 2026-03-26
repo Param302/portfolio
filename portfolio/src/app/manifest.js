@@ -1,9 +1,9 @@
 export default function manifest() {
   return {
-    name: "Parampreet Singh | itsparam.dev",
-    short_name: "itsparam.dev",
+    name: "Parampreet Singh | itsparam.in",
+    short_name: "itsparam.in",
     description:
-      "AI engineer portfolio for Parampreet Singh, featuring product-minded machine learning work and developer-first systems.",
+      "AI/ML Engineer portfolio of Parampreet Singh focused on production-grade AI systems, SLM fine-tuning, and practical ML education impact.",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -54,14 +54,14 @@ export default function manifest() {
         sizes: "1200x630",
         type: "image/png",
         form_factor: "wide",
-        label: "itsparam.dev homepage preview",
+        label: "itsparam.in homepage preview",
       },
       {
         src: "/og-image-square.png",
         sizes: "1200x1200",
         type: "image/png",
         form_factor: "narrow",
-        label: "itsparam.dev profile preview",
+        label: "itsparam.in profile preview",
       },
     ],
     shortcuts: [

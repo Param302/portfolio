@@ -1,12 +1,12 @@
 export const siteConfig = {
     name: "Parampreet Singh",
-    siteName: "itsparam.dev",
-    domain: "itsparam.dev",
-    url: "https://itsparam.dev",
-    email: "hey@itsparam.dev",
+    siteName: "itsparam.in",
+    domain: "itsparam.in",
+    url: "https://itsparam.in",
+    email: "hey@itsparam.in",
     title: "Parampreet Singh | AI Engineer",
     shortBio:
-        "AI engineer, machine learning builder, and educator shipping product-minded AI systems with developer-first interfaces.",
+        "AI/ML Engineer specialized in building production-grade AI systems, currently focused on fine-tuning Small Language Models (SLMs) and scaling Gurmat Darbar, with 70+ live Python and ML sessions delivered to 100K+ learners.",
     location: "India",
     locale: "en_US",
     creator: "@Param3021",
@@ -15,11 +15,16 @@ export const siteConfig = {
 export const keywordLibrary = {
     brand: [
         "Parampreet Singh",
-        "Parampreet Singh",
+        "Parampreet",
         "Param Singh",
+        "Param3021",
+        "@Param302",
+        "@Param3021",
         "Param302",
         "itsparam",
-        "itsparam.dev",
+        "itsparam.in",
+        "Parampreet Singh AI engineer",
+        "Parampreet Singh portfolio",
         "AI engineer portfolio",
         "IIT Madras student",
     ],
@@ -93,6 +98,17 @@ export const keywordLibrary = {
         "python in punjabi",
         "ai engineer india",
     ],
+    discovery: [
+        "Parampreet Singh github",
+        "Parampreet Singh linkedin",
+        "Parampreet Singh youtube",
+        "Param302 portfolio",
+        "Param3021 portfolio",
+        "itsparam portfolio",
+        "AI ML engineer portfolio India",
+        "SLM fine tuning engineer",
+        "LLM engineer portfolio",
+    ],
 };
 
 export const allKeywords = Object.values(keywordLibrary)
@@ -108,9 +124,9 @@ export const questionLibrary = [
     },
     {
         lang: "en",
-        question: "What does itsparam.dev showcase?",
+        question: "What does itsparam.in showcase?",
         answer:
-            "itsparam.dev showcases Parampreet Singh's portfolio, projects, work experience, teaching impact, and ways to connect for collaboration.",
+            "itsparam.in showcases Parampreet Singh's portfolio, projects, work experience, teaching impact, and ways to connect for collaboration.",
     },
     {
         lang: "en",
@@ -121,7 +137,13 @@ export const questionLibrary = [
     {
         lang: "en",
         question: "How can I contact Parampreet Singh?",
-        answer: "You can contact Parampreet Singh at hey@itsparam.dev.",
+        answer: "You can contact Parampreet Singh at hey@itsparam.in.",
+    },
+    {
+        lang: "en",
+        question: "Is Param302 or @Param3021 the same person as Parampreet Singh?",
+        answer:
+            "Yes. Param302 and @Param3021 are handles used by Parampreet Singh across portfolio and social platforms.",
     },
     {
         lang: "en",
@@ -196,7 +218,16 @@ export const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Parampreet Singh",
-    alternateName: ["Param", "Param302", "@Param3021"],
+    alternateName: [
+        "Param",
+        "Parampreet",
+        "Param302",
+        "Param3021",
+        "@Param302",
+        "@Param3021",
+        "itsparam",
+    ],
+    description: siteConfig.shortBio,
     url: siteConfig.url,
     email: siteConfig.email,
     image: `${siteConfig.url}/parampreet_singh.png`,
@@ -204,7 +235,7 @@ export const personSchema = {
     alumniOf: {
         "@type": "CollegeOrUniversity",
         name: "Indian Institute of Technology Madras",
-        sameAs: "https://study.iitm.ac.in/",
+        sameAs: "https://study.iitm.ac.in/ds",
     },
     worksFor: [
         {
@@ -220,6 +251,7 @@ export const personSchema = {
         "https://x.com/Param3021",
         "https://www.kaggle.com/param302",
     ],
+    mainEntityOfPage: siteConfig.url,
     knowsAbout: allKeywords,
     inLanguage: ["en", "hi", "pa"],
 };
@@ -241,6 +273,22 @@ export const websiteSchema = {
         target: `${siteConfig.url}/?q={search_term_string}`,
         "query-input": "required name=search_term_string",
     },
+};
+
+export const profilePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    name: `${siteConfig.name} | AI/ML Engineer Portfolio`,
+    description: siteConfig.shortBio,
+    url: siteConfig.url,
+    mainEntity: {
+        "@type": "Person",
+        name: siteConfig.name,
+        alternateName: personSchema.alternateName,
+        url: siteConfig.url,
+        sameAs: personSchema.sameAs,
+    },
+    inLanguage: ["en", "hi", "pa"],
 };
 
 export const faqSchema = {

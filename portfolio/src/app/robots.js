@@ -7,7 +7,7 @@ export default function robots() {
                 crawlDelay: 1,
             }
         ],
-        host: "https://itsparam.dev",
-        sitemap: "https://itsparam.dev/sitemap.xml"
+        host: "https://itsparam.in",
+        sitemap: "https://itsparam.in/sitemap.xml"
     }
 }

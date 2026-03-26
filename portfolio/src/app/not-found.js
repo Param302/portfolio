@@ -6,7 +6,7 @@ import SelfAttentionPlayground from "@/app/components/SelfAttentionPlayground";
 
 export const metadata = {
   title: "404 | Page Not Found",
-  description: "The requested page was not found on itsparam.dev.",
+  description: "The requested page was not found on itsparam.in.",
   robots: {
     index: false,
     follow: false,

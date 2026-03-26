@@ -3,7 +3,7 @@ import { feedbacks } from "@/app/data/teachingImpactData";
 const allFeedbacks = [...feedbacks.row1, ...feedbacks.row2, ...feedbacks.row3];
 
 export const metadata = {
-  title: "Wall of Fame | itsparam.dev",
+  title: "Wall of Fame | itsparam.in",
   description:
     "Learner testimonials, teaching impact, and student feedback from Python and machine learning sessions by Parampreet Singh.",
   alternates: {
@@ -13,15 +13,15 @@ export const metadata = {
     title: "Wall of Fame | Parampreet Singh",
     description:
       "Real student feedback and teaching impact from Python and machine learning sessions.",
-    url: "https://itsparam.dev/walloffame",
-    images: ["https://itsparam.dev/og-image.png"],
+    url: "https://itsparam.in/walloffame",
+    images: ["https://itsparam.in/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Wall of Fame | Parampreet Singh",
     description:
       "Student feedback and learning outcomes from Python and machine learning sessions.",
-    images: ["https://itsparam.dev/og-image.png"],
+    images: ["https://itsparam.in/og-image.png"],
   },
 };
 

@@ -6,10 +6,10 @@ import { Sparkle } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 
 const phrases = [
-  "You're looking for :)",
-  "Who finetunes SLMs!",
+  // "You're looking for :)",
+  // "Who finetunes SLMs!",
   "Builds Agentic Workflows.",
-  "Builds Full-Stack Apps.",
+  // "Builds Full-Stack Apps.",
   "Who ships AI Apps Fast!",
 ];
 
@@ -41,7 +41,7 @@ export default function HeroSection() {
   useEffect(() => {
     const interval = window.setInterval(() => {
       setPhraseIndex((current) => (current + 1) % phrases.length);
-    }, 3000);
+    }, 5000);
 
     return () => window.clearInterval(interval);
   }, []);

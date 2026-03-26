@@ -11,14 +11,14 @@ import { projectItemListSchema, siteConfig } from "@/app/data/seoData";
 export const metadata = {
   title: "Parampreet Singh | AI Engineer Portfolio",
   description:
-    "Explore Parampreet Singh's machine learning, GenAI, and full-stack portfolio featuring production projects, teaching impact, and collaboration opportunities.",
+    "AI/ML Engineer specialized in building production-grade AI systems, focused on SLM fine-tuning and scaling Gurmat Darbar, with 70+ live Python and ML sessions delivered to 100K+ learners.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "Parampreet Singh | AI Engineer Portfolio",
     description:
-      "Machine learning, GenAI, and full-stack portfolio with real projects, research, and practical impact.",
+      "Production-grade AI systems, SLM fine-tuning work, Gurmat Darbar scaling journey, and practical ML impact by Parampreet Singh.",
     url: siteConfig.url,
     images: [`${siteConfig.url}/og-image.png`],
   },
@@ -26,7 +26,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Parampreet Singh | AI Engineer Portfolio",
     description:
-      "Machine learning, GenAI, and full-stack portfolio with real projects and practical impact.",
+      "AI/ML Engineer portfolio: SLM fine-tuning, full-stack AI systems, and teaching impact by Parampreet Singh (@Param3021).",
     images: [`${siteConfig.url}/og-image.png`],
   },
 };

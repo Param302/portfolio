@@ -21,10 +21,10 @@ export default function Contact() {
 
           <div className="flex flex-col gap-3 sm:items-start lg:items-end">
             <a
-              href="mailto:hey@itsparam.dev"
+              href="mailto:hey@itsparam.in"
               className="inline-flex items-center justify-center rounded-full bg-sky-surge px-5 py-3 font-heading text-sm font-semibold text-ink-black transition hover:shadow-cta-glow"
             >
-              hey@itsparam.dev
+              hey@itsparam.in
             </a>
             <p className="font-description text-sm text-prussian-blue/65 dark:text-bright-snow/65">
               Reply-friendly and open to relevant work.
