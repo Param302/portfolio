@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
-import { Sparkle } from "lucide-react";
+import { BriefcaseBusiness, MailPlus } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 
 const phrases = [
@@ -218,17 +218,19 @@ export default function HeroSection() {
             I help people build their dream AI applications, be it - <span className="font-bold">classical</span>, <span className="font-bold">Agentic</span> or <span className="font-bold">fine-tuned</span> workflows with End-to-End deployment.
           </p>
 
-          <div className="mt-6 sm:mt-14 flex flex-col items-center gap-6 sm:gap-12 sm:flex-row">
+          <div className="mt-6 flex flex-col items-center gap-5 sm:mt-14 sm:flex-row sm:gap-8">
             <a
               href="#work"
-              className="inline-flex min-w-44 items-center justify-center rounded-2xl bg-sky-surge px-8 py-5 font-description text-lg font-bold text-ink-black transition hover:-translate-y-0.5 hover:shadow-cta-glow cursor-pointer"
+              className="group inline-flex min-w-52 items-center justify-center gap-2 rounded-full border-4 border-ink-black/85 bg-sky-surge px-8 py-4 font-description text-lg font-bold text-ink-black shadow-md transition hover:-translate-y-1 hover:shadow-lg dark:border-papaya-whip/80"
             >
+              <BriefcaseBusiness className="h-5 w-5 transition group-hover:rotate-[-6deg]" />
               View Work
             </a>
             <a
               href="#contact"
-              className="inline-flex min-w-44 items-center justify-center rounded-2xl border border-papaya-whip/70 bg-papaya-whip px-8 py-5 font-description text-lg font-bold text-prussian-blue transition hover:-translate-y-0.5 hover:border-papaya-whip hover:shadow-[0_18px_40px_rgba(255,237,212,0.25)] cursor-pointer"
+              className="group inline-flex min-w-52 items-center justify-center gap-2 rounded-full border-4 border-prussian-blue/80 bg-papaya-whip px-8 py-4 font-description text-lg font-bold text-prussian-blue shadow-md transition hover:-translate-y-1 hover:shadow-lg dark:border-sky-surge/80 dark:bg-prussian-blue dark:text-papaya-whip"
             >
+              <MailPlus className="h-5 w-5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               Reach Out
             </a>
           </div>

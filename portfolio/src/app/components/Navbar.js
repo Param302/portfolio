@@ -251,14 +251,14 @@ export default function Navbar() {
           />
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          <ThemeToggle theme={theme} mounted={mounted} onToggle={toggleTheme} />
+        <div className="flex flex-col items-end gap-2 md:flex-row md:items-center md:gap-4">
           <a
             href="mailto:hey@itsparam.in"
             className="inline-flex h-12 items-center justify-center rounded-full bg-sky-surge px-4 font-heading text-xs font-semibold text-ink-black transition hover:shadow-cta-glow sm:px-5 sm:text-sm"
           >
             hey@itsparam.in
           </a>
+          <ThemeToggle theme={theme} mounted={mounted} onToggle={toggleTheme} />
         </div>
       </div>
 
