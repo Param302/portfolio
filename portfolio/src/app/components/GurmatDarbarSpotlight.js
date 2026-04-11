@@ -11,13 +11,13 @@ import { useTheme } from "@/app/ThemeContext";
 
 const stats = [
   {
-    title: "100+ Active Users",
-    detail: "Within the first week.",
+    title: "500+ Users in 1st Month",
+    detail: "Since launch.",
     icon: Users,
   },
   {
     title: "Largest Sikhi Samagam Platform",
-    detail: "Find Samagams Near Me feature.",
+    detail: "Covered 150+ Samagams with 200+ contributions.",
     icon: MapPinned,
   },
   {
@@ -66,7 +66,7 @@ export default function GurmatDarbarSpotlight() {
 
           <p className="mt-7 max-w-3xl font-description text-base leading-8 text-prussian-blue dark:text-background sm:text-lg">
             Building the biggest digital ecosystem for the Sikh community.
-            <br/>
+            <br />
             Lead & engineered a Full-Stack platform to solve event discovery and data fragmentation using modern AI pipelines.
           </p>
 

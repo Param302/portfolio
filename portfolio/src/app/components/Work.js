@@ -9,7 +9,7 @@ const experiences = [
     company: "Gurmat Darbar",
     dates: "Sept 2025 – Present",
     points: [
-      "Built a Full-Stack platform for the Sikh community featuring 'Find Samagams Near Me'.",
+      "Built a Full-Stack platform for the Sikh community featuring 'Find Samagams Near Me', covering 150+ Samagams with 200+ contributions.",
       "Engineered a GenAI pipeline for structured multilingual data extraction and auto-poster generation.",
     ],
   },

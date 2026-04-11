@@ -254,7 +254,7 @@ export default function ResumePage() {
                   gurmatdarbar.com
                 </a>
                 <ul className="mt-2 list-disc space-y-1 pl-5">
-                  <li>Gained over 200+ users in the first month of launch, eventually leading to 80+ samagams (events) globally.</li>
+                  <li>Gained over 500+ users in the first month of launch, covering 150+ samagams (events) globally with 200+ contributions.</li>
                   <li>Led and built the biggest full-stack platform for Sikh community events with Find Samagams Near Me feature.</li>
                   <li>Designed a GenAI pipeline to extract structured multilingual data (EN/HI/PA) and auto event poster generation.</li>
                   <li>Backend deployed on GCP Cloud Run using FastAPI, Redis caching, PostgreSQL, and GCP buckets.</li>
