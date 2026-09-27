@@ -22,8 +22,8 @@ export default function Work({ experiences }) {
                 transition={{ duration: 0.7, delay: reduceMotion ? 0 : index * 0.085, ease: [0.22, 1, 0.36, 1] }}
                 className="relative sm:pl-12"
               >
-                <span className="absolute left-2 top-10 z-10 hidden h-4 w-4 rounded-full border-2 border-sky-surge bg-bright-snow shadow-[0_0_0_5px_rgba(27,182,224,0.10)] dark:bg-ink-black sm:block" />
-                <article className="group rounded-[1.75rem] border border-prussian-blue/12 bg-white p-6 shadow-[0_12px_32px_rgba(11,15,25,0.04)] transition duration-300 hover:-translate-y-1 hover:border-sky-surge hover:shadow-[0_22px_55px_rgba(27,182,224,0.14)] dark:border-alice-blue/10 dark:bg-prussian-blue dark:hover:border-sky-surge sm:p-7">
+                <span className="absolute left-2 top-10 z-10 hidden h-4 w-4 rounded-full border-2 border-sky-surge bg-bright-snow dark:bg-ink-black sm:block" />
+                <article className="group rounded-[1.75rem] border border-prussian-blue/12 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-sky-surge dark:border-alice-blue/10 dark:bg-prussian-blue dark:hover:border-sky-surge sm:p-7">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <h3 className="font-heading text-2xl font-bold tracking-tight text-prussian-blue dark:text-bright-snow">{experience.role}</h3>

@@ -90,7 +90,7 @@ function ProjectBlock({ project, index, sticky, isDarkTheme }) {
   return (
     <article
       style={sticky ? { top, zIndex: 20 + index } : undefined}
-      className={`project-stack-card relative grid w-full grid-cols-1 items-center gap-7 overflow-hidden border-t border-black/10 p-7 shadow-[0_-18px_46px_rgba(11,15,25,0.14)] sm:p-10 lg:grid-cols-2 lg:gap-12 lg:rounded-t-[2rem] lg:p-12 xl:px-16 ${sticky ? "lg:sticky lg:min-h-[calc(100vh-11.5rem)]" : ""} ${theme.wrapper}`}
+      className={`project-stack-card relative grid w-full grid-cols-1 items-center gap-7 overflow-hidden border-t border-black/10 p-7 sm:p-10 lg:grid-cols-2 lg:gap-12 lg:rounded-t-[2rem] lg:p-12 xl:px-16 ${sticky ? "lg:sticky lg:min-h-[calc(100vh-11.5rem)]" : ""} ${theme.wrapper}`}
     >
       <div className={imageOrderClass}>
         <div className={`aspect-video overflow-hidden rounded-[1.5rem] border-2 shadow-lg ${isDarkTheme ? "border-bright-snow" : "border-ink-black"}`}>
@@ -138,11 +138,11 @@ export default function Projects() {
   const isDarkTheme = theme === "dark";
 
   return (
-    <section id="projects" className="section-anchor relative w-full bg-bright-snow dark:bg-ink-black">
-      <div className="relative z-40 bg-bright-snow/94 px-4 py-6 backdrop-blur dark:bg-ink-black/94 lg:sticky lg:top-[5.25rem]">
+    <section id="projects" className="section-anchor relative isolate w-full bg-bright-snow dark:bg-ink-black">
+      <div className="relative z-40 bg-bright-snow px-4 py-6 dark:bg-ink-black lg:sticky lg:top-[5.25rem]">
         <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">Projects</h2>
       </div>
-      <div className="w-full pb-16 lg:pb-28">
+      <div className="w-full">
         {projects.map((project, index) => (
           <ProjectBlock key={project.name} project={project} index={index} sticky={!reduceMotion} isDarkTheme={isDarkTheme} />
         ))}
