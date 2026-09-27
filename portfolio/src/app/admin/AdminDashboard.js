@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, ChevronDown, ExternalLink, FileText, Globe2, History, Inbox, Loader2, LogOut, PanelLeftClose, PanelLeftOpen, Plus, RotateCcw, Save, ScrollText, Send, Trash2, UserRound } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ExternalLink, FileText, Globe2, History, Inbox, Loader2, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, RotateCcw, Save, ScrollText, Send, Trash2, UserRound, X } from "lucide-react";
 
 import { generateResumeLatex } from "@/lib/latex";
 
@@ -25,6 +25,8 @@ export default function AdminDashboard({ session }) {
   const [logs, setLogs] = useState({ events: [], sessions: [], users: [] });
   const [activeTab, setActiveTab] = useState("resume");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [resumeView, setResumeView] = useState("edit");
   const [selectedMessageId, setSelectedMessageId] = useState(null);
   const [now, setNow] = useState(null);
   const [preview, setPreview] = useState({ status: "idle", url: "", bytes: null, pageCount: 0, log: "" });
@@ -78,19 +80,24 @@ export default function AdminDashboard({ session }) {
 
   const selectedMessage = useMemo(() => messages.find((message) => message.id === selectedMessageId) || messages[0] || null, [messages, selectedMessageId]);
   const toggleSidebar = () => setSidebarCollapsed((current) => { const next = !current; window.localStorage.setItem("portfolio-admin-sidebar", next ? "collapsed" : "expanded"); return next; });
+  const chooseTab = (tab) => { setActiveTab(tab); setMobileMenuOpen(false); };
 
   if (!document) return <main className="flex min-h-screen items-center justify-center bg-ink-black text-bright-snow"><Loader2 className="h-8 w-8 animate-spin" /></main>;
   return <main className="min-h-screen bg-[#eef3f7] text-prussian-blue">
     <div className={`grid min-h-screen transition-[grid-template-columns] duration-300 ${sidebarCollapsed ? "md:grid-cols-[82px_minmax(0,1fr)]" : "md:grid-cols-[250px_minmax(0,1fr)]"}`}>
-      <AdminSidebar activeTab={activeTab} onChange={setActiveTab} collapsed={sidebarCollapsed} onToggle={toggleSidebar} onLogout={logout} />
+      {mobileMenuOpen ? <button type="button" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 z-40 bg-ink-black/35 backdrop-blur-[2px] md:hidden" /> : null}
+      <AdminSidebar activeTab={activeTab} onChange={chooseTab} collapsed={sidebarCollapsed} onToggle={toggleSidebar} onLogout={logout} mobileOpen={mobileMenuOpen} onMobileClose={() => setMobileMenuOpen(false)} />
       <div className="min-w-0">
         <header className="sticky top-0 z-40 border-b border-prussian-blue/10 bg-white/92 px-4 py-3 backdrop-blur sm:px-6">
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+            <div className="flex min-w-0 items-center gap-3 text-xs">
+              <button type="button" onClick={() => setMobileMenuOpen(true)} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-prussian-blue/10 md:hidden" aria-label="Open navigation"><Menu className="h-5 w-5" /></button>
+              <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2">
               <span className="inline-flex items-center gap-2 font-heading font-semibold"><UserRound className="h-4 w-4 text-sky-surge" />{session.email}<span className="rounded-full bg-sky-surge/12 px-2 py-1 text-[10px] uppercase tracking-[0.12em]">Owner</span></span>
               <span className="opacity-60">{session.browser || "Unknown browser"} · {session.os || "Unknown OS"}</span>
               <span className="opacity-60">IP {session.ip_address || "Unavailable"}</span>
               <span className="font-mono opacity-60">{now ? now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "medium" }) : "—"}</span>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <Link href="/" target="_blank" className="inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 px-4 py-2 text-sm"><Globe2 className="h-4 w-4" />Main website<ExternalLink className="h-3.5 w-3.5" /></Link>
@@ -100,8 +107,15 @@ export default function AdminDashboard({ session }) {
         </header>
         {notice && <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-surge/25 bg-sky-surge/10 px-6 py-3 text-sm"><span>{notice}</span>{cacheNeedsRetry && <button type="button" disabled={saving} onClick={retryCache} className="rounded-full border border-prussian-blue/20 px-3 py-1.5 font-semibold">Retry cache refresh</button>}</div>}
 
-        {activeTab === "resume" ? <div className="grid items-start xl:grid-cols-2">
-          <div className="space-y-4 p-4 sm:p-6 xl:h-[calc(100vh-77px)] xl:overflow-y-auto">
+        {activeTab === "resume" ? <>
+          <div className="z-30 flex justify-center border-b border-prussian-blue/10 bg-[#eef3f7] p-3 xl:hidden">
+            <div className="grid w-full max-w-sm grid-cols-2 rounded-xl border border-prussian-blue/10 bg-white p-1">
+              <button type="button" onClick={() => setResumeView("edit")} className={`rounded-lg px-4 py-2 text-sm font-semibold ${resumeView === "edit" ? "bg-prussian-blue text-white" : "text-prussian-blue/60"}`}>Edit</button>
+              <button type="button" onClick={() => setResumeView("preview")} className={`rounded-lg px-4 py-2 text-sm font-semibold ${resumeView === "preview" ? "bg-prussian-blue text-white" : "text-prussian-blue/60"}`}>Preview</button>
+            </div>
+          </div>
+          <div className="grid items-start xl:grid-cols-2">
+          <div className={`${resumeView === "edit" ? "block" : "hidden"} space-y-4 p-4 sm:p-6 xl:block xl:h-[calc(100vh-77px)] xl:overflow-y-auto`}>
             <div><h1 className="font-heading text-3xl font-bold">Resume</h1></div>
         <EditorSection title="Profile & summary" collapsible defaultOpen><div className="grid gap-3 sm:grid-cols-2"><Field label="Name" value={document.profile.name} onChange={(value) => set(["profile", "name"], value)} /><Field label="Headline" value={document.profile.headline} onChange={(value) => set(["profile", "headline"], value)} /><Field label="Email" type="email" value={document.profile.email} onChange={(value) => set(["profile", "email"], value)} /><Field label="Phone" value={document.profile.phone} onChange={(value) => set(["profile", "phone"], value)} /><Field label="Website" value={document.profile.website} onChange={(value) => set(["profile", "website"], value)} /><Field label="Location" value={document.profile.location} onChange={(value) => set(["profile", "location"], value)} /></div><Area label="Social links · Label | URL" value={document.profile.socials.map((link) => `${link.label} | ${link.href}`).join("\n")} onChange={(value) => set(["profile", "socials"], value.split("\n").map((line) => { const [label, href] = line.split("|").map((part) => part.trim()); return { label: label || "Link", href: href || "" }; }).filter((link) => link.href))} /><Area label="Summary" value={document.summary} onChange={(value) => set(["summary"], value)} /></EditorSection>
         <EditorSection title="Experience" collapsible onAdd={() => add("experience", { id: crypto.randomUUID(), role: "New role", company: "Company", dates: "Dates", link: "", bullets: ["Achievement"] })}>{document.experience.map((item, index) => <Item key={item.id} title={`${item.role} · ${item.company}`} controls={<MoveButtons index={index} length={document.experience.length} onMove={(from, to) => move("experience", from, to)} onRemove={() => remove("experience", index)} />}><div className="grid gap-3 sm:grid-cols-2"><Field label="Role" value={item.role} onChange={(value) => set(["experience", index, "role"], value)} /><Field label="Company" value={item.company} onChange={(value) => set(["experience", index, "company"], value)} /><Field label="Dates" value={item.dates} onChange={(value) => set(["experience", index, "dates"], value)} /><Field label="Link" value={item.link} onChange={(value) => set(["experience", index, "link"], value)} /></div><Area label="Bullets · one per line" value={item.bullets.join("\n")} onChange={(value) => set(["experience", index, "bullets"], value.split("\n").filter(Boolean))} /></Item>)}</EditorSection>
@@ -111,8 +125,8 @@ export default function AdminDashboard({ session }) {
         <EditorSection title="Co-Curricular & Achievements" collapsible><Area label="Achievements · one per line" rows={8} value={document.achievements.join("\n")} onChange={(value) => set(["achievements"], value.split("\n").filter(Boolean))} /></EditorSection>
             <RevisionHistory history={history} onRestore={restore} />
           </div>
-          <PdfPreview preview={preview} />
-        </div> : null}
+          <PdfPreview preview={preview} className={resumeView === "preview" ? "block" : "hidden xl:block"} />
+        </div></> : null}
 
         {activeTab === "logs" ? <LogsWorkspace logs={logs} /> : null}
         {activeTab === "inbox" ? <InboxWorkspace messages={messages} selected={selectedMessage} onSelect={setSelectedMessageId} onUpdate={updateMessage} /> : null}
@@ -121,15 +135,16 @@ export default function AdminDashboard({ session }) {
   </main>;
 }
 
-function AdminSidebar({ activeTab, onChange, collapsed, onToggle, onLogout }) {
+function AdminSidebar({ activeTab, onChange, collapsed, onToggle, onLogout, mobileOpen, onMobileClose }) {
   const items = [
     { id: "resume", label: "Resume", icon: FileText },
     { id: "logs", label: "Logs", icon: ScrollText },
     { id: "inbox", label: "Inbox", icon: Inbox },
   ];
-  return <aside className="z-50 flex min-w-0 items-center gap-2 border-b border-bright-snow/10 bg-ink-black p-3 text-bright-snow md:sticky md:top-0 md:h-screen md:flex-col md:items-stretch md:border-b-0 md:border-r md:p-4">
+  return <aside className={`fixed inset-y-0 left-0 z-50 flex w-[min(82vw,290px)] min-w-0 -translate-x-full flex-col items-stretch gap-2 border-r border-bright-snow/10 bg-ink-black p-4 text-bright-snow shadow-2xl transition-transform md:sticky md:top-0 md:h-screen md:w-auto md:translate-x-0 md:shadow-none ${mobileOpen ? "translate-x-0" : ""}`}>
+    <div className="flex items-center justify-between md:hidden"><p className="font-heading text-lg font-bold">itsparam.in</p><button type="button" onClick={onMobileClose} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-bright-snow/10" aria-label="Close navigation"><X className="h-5 w-5" /></button></div>
     <div className="hidden items-center justify-between gap-2 md:flex"><div className={`min-w-0 ${collapsed ? "hidden" : "block"}`}><p className="font-heading text-lg font-bold">itsparam.in</p><p className="text-xs text-bright-snow/45">Private workspace</p></div><button type="button" onClick={onToggle} className="ml-auto inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-bright-snow/10 text-bright-snow/70 hover:border-sky-surge hover:text-sky-surge" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>{collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}</button></div>
-    <nav className="flex flex-1 gap-2 md:mt-8 md:flex-col">
+    <nav className="mt-8 flex flex-1 flex-col gap-2">
       {items.map((item) => <button key={item.id} type="button" onClick={() => onChange(item.id)} className={`inline-flex min-h-11 items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-sm transition md:justify-start ${activeTab === item.id ? "bg-sky-surge text-ink-black" : "text-bright-snow/65 hover:bg-bright-snow/8 hover:text-bright-snow"}`} title={item.label}><item.icon className="h-5 w-5 shrink-0" /><span className={collapsed ? "md:hidden" : ""}>{item.label}</span></button>)}
     </nav>
     <button type="button" onClick={onLogout} className="inline-flex min-h-11 items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-sm text-rose-300 transition hover:bg-rose-400/10 md:justify-start" title="Logout"><LogOut className="h-5 w-5 shrink-0" /><span className={collapsed ? "md:hidden" : ""}>Logout</span></button>
@@ -142,8 +157,8 @@ function RevisionHistory({ history, onRestore }) {
   </EditorSection>;
 }
 
-function PdfPreview({ preview }) {
-  return <aside className="border-t border-prussian-blue/10 p-4 sm:p-6 xl:sticky xl:top-[77px] xl:h-[calc(100vh-77px)] xl:border-l xl:border-t-0"><div className="h-[72vh] min-h-[620px] overflow-hidden rounded-[1.5rem] border border-prussian-blue/10 bg-white xl:h-full">{preview.url ? <iframe title="Compiled resume PDF" src={`${preview.url}#toolbar=0&navpanes=0&scrollbar=1`} className="h-full w-full bg-white" /> : <div className="flex h-full items-center justify-center bg-white"><Loader2 className="h-7 w-7 animate-spin text-sky-surge" /></div>}</div></aside>;
+function PdfPreview({ preview, className = "" }) {
+  return <aside className={`${className} border-t border-prussian-blue/10 p-4 sm:p-6 xl:sticky xl:top-[77px] xl:h-[calc(100vh-77px)] xl:border-l xl:border-t-0`}><div className="h-[calc(100svh-190px)] min-h-[520px] overflow-hidden rounded-[1.5rem] border border-prussian-blue/10 bg-white xl:h-full">{preview.url ? <iframe title="Compiled resume PDF" src={`${preview.url}#toolbar=0&navpanes=0&scrollbar=1`} className="h-full w-full bg-white" /> : <div className="flex h-full items-center justify-center bg-white"><Loader2 className="h-7 w-7 animate-spin text-sky-surge" /></div>}</div></aside>;
 }
 
 function LogsWorkspace({ logs }) {
