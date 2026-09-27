@@ -6,11 +6,13 @@ import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 
-const socialIcons = {
-  linkedin: "/socials/linkedin.png",
-  github: "/socials/github.png",
-  youtube: "/socials/youtube.png",
-};
+const skills = ["PyTorch", "LangGraph", "FastAPI", "Snowflake", "GCP", "Full-Stack Dev"];
+
+const socialLinks = [
+  { href: "https://www.linkedin.com/in/param302", icon: "/socials/linkedin.png", label: "LinkedIn" },
+  { href: "https://github.com/Param302", icon: "/socials/github.png", label: "GitHub" },
+  { href: "https://www.youtube.com/@Param3021", icon: "/socials/youtube.png", label: "YouTube" },
+];
 
 const palette = [
   { dot: "rgba(255, 237, 212, 0.8)", line: "rgba(255, 237, 212, 0.7)" },
@@ -34,13 +36,9 @@ function createDots(width, height) {
   });
 }
 
-export default function About({ content }) {
+export default function About() {
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
-  const { profile } = content;
-  const education = content.education[0];
-  const skills = content.skills.flatMap((group) => group.items).slice(0, 7);
-  const socialLinks = profile.socials.filter((link) => socialIcons[link.label.toLowerCase()]).map((link) => ({ ...link, icon: socialIcons[link.label.toLowerCase()] }));
   const sectionRef = useRef(null);
   const canvasRef = useRef(null);
   const dotsRef = useRef([]);
@@ -173,7 +171,7 @@ export default function About({ content }) {
 
       <div className="relative grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <div className="relative flex flex-col items-center mx-auto w-full max-w-md">
-          <h2 className={`my-10 inline-block font-accent text-5xl font-bold italic tracking-tight text-${isDarkTheme ? 'ink-black' : 'bright-snow'} sm:text-5xl lg:text-7xl`}>
+          <h2 className={`my-10 inline-block font-accent text-5xl font-bold italic tracking-tight sm:text-5xl lg:text-7xl ${isDarkTheme ? "text-ink-black" : "text-bright-snow"}`}>
             About
           </h2>
           <div className={`relative overflow-hidden rounded-[2rem] p-3 ${isDarkTheme ? 'bg-bright-snow' : 'bg-prussian-blue'}`}>
@@ -208,7 +206,7 @@ export default function About({ content }) {
         <div className="relative">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
             <p className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              {profile.name}
+              Parampreet Singh
             </p>
             <Link
               href="/resume"
@@ -217,7 +215,7 @@ export default function About({ content }) {
               Resume
             </Link>
           </div>
-          <p className="mt-2 font-accent text-2xl italic text-papaya-whip sm:text-3xl leading-tighter">{profile.headline} · {profile.location}</p>
+          <p className="mt-2 font-accent text-2xl italic text-papaya-whip sm:text-3xl leading-tighter">Based in India</p>
           <Link
             href="/resume"
             className="mt-4 inline-flex sm:hidden items-center justify-center rounded-full bg-prussian-blue px-5 py-2.5 font-heading text-sm font-semibold text-bright-snow transition hover:-translate-y-0.5 hover:bg-ink-black"
@@ -225,9 +223,10 @@ export default function About({ content }) {
             Resume
           </Link>
 
-          <p className="mt-6 max-w-[66ch] font-description text-base font-medium leading-8 text-foreground">
-            {content.summary}
-          </p>
+          <div className="mt-6 grid max-w-[70ch] gap-5 font-description text-base font-medium leading-8 text-foreground sm:grid-cols-2 sm:gap-8">
+            <p>I&apos;m an AI Engineer focused on building production-grade AI systems, fine-tuning small language models, and scaling Gurmat Darbar—a full-stack platform for the Sikh community. My work sits where deep learning, agentic workflows, and scalable backend architecture meet.</p>
+            <p>Beyond products, I build communities and learning spaces: organizing PyDelhi meetups, hosting Codex events and hackathons in New Delhi, and teaching Python and machine learning through 70+ live sessions. I care about turning complex ideas into useful tools, confidence, and momentum.</p>
+          </div>
 
           <div className={`mt-7 rounded-[1.75rem] p-5 sm:p-6 backdrop-blur-sm ${isDarkTheme ? 'bg-prussian-blue' : 'bg-papaya-whip'} `}>
             <div className="flex items-start gap-4">
@@ -236,10 +235,10 @@ export default function About({ content }) {
               </div>
               <div className="space-y-0.5">
                 <p className={`font-heading text-lg font-semibold ${isDarkTheme ? 'text-papaya-whip' : 'text-prussian-blue'}`}>
-                  {education.program}, {education.school} ({education.dates})
+                  BS in Data Science and Applications, IIT Madras (2022-Present)
                 </p>
                 <p className={`font-description text-sm leading-6 ${isDarkTheme ? 'text-papaya-whip/80' : 'text-prussian-blue/80'}`}>
-                  {education.details.join(" ")}
+                  LLMs, Mathematical Foundations for GenAI, and Software Engineering.
                 </p>
               </div>
             </div>

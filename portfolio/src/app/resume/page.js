@@ -3,7 +3,7 @@ import { Download, ExternalLink, Home, Mail } from "lucide-react";
 
 import { getPublishedResume } from "@/lib/resume-content";
 
-export const metadata = { title: "Parampreet Singh Resume", description: "Resume of Parampreet Singh, AI/ML Engineer building production AI systems.", alternates: { canonical: "/resume" } };
+export const metadata = { title: "Parampreet Singh Resume", description: "Resume of Parampreet Singh, an AI Engineer building production AI systems.", alternates: { canonical: "/resume" } };
 
 function Section({ title, children }) {
   return <section className="rounded-3xl border border-prussian-blue/10 bg-bright-snow/70 p-5 dark:border-alice-blue/10 dark:bg-prussian-blue/35 sm:p-7"><h2 className="font-heading text-xl font-semibold sm:text-2xl">{title}</h2><div className="mt-4 space-y-5 font-description text-sm leading-7 sm:text-base">{children}</div></section>;

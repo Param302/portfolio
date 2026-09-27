@@ -62,7 +62,7 @@ export const defaultResumeDocument = {
   version: 1,
   profile: {
     name: "Parampreet Singh",
-    headline: "AI / ML Engineer",
+    headline: "AI Engineer",
     email: "hey@itsparam.in",
     phone: "+91 836 884 6192",
     website: "https://itsparam.in",
@@ -73,7 +73,7 @@ export const defaultResumeDocument = {
       { label: "YouTube", href: "https://youtube.com/@Param3021" },
     ],
   },
-  summary: "AI / ML Engineer shipping production AI systems across voice, vision, agentic workflows, fine-tuned models, and scalable cloud backends.",
+  summary: "AI Engineer shipping production systems across voice, vision, agentic workflows, fine-tuned models, and scalable cloud backends.",
   experience: [
     {
       id: "gurmat-darbar",
@@ -215,4 +215,3 @@ export const defaultResumeDocument = {
 export function parseResumeDocument(value) {
   return resumeDocumentSchema.parse(value);
 }
-

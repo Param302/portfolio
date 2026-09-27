@@ -3,7 +3,7 @@ export default function manifest() {
     name: "Parampreet Singh | itsparam.in",
     short_name: "itsparam.in",
     description:
-      "AI/ML Engineer portfolio of Parampreet Singh focused on production-grade AI systems, SLM fine-tuning, and practical ML education impact.",
+      "AI Engineer portfolio of Parampreet Singh focused on production-grade AI systems, SLM fine-tuning, and practical ML education impact.",
     start_url: "/",
     scope: "/",
     display: "standalone",

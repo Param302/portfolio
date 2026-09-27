@@ -8,7 +8,7 @@ export const siteConfig = {
     email: "hey@itsparam.in",
     title: "Parampreet Singh | AI Engineer",
     shortBio:
-        "AI/ML Engineer specialized in building production-grade AI systems, currently focused on fine-tuning Small Language Models (SLMs) and scaling Gurmat Darbar, with 70+ live Python and ML sessions delivered to 100K+ learners.",
+        "AI Engineer building production-grade AI systems, fine-tuning Small Language Models, scaling Gurmat Darbar, and teaching Python and machine learning through 70+ live sessions.",
     location: "India",
     locale: "en_US",
     creator: "@Param3021",
@@ -315,7 +315,7 @@ export const websiteSchema = {
 export const profilePageSchema = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    name: `${siteConfig.name} | AI/ML Engineer Portfolio`,
+    name: `${siteConfig.name} | AI Engineer Portfolio`,
     description: siteConfig.shortBio,
     url: siteConfig.url,
     mainEntity: {
