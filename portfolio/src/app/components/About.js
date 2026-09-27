@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
+import DiffusionPortrait from "./DiffusionPortrait";
 
 const skills = ["PyTorch", "LangGraph", "FastAPI", "Snowflake", "GCP", "Full-Stack Dev"];
 
@@ -176,14 +177,7 @@ export default function About() {
           </h2>
           <div className={`relative overflow-hidden rounded-[2rem] p-3 ${isDarkTheme ? 'bg-bright-snow' : 'bg-prussian-blue'}`}>
             <div className={`overflow-hidden rounded-[1.5rem] ${isDarkTheme ? 'bg-prussian-blue' : 'bg-bright-snow'}`}>
-              <Image
-                src="/parampreet_singh.png"
-                alt="Portrait of Parampreet Singh"
-                width={720}
-                height={880}
-                className="h-full w-full object-cover"
-                priority={false}
-              />
+              <DiffusionPortrait backgroundColor={isDarkTheme ? "#1a2235" : "#f8fafc"} />
             </div>
           </div>
 
