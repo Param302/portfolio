@@ -132,3 +132,26 @@ html.dark {
     animation: none;
   }
 }
+
+@keyframes admin-feedback-scroll {
+  to { transform: translateY(-50%); }
+}
+
+.admin-feedback-rail {
+  animation: admin-feedback-scroll 48s linear infinite;
+}
+
+.admin-feedback-rail-reverse {
+  animation-direction: reverse;
+}
+
+.admin-feedback-rail-wrap:hover .admin-feedback-rail,
+.admin-feedback-rail-wrap:focus-within .admin-feedback-rail {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-feedback-rail {
+    animation: none;
+  }
+}

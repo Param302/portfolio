@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
+import { recordAdminAudit } from "@/lib/admin-audit";
 import { getSql } from "@/lib/db";
 import { generateResumeLatex } from "@/lib/latex";
 import { getRequestMeta } from "@/lib/request-meta";
@@ -41,19 +42,25 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  let admin = null;
+  let meta = null;
+  let requestedAction = "unknown";
   try {
-    const admin = await requireAdmin();
+    admin = await requireAdmin();
     const input = writeSchema.parse(await request.json());
+    requestedAction = input.action;
     const sql = getSql();
-    const meta = getRequestMeta(request);
+    meta = getRequestMeta(request);
     const audit = JSON.stringify({ ip: meta.ip, ipHash: meta.ipHash, userAgent: meta.userAgent, browser: meta.browser, os: meta.os });
     if (input.action === "refresh") {
       try {
         revalidateTag("resume-content");
         revalidatePath("/");
         revalidatePath("/resume");
+        await recordAdminAudit({ userId: admin.user_id, eventType: "cache_refresh", outcome: "success", meta });
         return NextResponse.json({ ok: true, cacheWarning: null, ...(await loadAdminContent()) });
       } catch (error) {
+        await recordAdminAudit({ userId: admin.user_id, eventType: "cache_refresh", outcome: "failed", meta, metadata: { error: String(error.message || "Cache refresh failed").slice(0, 240) } });
         console.error("Public cache refresh failed.", error);
         return NextResponse.json({ error: "Cache refresh failed. Your published data is unchanged." }, { status: 502 });
       }
@@ -121,8 +128,10 @@ export async function POST(request) {
     let cacheWarning = null;
     try { revalidateTag("resume-content"); revalidatePath("/"); revalidatePath("/resume"); }
     catch (error) { cacheWarning = "Saved successfully, but cache refresh should be retried."; console.error(error); }
+    await recordAdminAudit({ userId: admin.user_id, eventType: input.action === "save" ? "resume_draft_saved" : input.action === "publish" ? "resume_published" : "resume_restored", outcome: "success", meta, metadata: { cacheWarning: Boolean(cacheWarning) } });
     return NextResponse.json({ ok: true, cacheWarning, ...(await loadAdminContent()) });
   } catch (error) {
+    if (admin && meta) await recordAdminAudit({ userId: admin.user_id, eventType: requestedAction === "save" ? "resume_draft_saved" : requestedAction === "publish" ? "resume_published" : requestedAction === "restore" ? "resume_restored" : "resume_write", outcome: "failed", meta, metadata: { error: String(error.message || "Unable to save content").slice(0, 240) } });
     if (error instanceof z.ZodError) return NextResponse.json({ error: "Some resume fields are invalid or too long.", details: error.issues }, { status: 400 });
     console.error("Admin content write failed.", error);
     return NextResponse.json({ error: error.message || "Unable to save content." }, { status: error.status || 500 });

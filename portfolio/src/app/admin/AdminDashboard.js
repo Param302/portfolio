@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Check, History, Inbox, Loader2, LogOut, Plus, RotateCcw, Save, Send, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, ExternalLink, FileText, Globe2, History, Inbox, Loader2, LogOut, PanelLeftClose, PanelLeftOpen, Plus, RotateCcw, Save, ScrollText, Send, Trash2, UserRound } from "lucide-react";
 
 import { generateResumeLatex } from "@/lib/latex";
 
@@ -13,7 +14,7 @@ function Area({ label, value, onChange, rows = 4 }) { return <label className="b
 function MoveButtons({ index, length, onMove, onRemove }) { return <div className="flex gap-1"><button type="button" disabled={index === 0} onClick={() => onMove(index, index - 1)} className="rounded-lg border p-2 disabled:opacity-30" aria-label="Move up"><ArrowUp className="h-4 w-4" /></button><button type="button" disabled={index === length - 1} onClick={() => onMove(index, index + 1)} className="rounded-lg border p-2 disabled:opacity-30" aria-label="Move down"><ArrowDown className="h-4 w-4" /></button><button type="button" onClick={onRemove} className="rounded-lg border p-2 text-rose-600" aria-label="Remove"><Trash2 className="h-4 w-4" /></button></div>; }
 function toBase64(bytes) { let binary = ""; const chunk = 0x8000; for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk)); return btoa(binary); }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ session }) {
   const router = useRouter();
   const worker = useRef(null);
   const compileRequest = useRef(0);
@@ -21,21 +22,33 @@ export default function AdminDashboard() {
   const [revisionState, setRevisionState] = useState({ draftRevisionId: null, publishedRevisionId: null });
   const [history, setHistory] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [logs, setLogs] = useState({ events: [], sessions: [], users: [] });
+  const [activeTab, setActiveTab] = useState("resume");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const [now, setNow] = useState(null);
   const [preview, setPreview] = useState({ status: "idle", url: "", bytes: null, pageCount: 0, log: "" });
   const [notice, setNotice] = useState("");
   const [cacheNeedsRetry, setCacheNeedsRetry] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const refresh = useCallback(async () => {
-    const [contentResponse, inboxResponse] = await Promise.all([fetch("/api/admin/content"), fetch("/api/admin/inbox")]);
+    const [contentResponse, inboxResponse, logsResponse] = await Promise.all([fetch("/api/admin/content"), fetch("/api/admin/inbox"), fetch("/api/admin/logs")]);
     if (contentResponse.status === 401) return router.refresh();
-    const content = await contentResponse.json(); const inbox = await inboxResponse.json();
+    const content = await contentResponse.json(); const inbox = await inboxResponse.json(); const audit = await logsResponse.json();
     if (!contentResponse.ok) throw new Error(content.error);
     setDocument(content.document); setHistory(content.history || []); setMessages(inbox.messages || []);
+    if (logsResponse.ok) setLogs({ events: audit.events || [], sessions: audit.sessions || [], users: audit.users || [] });
     setRevisionState({ draftRevisionId: content.draftRevisionId ?? null, publishedRevisionId: content.publishedRevisionId ?? null });
   }, [router]);
 
   useEffect(() => { refresh().catch((error) => setNotice(error.message)); }, [refresh]);
+  useEffect(() => {
+    setSidebarCollapsed(window.localStorage.getItem("portfolio-admin-sidebar") === "collapsed");
+    setNow(new Date());
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   useEffect(() => {
     worker.current = new Worker("/workers/resume-compiler.worker.js");
     worker.current.onmessage = (event) => {
@@ -63,25 +76,96 @@ export default function AdminDashboard() {
   async function updateMessage(id, action) { const response = await fetch("/api/admin/inbox", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, action }) }); const result = await response.json(); if (!response.ok) setNotice(result.error); await refresh(); }
   async function logout() { await fetch("/api/admin/logout", { method: "POST" }); router.refresh(); }
 
+  const selectedMessage = useMemo(() => messages.find((message) => message.id === selectedMessageId) || messages[0] || null, [messages, selectedMessageId]);
+  const toggleSidebar = () => setSidebarCollapsed((current) => { const next = !current; window.localStorage.setItem("portfolio-admin-sidebar", next ? "collapsed" : "expanded"); return next; });
+
   if (!document) return <main className="flex min-h-screen items-center justify-center bg-ink-black text-bright-snow"><Loader2 className="h-8 w-8 animate-spin" /></main>;
   return <main className="min-h-screen bg-[#eef3f7] text-prussian-blue">
-    <header className="sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 border-b bg-white/90 px-4 py-3 backdrop-blur sm:px-6"><div><h1 className="font-heading text-xl font-bold">Portfolio admin</h1><p className="text-xs opacity-60">One content source · website and PDF</p></div><div className="flex flex-wrap gap-2"><button type="button" disabled={saving} onClick={() => save("save")} className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm"><Save className="h-4 w-4" />Save draft</button><button type="button" disabled={saving || preview.status !== "ready" || preview.pageCount !== 1} onClick={() => save("publish")} className="inline-flex items-center gap-2 rounded-full bg-sky-surge px-4 py-2 text-sm font-semibold text-ink-black disabled:opacity-40"><Send className="h-4 w-4" />Publish</button><button type="button" onClick={logout} className="rounded-full border p-2" aria-label="Sign out"><LogOut className="h-4 w-4" /></button></div></header>
-    {notice && <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-surge/25 bg-sky-surge/10 px-6 py-3 text-sm"><span>{notice}</span>{cacheNeedsRetry && <button type="button" disabled={saving} onClick={retryCache} className="rounded-full border border-prussian-blue/20 px-3 py-1.5 font-semibold">Retry cache refresh</button>}</div>}
-    <div className="grid items-start xl:grid-cols-[minmax(0,1fr)_minmax(460px,0.78fr)]">
-      <div className="space-y-6 p-4 sm:p-6">
+    <div className={`grid min-h-screen transition-[grid-template-columns] duration-300 ${sidebarCollapsed ? "md:grid-cols-[82px_minmax(0,1fr)]" : "md:grid-cols-[250px_minmax(0,1fr)]"}`}>
+      <AdminSidebar activeTab={activeTab} onChange={setActiveTab} collapsed={sidebarCollapsed} onToggle={toggleSidebar} onLogout={logout} />
+      <div className="min-w-0">
+        <header className="sticky top-0 z-40 border-b border-prussian-blue/10 bg-white/92 px-4 py-3 backdrop-blur sm:px-6">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+              <span className="inline-flex items-center gap-2 font-heading font-semibold"><UserRound className="h-4 w-4 text-sky-surge" />{session.email}<span className="rounded-full bg-sky-surge/12 px-2 py-1 text-[10px] uppercase tracking-[0.12em]">Owner</span></span>
+              <span className="opacity-60">{session.browser || "Unknown browser"} · {session.os || "Unknown OS"}</span>
+              <span className="opacity-60">IP {session.ip_address || "Unavailable"}</span>
+              <span className="font-mono opacity-60">{now ? now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "medium" }) : "—"}</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/" target="_blank" className="inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 px-4 py-2 text-sm"><Globe2 className="h-4 w-4" />Main website<ExternalLink className="h-3.5 w-3.5" /></Link>
+              {activeTab === "resume" ? <><button type="button" disabled={saving} onClick={() => save("save")} className="inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 px-4 py-2 text-sm"><Save className="h-4 w-4" />Save draft</button><button type="button" disabled={saving || preview.status !== "ready" || preview.pageCount !== 1} onClick={() => save("publish")} className="inline-flex items-center gap-2 rounded-full bg-sky-surge px-4 py-2 text-sm font-semibold text-ink-black disabled:opacity-40"><Send className="h-4 w-4" />Save & Publish</button></> : null}
+            </div>
+          </div>
+        </header>
+        {notice && <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-surge/25 bg-sky-surge/10 px-6 py-3 text-sm"><span>{notice}</span>{cacheNeedsRetry && <button type="button" disabled={saving} onClick={retryCache} className="rounded-full border border-prussian-blue/20 px-3 py-1.5 font-semibold">Retry cache refresh</button>}</div>}
+
+        {activeTab === "resume" ? <div className="grid items-start xl:grid-cols-[minmax(0,1fr)_minmax(440px,0.76fr)]">
+          <div className="space-y-6 p-4 sm:p-6">
+            <div><p className="font-heading text-xs uppercase tracking-[0.2em] text-sky-surge">Resume workspace</p><h1 className="mt-1 font-heading text-3xl font-bold">Edit once. Preview the real PDF.</h1><p className="mt-2 max-w-3xl font-description text-sm leading-6 opacity-60">Published experience also updates the homepage Work Experience section. Other fields stay within the web resume and generated PDF.</p></div>
         <EditorSection title="Profile & summary"><div className="grid gap-3 sm:grid-cols-2"><Field label="Name" value={document.profile.name} onChange={(value) => set(["profile", "name"], value)} /><Field label="Headline" value={document.profile.headline} onChange={(value) => set(["profile", "headline"], value)} /><Field label="Email" type="email" value={document.profile.email} onChange={(value) => set(["profile", "email"], value)} /><Field label="Phone" value={document.profile.phone} onChange={(value) => set(["profile", "phone"], value)} /><Field label="Website" value={document.profile.website} onChange={(value) => set(["profile", "website"], value)} /><Field label="Location" value={document.profile.location} onChange={(value) => set(["profile", "location"], value)} /></div><Area label="Social links · Label | URL" value={document.profile.socials.map((link) => `${link.label} | ${link.href}`).join("\n")} onChange={(value) => set(["profile", "socials"], value.split("\n").map((line) => { const [label, href] = line.split("|").map((part) => part.trim()); return { label: label || "Link", href: href || "" }; }).filter((link) => link.href))} /><Area label="Summary" value={document.summary} onChange={(value) => set(["summary"], value)} /></EditorSection>
         <EditorSection title="Experience" onAdd={() => add("experience", { id: crypto.randomUUID(), role: "New role", company: "Company", dates: "Dates", link: "", bullets: ["Achievement"] })}>{document.experience.map((item, index) => <Item key={item.id} title={`${item.role} · ${item.company}`} controls={<MoveButtons index={index} length={document.experience.length} onMove={(from, to) => move("experience", from, to)} onRemove={() => remove("experience", index)} />}><div className="grid gap-3 sm:grid-cols-2"><Field label="Role" value={item.role} onChange={(value) => set(["experience", index, "role"], value)} /><Field label="Company" value={item.company} onChange={(value) => set(["experience", index, "company"], value)} /><Field label="Dates" value={item.dates} onChange={(value) => set(["experience", index, "dates"], value)} /><Field label="Link" value={item.link} onChange={(value) => set(["experience", index, "link"], value)} /></div><Area label="Bullets · one per line" value={item.bullets.join("\n")} onChange={(value) => set(["experience", index, "bullets"], value.split("\n").filter(Boolean))} /></Item>)}</EditorSection>
         <EditorSection title="Education" onAdd={() => add("education", { id: crypto.randomUUID(), school: "School", program: "Program", dates: "Dates", details: ["Detail"] })}>{document.education.map((item, index) => <Item key={item.id} title={item.school} controls={<MoveButtons index={index} length={document.education.length} onMove={(from, to) => move("education", from, to)} onRemove={() => remove("education", index)} />}><div className="grid gap-3 sm:grid-cols-2"><Field label="School" value={item.school} onChange={(value) => set(["education", index, "school"], value)} /><Field label="Program" value={item.program} onChange={(value) => set(["education", index, "program"], value)} /><Field label="Dates" value={item.dates} onChange={(value) => set(["education", index, "dates"], value)} /></div><Area label="Details · one per line" value={item.details.join("\n")} onChange={(value) => set(["education", index, "details"], value.split("\n").filter(Boolean))} /></Item>)}</EditorSection>
         <EditorSection title="Projects" onAdd={() => add("projects", { id: crypto.randomUUID(), name: "New project", subtitle: "", description: "Description", bullets: ["Achievement"], skills: [], image: "/projects/pocket-coder.png", theme: "surface", links: [] })}>{document.projects.map((item, index) => <Item key={item.id} title={item.name} controls={<MoveButtons index={index} length={document.projects.length} onMove={(from, to) => move("projects", from, to)} onRemove={() => remove("projects", index)} />}><div className="grid gap-3 sm:grid-cols-2"><Field label="Name" value={item.name} onChange={(value) => set(["projects", index, "name"], value)} /><Field label="Subtitle" value={item.subtitle} onChange={(value) => set(["projects", index, "subtitle"], value)} /><Field label="Image path" value={item.image} onChange={(value) => set(["projects", index, "image"], value)} /><Field label="Theme" value={item.theme} onChange={(value) => set(["projects", index, "theme"], value)} /></div><Area label="Description" value={item.description} onChange={(value) => set(["projects", index, "description"], value)} /><Area label="Bullets · one per line" value={item.bullets.join("\n")} onChange={(value) => set(["projects", index, "bullets"], value.split("\n").filter(Boolean))} /><Field label="Skills · comma separated" value={item.skills.join(", ")} onChange={(value) => set(["projects", index, "skills"], value.split(",").map((part) => part.trim()).filter(Boolean))} /><Area label="Links · Label | URL" value={item.links.map((link) => `${link.label} | ${link.href}`).join("\n")} onChange={(value) => set(["projects", index, "links"], value.split("\n").map((line) => { const [label, href] = line.split("|").map((part) => part.trim()); return { label: label || "Link", href: href || "" }; }).filter((link) => link.href))} /></Item>)}</EditorSection>
         <EditorSection title="Skills" onAdd={() => add("skills", { label: "Group", items: [] })}>{document.skills.map((group, index) => <Item key={`${group.label}-${index}`} title={group.label} controls={<MoveButtons index={index} length={document.skills.length} onMove={(from, to) => move("skills", from, to)} onRemove={() => remove("skills", index)} />}><Field label="Group" value={group.label} onChange={(value) => set(["skills", index, "label"], value)} /><Field label="Items · comma separated" value={group.items.join(", ")} onChange={(value) => set(["skills", index, "items"], value.split(",").map((part) => part.trim()).filter(Boolean))} /></Item>)}</EditorSection>
         <EditorSection title="Co-Curricular & Achievements"><Area label="Achievements · one per line" rows={8} value={document.achievements.join("\n")} onChange={(value) => set(["achievements"], value.split("\n").filter(Boolean))} /></EditorSection>
-        <EditorSection title="Revision history" icon={<History className="h-5 w-5" />}>{history.map((revision) => <div key={revision.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-sm"><div><span className={`rounded-full px-2 py-1 text-xs ${revision.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100"}`}>{revision.status}</span><span className="ml-2 opacity-60">{new Date(revision.created_at).toLocaleString()}</span></div>{revision.page_count === 1 && <button type="button" onClick={() => restore(revision.id)} className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5"><RotateCcw className="h-3.5 w-3.5" />Restore</button>}</div>)}</EditorSection>
-        <EditorSection title="Contact inbox" icon={<Inbox className="h-5 w-5" />}>{messages.length === 0 ? <p className="text-sm opacity-60">No messages yet.</p> : messages.map((message) => <article key={message.id} className="rounded-xl border bg-white p-4"><div className="flex flex-wrap justify-between gap-2"><div><p className="font-semibold">{message.name} · <a href={`mailto:${message.email}`} className="text-sky-surge">{message.email}</a></p><p className="text-xs opacity-50">{new Date(message.created_at).toLocaleString()}</p></div><span className="text-xs">Email: {message.notification_status}</span></div><p className="mt-3 whitespace-pre-wrap text-sm leading-6">{message.message}</p><div className="mt-3 flex gap-2"><button type="button" onClick={() => updateMessage(message.id, message.status === "read" ? "unread" : "read")} className="rounded-full border px-3 py-1 text-xs">{message.status === "read" ? "Mark unread" : "Mark read"}</button>{message.notification_status === "failed" && <button type="button" onClick={() => updateMessage(message.id, "retry")} className="rounded-full border px-3 py-1 text-xs">Retry email</button>}<button type="button" onClick={() => updateMessage(message.id, "archive")} className="rounded-full border px-3 py-1 text-xs">Archive</button></div></article>)}</EditorSection>
+            <RevisionHistory history={history} onRestore={restore} />
+          </div>
+          <PdfPreview preview={preview} />
+        </div> : null}
+
+        {activeTab === "logs" ? <LogsWorkspace logs={logs} /> : null}
+        {activeTab === "inbox" ? <InboxWorkspace messages={messages} selected={selectedMessage} onSelect={setSelectedMessageId} onUpdate={updateMessage} /> : null}
       </div>
-      <aside className="p-4 xl:sticky xl:top-[77px] xl:h-[calc(100vh-77px)] xl:p-6"><div className="flex h-full min-h-[620px] flex-col overflow-hidden rounded-[2rem] bg-prussian-blue p-4 text-bright-snow shadow-2xl"><div className="mb-3 flex items-center justify-between gap-2"><div><p className="font-heading font-semibold">Live PDF preview</p><p className="text-xs opacity-60">Generated from the LaTeX source</p></div><span className={`rounded-full px-3 py-1 text-xs ${preview.status === "ready" ? "bg-emerald-400/20 text-emerald-200" : preview.status === "error" || preview.status === "overflow" ? "bg-rose-400/20 text-rose-200" : "bg-white/10"}`}>{preview.status === "ready" ? <span className="inline-flex items-center gap-1"><Check className="h-3 w-3" />1 page</span> : preview.status}</span></div>{preview.url ? <iframe title="Compiled resume PDF" src={preview.url} className="min-h-0 flex-1 rounded-xl bg-white" /> : <div className="flex flex-1 items-center justify-center rounded-xl bg-ink-black/40"><Loader2 className="h-8 w-8 animate-spin" /></div>}{preview.log && (preview.status === "error" || preview.status === "overflow") && <pre className="mt-3 max-h-32 overflow-auto whitespace-pre-wrap rounded-xl bg-ink-black p-3 text-xs text-rose-200">{preview.status === "overflow" ? `Resume is ${preview.pageCount} pages. Shorten shared content before publishing.\n` : ""}{preview.log.slice(-2500)}</pre>}</div></aside>
     </div>
   </main>;
 }
+
+function AdminSidebar({ activeTab, onChange, collapsed, onToggle, onLogout }) {
+  const items = [
+    { id: "resume", label: "Resume", icon: FileText },
+    { id: "logs", label: "Logs", icon: ScrollText },
+    { id: "inbox", label: "Inbox", icon: Inbox },
+  ];
+  return <aside className="sticky top-0 z-50 flex min-w-0 items-center gap-2 border-b border-bright-snow/10 bg-ink-black p-3 text-bright-snow md:h-screen md:flex-col md:items-stretch md:border-b-0 md:border-r md:p-4">
+    <div className="hidden items-center justify-between gap-2 md:flex"><div className={`min-w-0 ${collapsed ? "hidden" : "block"}`}><p className="font-heading text-lg font-bold">itsparam.in</p><p className="text-xs text-bright-snow/45">Private workspace</p></div><button type="button" onClick={onToggle} className="ml-auto inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-bright-snow/10 text-bright-snow/70 hover:border-sky-surge hover:text-sky-surge" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>{collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}</button></div>
+    <nav className="flex flex-1 gap-2 md:mt-8 md:flex-col">
+      {items.map((item) => <button key={item.id} type="button" onClick={() => onChange(item.id)} className={`inline-flex min-h-11 items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-sm transition md:justify-start ${activeTab === item.id ? "bg-sky-surge text-ink-black" : "text-bright-snow/65 hover:bg-bright-snow/8 hover:text-bright-snow"}`} title={item.label}><item.icon className="h-5 w-5 shrink-0" /><span className={collapsed ? "md:hidden" : ""}>{item.label}</span></button>)}
+    </nav>
+    <button type="button" onClick={onLogout} className="inline-flex min-h-11 items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-sm text-rose-300 transition hover:bg-rose-400/10 md:justify-start" title="Logout"><LogOut className="h-5 w-5 shrink-0" /><span className={collapsed ? "md:hidden" : ""}>Logout</span></button>
+  </aside>;
+}
+
+function RevisionHistory({ history, onRestore }) {
+  return <EditorSection title="Revision history" icon={<History className="h-5 w-5" />}>
+    {history.length ? history.map((revision) => <div key={revision.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-prussian-blue/10 p-3 text-sm"><div><span className={`rounded-full px-2 py-1 text-xs ${revision.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100"}`}>{revision.status}</span><span className="ml-2 opacity-60">{new Date(revision.created_at).toLocaleString()}</span></div>{revision.page_count === 1 ? <button type="button" onClick={() => onRestore(revision.id)} className="inline-flex items-center gap-1 rounded-full border border-prussian-blue/15 px-3 py-1.5"><RotateCcw className="h-3.5 w-3.5" />Restore</button> : null}</div>) : <p className="text-sm opacity-55">No saved revisions yet.</p>}
+  </EditorSection>;
+}
+
+function PdfPreview({ preview }) {
+  return <aside className="p-4 xl:sticky xl:top-[77px] xl:h-[calc(100vh-77px)] xl:p-6"><div className="flex h-full min-h-[620px] flex-col overflow-hidden rounded-[2rem] bg-prussian-blue p-4 text-bright-snow shadow-2xl"><div className="mb-3 flex items-center justify-between gap-2"><div><p className="font-heading font-semibold">Live PDF preview</p><p className="text-xs opacity-60">Generated from the LaTeX source</p></div><span className={`rounded-full px-3 py-1 text-xs ${preview.status === "ready" ? "bg-emerald-400/20 text-emerald-200" : preview.status === "error" || preview.status === "overflow" ? "bg-rose-400/20 text-rose-200" : "bg-white/10"}`}>{preview.status === "ready" ? <span className="inline-flex items-center gap-1"><Check className="h-3 w-3" />1 page</span> : preview.status}</span></div>{preview.url ? <iframe title="Compiled resume PDF" src={preview.url} className="min-h-0 flex-1 rounded-xl bg-white" /> : <div className="flex flex-1 items-center justify-center rounded-xl bg-ink-black/40"><Loader2 className="h-8 w-8 animate-spin" /></div>}{preview.log && (preview.status === "error" || preview.status === "overflow") ? <pre className="mt-3 max-h-32 overflow-auto whitespace-pre-wrap rounded-xl bg-ink-black p-3 text-xs text-rose-200">{preview.status === "overflow" ? `Resume is ${preview.pageCount} pages. Shorten shared content before publishing.\n` : ""}{preview.log.slice(-2500)}</pre> : null}</div></aside>;
+}
+
+function LogsWorkspace({ logs }) {
+  return <div className="space-y-6 p-4 sm:p-6">
+    <div><p className="font-heading text-xs uppercase tracking-[0.2em] text-sky-surge">Private activity</p><h1 className="mt-1 font-heading text-3xl font-bold">Logs, sessions & users</h1><p className="mt-2 font-description text-sm opacity-60">Authentication and publishing activity with request metadata. Passwords and message bodies are never logged here.</p></div>
+    <div className="grid gap-4 lg:grid-cols-3"><Metric label="Audit events" value={logs.events.length} /><Metric label="Sessions" value={logs.sessions.length} /><Metric label="Admin users" value={logs.users.length} /></div>
+    <EditorSection title="Users">{logs.users.map((user) => <div key={user.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-prussian-blue/10 p-3 text-sm"><div><p className="font-semibold">{user.email}</p><p className="text-xs opacity-50">Created {new Date(user.created_at).toLocaleString()}</p></div><span className={`rounded-full px-2 py-1 text-xs ${user.active ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>{user.active ? "Active" : "Disabled"}</span></div>)}</EditorSection>
+    <EditorSection title="Sessions">{logs.sessions.map((item, index) => <div key={`${item.user_id}-${item.created_at}-${index}`} className="grid gap-2 rounded-xl border border-prussian-blue/10 p-3 text-sm lg:grid-cols-[1fr_1fr_auto]"><div><p className="font-semibold">{item.email}</p><p className="text-xs opacity-55">{item.browser || "Unknown"} · {item.os || "Unknown"}</p></div><div className="text-xs leading-5 opacity-60"><p>IP {item.ip_address || "Unavailable"}</p><p>{new Date(item.created_at).toLocaleString()}</p></div><span className={`h-fit rounded-full px-2 py-1 text-xs ${item.revoked_at ? "bg-slate-100" : "bg-emerald-100 text-emerald-700"}`}>{item.revoked_at ? "Revoked" : "Active"}</span></div>)}</EditorSection>
+    <EditorSection title="Audit trail">{logs.events.map((event) => <article key={event.id} className="rounded-xl border border-prussian-blue/10 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><span className="font-heading font-semibold">{event.event_type.replaceAll("_", " ")}</span><span className={`ml-2 rounded-full px-2 py-1 text-[10px] uppercase ${event.outcome === "success" ? "bg-emerald-100 text-emerald-700" : event.outcome === "throttled" ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"}`}>{event.outcome}</span></div><time className="text-xs opacity-50">{new Date(event.created_at).toLocaleString()}</time></div><div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 font-mono text-xs opacity-55"><span>{event.browser || "Unknown"} / {event.os || "Unknown"}</span><span>IP {event.ip_address || "Unavailable"}</span><span>Hash {event.ip_hash ? event.ip_hash.slice(0, 12) : "—"}</span></div>{event.metadata && Object.keys(event.metadata).length ? <pre className="mt-3 overflow-x-auto rounded-lg bg-[#f4f7f9] p-3 text-xs">{JSON.stringify(event.metadata, null, 2)}</pre> : null}</article>)}</EditorSection>
+  </div>;
+}
+
+function InboxWorkspace({ messages, selected, onSelect, onUpdate }) {
+  return <div className="p-4 sm:p-6"><div><p className="font-heading text-xs uppercase tracking-[0.2em] text-sky-surge">Contact inbox</p><h1 className="mt-1 font-heading text-3xl font-bold">Messages that survived delivery</h1><p className="mt-2 font-description text-sm opacity-60">Stored first, notified second—so an email outage never loses a message.</p></div>
+    <div className="mt-6 grid min-h-[660px] overflow-hidden rounded-[2rem] border border-prussian-blue/10 bg-white shadow-sm lg:grid-cols-[360px_minmax(0,1fr)]">
+      <div className="border-b border-prussian-blue/10 p-3 lg:border-b-0 lg:border-r"><div className="max-h-[620px] space-y-2 overflow-y-auto">{messages.length ? messages.map((message) => <button key={message.id} type="button" onClick={() => onSelect(message.id)} className={`w-full rounded-2xl p-4 text-left transition ${selected?.id === message.id ? "bg-prussian-blue text-bright-snow" : "hover:bg-[#eef3f7]"}`}><div className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${message.status === "unread" ? "bg-sky-surge" : "bg-slate-300"}`} /><p className="truncate font-heading text-sm font-semibold">{message.subject || "Portfolio enquiry"}</p></div><p className="mt-1 truncate font-description text-xs opacity-65">{message.name} · {message.email}</p><p className="mt-2 text-[10px] uppercase tracking-[0.12em] opacity-45">{new Date(message.created_at).toLocaleString()}</p></button>) : <p className="p-6 text-center text-sm opacity-55">No messages yet.</p>}</div></div>
+      <div className="p-5 sm:p-8">{selected ? <article><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[0.16em] text-sky-surge">{selected.status}</p><h2 className="mt-1 font-heading text-2xl font-bold">{selected.subject || "Portfolio enquiry"}</h2><a href={`mailto:${selected.email}`} className="mt-2 inline-block text-sm text-sky-surge">{selected.name} · {selected.email}</a></div><div className="text-right text-xs opacity-55"><p>{new Date(selected.created_at).toLocaleString()}</p><p className="mt-1">Notification: {selected.notification_status}</p></div></div><p className="mt-8 whitespace-pre-wrap rounded-2xl bg-[#f6f8fa] p-5 font-description text-sm leading-7">{selected.message}</p><div className="mt-6 flex flex-wrap gap-2"><button type="button" onClick={() => onUpdate(selected.id, selected.status === "read" ? "unread" : "read")} className="rounded-full border border-prussian-blue/15 px-4 py-2 text-xs">{selected.status === "read" ? "Mark unread" : "Mark read"}</button>{selected.notification_status === "failed" ? <button type="button" onClick={() => onUpdate(selected.id, "retry")} className="rounded-full bg-sky-surge px-4 py-2 text-xs font-semibold text-ink-black">Retry notification</button> : null}<button type="button" onClick={() => onUpdate(selected.id, "archive")} className="rounded-full border border-prussian-blue/15 px-4 py-2 text-xs">Archive</button></div></article> : <div className="flex h-full items-center justify-center text-sm opacity-55">Select a message.</div>}</div>
+    </div>
+  </div>;
+}
+
+function Metric({ label, value }) { return <div className="rounded-2xl bg-white p-5 shadow-sm"><p className="font-heading text-3xl font-bold">{value}</p><p className="mt-1 text-xs uppercase tracking-[0.16em] opacity-50">{label}</p></div>; }
 
 function EditorSection({ title, icon, onAdd, children }) { return <section className="rounded-[1.5rem] border border-prussian-blue/10 bg-white p-4 shadow-sm sm:p-5"><div className="mb-4 flex items-center justify-between gap-3"><h2 className="flex items-center gap-2 font-heading text-xl font-bold">{icon}{title}</h2>{onAdd && <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm"><Plus className="h-4 w-4" />Add</button>}</div><div className="space-y-4">{children}</div></section>; }
 function Item({ title, controls, children }) { return <article className="space-y-3 rounded-2xl border border-prussian-blue/10 bg-[#f8fafc] p-4"><div className="flex items-center justify-between gap-2"><h3 className="font-heading font-semibold">{title}</h3>{controls}</div>{children}</article>; }
