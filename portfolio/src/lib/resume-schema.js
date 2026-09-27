@@ -82,7 +82,7 @@ export const defaultResumeDocument = {
       dates: "Sept 2025 - Present",
       link: "https://gurmatdarbar.com",
       bullets: [
-        "Built a Sikh community event platform used by 1,500+ people, covering 150+ samagams with 200+ contributions.",
+        "Built a Sikh community event platform used by 1,500+ people, covering 300+ samagams with 500+ community contributions.",
         "Created an AI poster-intelligence pipeline that extracts multilingual event fields and prepares listings for publication.",
       ],
     },

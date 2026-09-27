@@ -24,6 +24,7 @@ function socialDisplay(link) {
 export default async function ResumePage() {
   const { id, content } = await getPublishedResume();
   const { profile } = content;
+  const displayedHeadline = profile.headline === "AI / ML Engineer" ? "AI Engineer" : profile.headline;
   return (
     <main className="min-h-screen bg-background px-4 pb-12 pt-24 text-prussian-blue dark:text-bright-snow sm:px-6 lg:px-8">
       <div className="fixed inset-x-0 top-4 z-50 flex justify-center"><Link href="/" className="glass-card inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-heading text-sm font-semibold"><Home className="h-4 w-4" />Home</Link></div>
@@ -34,7 +35,7 @@ export default async function ResumePage() {
           </div>
           <div className="mt-5">
             <h1 className="font-heading text-3xl font-bold tracking-tight">{profile.name}</h1>
-            <p className="mt-1 font-accent text-2xl italic text-sky-surge">{profile.headline}</p>
+            <p className="mt-1 font-accent text-2xl italic text-sky-surge">{displayedHeadline}</p>
           </div>
           <a href={`mailto:${profile.email}`} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-prussian-blue/15 bg-bright-snow px-4 py-2.5 font-heading text-sm font-semibold text-prussian-blue transition hover:border-sky-surge hover:text-sky-surge dark:border-alice-blue/10 dark:bg-prussian-blue dark:text-bright-snow"><Mail className="h-4 w-4" />{profile.email}</a>
           <a href={id === "repository-default" ? "/resume.pdf" : `/api/resume/${id}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-sky-surge px-4 py-2.5 font-heading text-sm font-semibold text-ink-black transition hover:-translate-y-0.5"><Download className="h-4 w-4" />Download Resume</a>
