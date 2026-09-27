@@ -1,5 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    async headers() {
+        return [
+            {
+                source: "/vendor/swiftlatex/:path*",
+                headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }]
+            },
+            {
+                source: "/workers/resume-compiler.worker.js",
+                headers: [{ key: "Cache-Control", value: "public, max-age=0, must-revalidate" }]
+            }
+        ];
+    },
     async redirects() {
         return [
             // socials
@@ -50,8 +62,13 @@ const nextConfig = {
             },
             {
                 source: "/resumelink",
-                destination: "https://drive.google.com/file/d/1Gtjs8xT8WaPJ9FO1poC-u3Hnw9rHHRKY/view",
-                permanent: true
+                destination: "/api/resume/latest",
+                permanent: false
+            },
+            {
+                source: "/resume.pdf",
+                destination: "/api/resume/latest",
+                permanent: false
             },
             // playlist
             {

@@ -1,0 +1,19 @@
+name letltxmacro
+category Package
+revision 53022
+shortdesc Let assignment for LaTeX macros
+relocated 1
+longdesc TeX's \let assignment does not work for LaTeX macros with
+longdesc optional arguments or for macros that are defined as robust
+longdesc macros by \DeclareRobustCommand. This package defines
+longdesc \LetLtxMacro that also takes care of the involved internal
+longdesc macros.
+runfiles size=2
+ RELOC/tex/latex/letltxmacro/letltxmacro.sty
+catalogue-contact-bugs https://github.com/ho-tex/letltxmacro/issues
+catalogue-contact-repository https://github.com/ho-tex/letltxmacro
+catalogue-ctan /macros/latex/contrib/letltxmacro
+catalogue-date 2019-12-04 06:12:31 +0100
+catalogue-license lppl1.3
+catalogue-topics macro-def
+catalogue-version 1.6

@@ -1,0 +1,15 @@
+name auxhook
+category Package
+revision 53173
+shortdesc Hooks for auxiliary files
+relocated 1
+longdesc This package auxhook provides hooks for adding stuff at the
+longdesc begin of .aux files.
+runfiles size=1
+ RELOC/tex/latex/auxhook/auxhook.sty
+catalogue-contact-bugs https://github.com/ho-tex/auxhook/issues
+catalogue-contact-repository https://github.com/ho-tex/auxhook
+catalogue-ctan /macros/latex/contrib/auxhook
+catalogue-license lppl1.3
+catalogue-topics defer-stuff
+catalogue-version 1.6

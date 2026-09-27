@@ -1,0 +1,18 @@
+name rerunfilecheck
+category Package
+revision 54841
+shortdesc Checksum based rerun checks on auxiliary files
+relocated 1
+longdesc The package provides additional rerun warnings if some
+longdesc auxiliary files have changed. It is based on MD5 checksum,
+longdesc provided by pdfTeX.
+depend atveryend
+depend uniquecounter
+runfiles size=3
+ RELOC/tex/latex/rerunfilecheck/rerunfilecheck.sty
+catalogue-contact-bugs https://github.com/ho-tex/rerunfilecheck/issues
+catalogue-contact-repository https://github.com/ho-tex/rerunfilecheck
+catalogue-ctan /macros/latex/contrib/rerunfilecheck
+catalogue-license lppl1.3
+catalogue-topics compilation
+catalogue-version 1.9

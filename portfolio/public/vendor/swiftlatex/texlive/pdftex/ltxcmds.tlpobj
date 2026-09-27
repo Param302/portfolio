@@ -1,0 +1,16 @@
+name ltxcmds
+category Package
+revision 56421
+shortdesc Some LaTeX kernel commands for general use
+relocated 1
+longdesc This package exports some utility macros from the LaTeX kernel
+longdesc into a separate namespace and also makes them available for
+longdesc other formats such as plain TeX.
+runfiles size=5
+ RELOC/tex/generic/ltxcmds/ltxcmds.sty
+catalogue-contact-bugs https://github.com/ho-tex/ltxcmds/issues
+catalogue-contact-repository https://github.com/ho-tex/ltxcmds
+catalogue-ctan /macros/generic/ltxcmds
+catalogue-license lppl1.3
+catalogue-topics macro-supp
+catalogue-version 1.25

@@ -1,0 +1,19 @@
+name atbegshi
+category Package
+revision 53051
+shortdesc Execute stuff at \shipout time
+relocated 1
+longdesc This package is a modern reimplementation of package everyshi,
+longdesc providing various commands to be executed before a \shipout
+longdesc command. It makes use of e-TeX's facilities if they are
+longdesc available. The package may be used either with LaTeX or with
+longdesc plain TeX.
+runfiles size=7
+ RELOC/tex/generic/atbegshi/atbegshi.sty
+catalogue-also everyshi
+catalogue-contact-repository https://github.com/ho-tex/atbegshi
+catalogue-ctan /macros/latex/contrib/atbegshi
+catalogue-date 2019-12-05 22:38:59 +0100
+catalogue-license lppl1.3
+catalogue-topics defer-stuff
+catalogue-version 1.19

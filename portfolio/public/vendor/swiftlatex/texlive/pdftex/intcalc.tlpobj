@@ -1,0 +1,16 @@
+name intcalc
+category Package
+revision 53168
+shortdesc Expandable arithmetic operations with integers
+relocated 1
+longdesc This package provides expandable arithmetic operations with
+longdesc integers, using the e-TeX extension \numexpr if it is
+longdesc available.
+runfiles size=8
+ RELOC/tex/generic/intcalc/intcalc.sty
+catalogue-contact-bugs https://github.com/ho-tex/intcalc/issues
+catalogue-contact-repository https://github.com/ho-tex/intcalc
+catalogue-ctan /macros/latex/contrib/intcalc
+catalogue-license lppl1.3
+catalogue-topics arithmetic calculation
+catalogue-version 1.3

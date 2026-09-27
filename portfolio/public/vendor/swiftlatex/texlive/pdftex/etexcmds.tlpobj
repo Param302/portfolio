@@ -1,0 +1,17 @@
+name etexcmds
+category Package
+revision 53171
+shortdesc Avoid name clashes with e-TeX commands
+relocated 1
+longdesc New primitive commands are introduced in e-TeX; sometimes the
+longdesc names collide with existing macros. This package solves the
+longdesc name clashes by adding a prefix to e-TeX's commands. For
+longdesc example, eTeX's \unexpanded is provided as \etex@unexpanded.
+runfiles size=2
+ RELOC/tex/generic/etexcmds/etexcmds.sty
+catalogue-contact-bugs https://github.com/ho-tex/etexcmds/issues
+catalogue-contact-repository https://github.com/ho-tex/etexcmds
+catalogue-ctan /macros/latex/contrib/etexcmds
+catalogue-license lppl1.3
+catalogue-topics macro-supp
+catalogue-version 1.7

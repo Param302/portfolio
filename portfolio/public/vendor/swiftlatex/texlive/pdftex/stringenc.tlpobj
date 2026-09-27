@@ -1,0 +1,57 @@
+name stringenc
+category Package
+revision 52982
+shortdesc Converting a string between different encodings
+relocated 1
+longdesc This package provides \StringEncodingConvert for converting a
+longdesc string between different encodings. Both LaTeX and plain-TeX
+longdesc are supported.
+runfiles size=108
+ RELOC/tex/generic/stringenc/se-ascii-print.def
+ RELOC/tex/generic/stringenc/se-ascii.def
+ RELOC/tex/generic/stringenc/se-clean7bit.def
+ RELOC/tex/generic/stringenc/se-cp1250.def
+ RELOC/tex/generic/stringenc/se-cp1251.def
+ RELOC/tex/generic/stringenc/se-cp1252.def
+ RELOC/tex/generic/stringenc/se-cp1257.def
+ RELOC/tex/generic/stringenc/se-cp437.def
+ RELOC/tex/generic/stringenc/se-cp850.def
+ RELOC/tex/generic/stringenc/se-cp852.def
+ RELOC/tex/generic/stringenc/se-cp855.def
+ RELOC/tex/generic/stringenc/se-cp858.def
+ RELOC/tex/generic/stringenc/se-cp865.def
+ RELOC/tex/generic/stringenc/se-cp866.def
+ RELOC/tex/generic/stringenc/se-dec-mcs.def
+ RELOC/tex/generic/stringenc/se-iso-8859-1.def
+ RELOC/tex/generic/stringenc/se-iso-8859-10.def
+ RELOC/tex/generic/stringenc/se-iso-8859-11.def
+ RELOC/tex/generic/stringenc/se-iso-8859-13.def
+ RELOC/tex/generic/stringenc/se-iso-8859-14.def
+ RELOC/tex/generic/stringenc/se-iso-8859-15.def
+ RELOC/tex/generic/stringenc/se-iso-8859-16.def
+ RELOC/tex/generic/stringenc/se-iso-8859-2.def
+ RELOC/tex/generic/stringenc/se-iso-8859-3.def
+ RELOC/tex/generic/stringenc/se-iso-8859-4.def
+ RELOC/tex/generic/stringenc/se-iso-8859-5.def
+ RELOC/tex/generic/stringenc/se-iso-8859-6.def
+ RELOC/tex/generic/stringenc/se-iso-8859-7.def
+ RELOC/tex/generic/stringenc/se-iso-8859-8.def
+ RELOC/tex/generic/stringenc/se-iso-8859-9.def
+ RELOC/tex/generic/stringenc/se-koi8-r.def
+ RELOC/tex/generic/stringenc/se-mac-centeuro.def
+ RELOC/tex/generic/stringenc/se-mac-cyrillic.def
+ RELOC/tex/generic/stringenc/se-mac-roman.def
+ RELOC/tex/generic/stringenc/se-nextstep.def
+ RELOC/tex/generic/stringenc/se-pdfdoc.def
+ RELOC/tex/generic/stringenc/se-utf16le.def
+ RELOC/tex/generic/stringenc/se-utf32be.def
+ RELOC/tex/generic/stringenc/se-utf32le.def
+ RELOC/tex/generic/stringenc/se-utf8.def
+ RELOC/tex/generic/stringenc/stringenc.sty
+catalogue-contact-bugs https://github.com/ho-tex/stringenc/issues
+catalogue-contact-repository https://github.com/ho-tex/stringenc
+catalogue-ctan /macros/latex/contrib/stringenc
+catalogue-date 2019-11-30 12:49:50 +0100
+catalogue-license lppl1.3
+catalogue-topics enc-juggle
+catalogue-version 1.12

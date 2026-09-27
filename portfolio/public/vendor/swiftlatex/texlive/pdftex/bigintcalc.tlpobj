@@ -1,0 +1,15 @@
+name bigintcalc
+category Package
+revision 53172
+shortdesc Integer calculations on very large numbers
+relocated 1
+longdesc This package provides expandable arithmetic operations with big
+longdesc integers that can exceed TeX's number limits.
+runfiles size=10
+ RELOC/tex/generic/bigintcalc/bigintcalc.sty
+catalogue-contact-bugs https://github.com/ho-tex/bigintcalc/issues
+catalogue-contact-repository https://github.com/ho-tex/bigintcalc
+catalogue-ctan /macros/latex/contrib/bigintcalc
+catalogue-license lppl1.3
+catalogue-topics arithmetic calculation
+catalogue-version 1.5

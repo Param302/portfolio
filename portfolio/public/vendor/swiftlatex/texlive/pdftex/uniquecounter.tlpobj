@@ -1,0 +1,16 @@
+name uniquecounter
+category Package
+revision 53162
+shortdesc Provides unlimited unique counter
+relocated 1
+longdesc This package provides a kind of counter that provides unique
+longdesc number values. Several counters can be created with different
+longdesc names. The numeric values are not limited.
+runfiles size=2
+ RELOC/tex/generic/uniquecounter/uniquecounter.sty
+catalogue-contact-bugs https://github.com/ho-tex/uniquecounter/issues
+catalogue-contact-repository https://github.com/ho-tex/uniquecounter
+catalogue-ctan /macros/latex/contrib/uniquecounter
+catalogue-license lppl1.3
+catalogue-topics numbers
+catalogue-version 1.4

@@ -1,0 +1,19 @@
+name atveryend
+category Package
+revision 53108
+shortdesc Hooks at the very end of a document
+relocated 1
+longdesc This LaTeX packages provides two hooks for \end{document} that
+longdesc are executed after the hook of \AtEndDocument:
+longdesc \AfterLastShipout can be used for code that is to be executed
+longdesc right after the last \clearpage before the `.aux' file is
+longdesc closed. \AtVeryEndDocument is used for code after closing and
+longdesc final reading of the `.aux' file.
+runfiles size=5
+ RELOC/tex/latex/atveryend/atveryend.sty
+catalogue-contact-bugs https://github.com/ho-tex/atveryend/issues
+catalogue-contact-repository https://github.com/ho-tex/atveryend
+catalogue-ctan /macros/latex/contrib/atveryend
+catalogue-license lppl1.3
+catalogue-topics defer-stuff
+catalogue-version 1.11

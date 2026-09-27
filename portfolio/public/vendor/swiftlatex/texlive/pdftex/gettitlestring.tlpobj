@@ -1,0 +1,15 @@
+name gettitlestring
+category Package
+revision 53170
+shortdesc Clean up title references
+relocated 1
+longdesc Cleans up the title string (removing \label commands) for
+longdesc packages (such as nameref) that typeset such strings.
+runfiles size=3
+ RELOC/tex/generic/gettitlestring/gettitlestring.sty
+catalogue-contact-bugs https://github.com/ho-tex/gettitlestring/issues
+catalogue-contact-repository https://github.com/ho-tex/gettitlestring
+catalogue-ctan /macros/latex/contrib/gettitlestring
+catalogue-license lppl1.3
+catalogue-topics macro-supp
+catalogue-version 1.6

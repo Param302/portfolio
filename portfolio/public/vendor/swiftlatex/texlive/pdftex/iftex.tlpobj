@@ -1,0 +1,25 @@
+name iftex
+category Package
+revision 56594
+shortdesc Am I running under pdfTeX, XeTeX or LuaTeX?
+relocated 1
+longdesc The package, which works both for Plain TeX and for LaTeX,
+longdesc defines the \ifPDFTeX, \ifXeTeX, and \ifLuaTeX conditionals for
+longdesc testing which engine is being used for typesetting. The package
+longdesc also provides the \RequirePDFTeX, \RequireXeTeX, and
+longdesc \RequireLuaTeX commands which throw an error if pdfTeX, XeTeX
+longdesc or LuaTeX (respectively) is not the engine in use.
+runfiles size=7
+ RELOC/tex/generic/iftex/ifetex.sty
+ RELOC/tex/generic/iftex/ifluatex.sty
+ RELOC/tex/generic/iftex/ifpdf.sty
+ RELOC/tex/generic/iftex/iftex.sty
+ RELOC/tex/generic/iftex/ifvtex.sty
+ RELOC/tex/generic/iftex/ifxetex.sty
+catalogue-also ifetex ifluatex ifpdf ifvtex ifxetex
+catalogue-contact-bugs https://github.com/latex3/iftex/issues
+catalogue-contact-repository https://github.com/latex3/iftex
+catalogue-ctan /macros/generic/iftex
+catalogue-license lppl1.3c
+catalogue-topics env-query macro-gen
+catalogue-version 1.0d

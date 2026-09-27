@@ -1,0 +1,24 @@
+name l3backend
+category Package
+revision 53888
+shortdesc LaTeX3 backend drivers
+relocated 1
+longdesc This package forms parts of expl3, and contains the code used
+longdesc to interface with backends (drivers) across the expl3 codebase.
+longdesc The functions here are defined differently depending on the
+longdesc engine in use. As such, these are distributed separately from
+longdesc l3kernel to allow this code to be updated on an independent
+longdesc schedule.
+runfiles size=34
+ RELOC/dvips/l3backend/l3backend-dvips.pro
+ RELOC/tex/latex/l3backend/l3backend-dvipdfmx.def
+ RELOC/tex/latex/l3backend/l3backend-dvips.def
+ RELOC/tex/latex/l3backend/l3backend-dvisvgm.def
+ RELOC/tex/latex/l3backend/l3backend-pdfmode.def
+ RELOC/tex/latex/l3backend/l3backend-xdvipdfmx.def
+catalogue-contact-bugs https://github.com/latex3/latex3/issues
+catalogue-contact-home http://www.latex-project.org/code.html
+catalogue-contact-repository https://github.com/latex3/latex3/
+catalogue-ctan /macros/latex/contrib/l3backend
+catalogue-license lppl1.3c
+catalogue-topics latex3 expl3 macro-supp pre-release

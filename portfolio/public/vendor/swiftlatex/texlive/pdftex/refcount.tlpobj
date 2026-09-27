@@ -1,0 +1,20 @@
+name refcount
+category Package
+revision 53164
+shortdesc Counter operations with label references
+relocated 1
+longdesc Provides commands \setcounterref and \addtocounterref which use
+longdesc the section (or whatever) number from the reference as the
+longdesc value to put into the counter, as in: ...\label{sec:foo} ...
+longdesc \setcounterref{foonum}{sec:foo} Commands \setcounterpageref and
+longdesc \addtocounterpageref do the corresponding thing with the page
+longdesc reference of the label. No .ins file is distributed; process
+longdesc the .dtx with plain TeX to create one.
+runfiles size=3
+ RELOC/tex/latex/refcount/refcount.sty
+catalogue-contact-bugs https://github.com/ho-tex/refcount/issues
+catalogue-contact-repository https://github.com/ho-tex/refcount
+catalogue-ctan /macros/latex/contrib/refcount
+catalogue-license lppl1.3
+catalogue-topics label-ref
+catalogue-version 3.6

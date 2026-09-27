@@ -1,0 +1,17 @@
+name bitset
+category Package
+revision 53837
+shortdesc Handle bit-vector datatype
+relocated 1
+longdesc This package defines and implements the data type bit set, a
+longdesc vector of bits. The size of the vector may grow dynamically.
+longdesc Individual bits can be manipulated.
+depend bigintcalc
+runfiles size=9
+ RELOC/tex/generic/bitset/bitset.sty
+catalogue-contact-bugs https://github.com/ho-tex/bitset/issues
+catalogue-contact-repository https://github.com/ho-tex/bitset
+catalogue-ctan /macros/latex/contrib/bitset
+catalogue-license lppl1.3
+catalogue-topics data-manip
+catalogue-version 1.3

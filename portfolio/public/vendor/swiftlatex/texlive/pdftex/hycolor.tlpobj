@@ -1,0 +1,17 @@
+name hycolor
+category Package
+revision 53584
+shortdesc Implements colour for packages hyperref and bookmark
+relocated 1
+longdesc This package provides the code for the color option that is
+longdesc used by packages hyperref and bookmark. It is not intended as
+longdesc package for the user.
+runfiles size=7
+ RELOC/tex/latex/hycolor/hycolor.sty
+ RELOC/tex/latex/hycolor/xcolor-patch.sty
+catalogue-contact-bugs https://github.com/ho-tex/hycolor/issues
+catalogue-contact-repository https://github.com/ho-tex/hycolor
+catalogue-ctan /macros/latex/contrib/hycolor
+catalogue-license lppl1.3
+catalogue-topics colour
+catalogue-version 1.10
