@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Bot, CalendarDays, Users } from "lucide-react";
+import { ArrowUpRight, Bot, CalendarDays, HeartHandshake, Users } from "lucide-react";
 import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
-
-const techStack = ["FastAPI", "PostgreSQL", "Redis", "GCP Cloud Run", "Multilingual GenAI"];
 
 const socials = [
   { label: "Facebook", icon: "/socials/facebook.png", href: "https://www.facebook.com/gurmatdarbar" },
@@ -31,14 +29,14 @@ export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-da
       <div className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="rounded-[2.5rem] bg-papaya-whip p-6 text-prussian-blue sm:p-9 lg:p-12">
           <div className="flex flex-col gap-5 border-b border-prussian-blue/12 pb-7 sm:flex-row sm:items-center sm:justify-between lg:pb-9">
-            <div>
+            <div className="min-w-0">
               <h2 className="font-accent text-5xl font-bold italic tracking-tight sm:text-6xl lg:text-7xl">Gurmat Darbar</h2>
-              <p className="mt-2 font-accent text-xl italic text-prussian-blue/66">Discover samagams. Contribute with sangat.</p>
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                <span className="inline-flex min-w-36 justify-center rounded-full bg-prussian-blue px-7 py-2.5 font-accent text-lg italic text-bright-snow">Founder</span>
+                <p className="font-accent text-xl italic text-prussian-blue/66">Discover samagams happening near you!</p>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="rounded-full bg-prussian-blue px-4 py-2 font-accent text-base italic text-bright-snow">Founder</span>
-              <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={230} height={104} className="h-auto w-40 object-contain sm:w-52" />
-            </div>
+            <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={230} height={104} className="h-auto w-44 shrink-0 object-contain sm:w-56" />
           </div>
 
           <div className="mt-8 grid items-start gap-8 xl:grid-cols-[0.9fr_1.1fr] xl:gap-12">
@@ -46,7 +44,7 @@ export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-da
               <p className="max-w-3xl font-description text-base leading-8 text-prussian-blue/78 sm:text-lg">A digital ecosystem for Sikh community events—bringing trusted discovery, community contributions, and thoughtful technology into one useful home.</p>
               <a href="https://gurmatdarbar.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-sky-surge px-5 py-3 font-heading text-sm font-semibold text-ink-black transition hover:-translate-y-0.5 hover:bg-[#36c3e8]">Visit gurmatdarbar.com <ArrowUpRight className="h-4 w-4" /></a>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
                 <article className="rounded-[1.6rem] bg-bright-snow p-6">
                   <Users className="h-5 w-5 text-sky-surge" />
                   <p className="mt-5 font-heading text-4xl font-extrabold">1,500+</p>
@@ -55,27 +53,25 @@ export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-da
                 </article>
                 <article className="rounded-[1.6rem] bg-bright-snow p-6">
                   <CalendarDays className="h-5 w-5 text-sky-surge" />
-                  <div className="mt-5 grid grid-cols-2 gap-4">
-                    <div><p className="font-heading text-3xl font-extrabold">300+</p><p className="font-heading text-xs font-semibold uppercase tracking-[0.12em]">Samagams</p></div>
-                    <div><p className="font-heading text-3xl font-extrabold">500+</p><p className="font-heading text-xs font-semibold uppercase tracking-[0.12em]">Contributions</p></div>
-                  </div>
-                  <p className="mt-3 font-description text-sm leading-6 text-prussian-blue/65">Events and updates brought together by the sangat.</p>
+                  <p className="mt-5 font-heading text-4xl font-extrabold">300+</p>
+                  <p className="font-heading text-sm font-semibold uppercase tracking-[0.14em]">Samagams</p>
+                  <p className="mt-2 font-description text-sm leading-6 text-prussian-blue/65">Events brought into one place.</p>
                 </article>
-                <article className="rounded-[1.6rem] bg-prussian-blue p-6 text-bright-snow sm:col-span-2 sm:p-7">
-                  <div className="flex items-start gap-4">
-                    <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-surge text-ink-black"><Bot className="h-6 w-6" /></span>
-                    <div>
-                      <h3 className="font-heading text-xl font-bold">AI Poster Intelligence</h3>
-                      <p className="mt-2 font-description text-sm leading-7 text-bright-snow/78">A multilingual, Multi-RAG workflow that understands uploaded posters, extracts event information, and automatically fills structured details so listings are ready to publish.</p>
-                    </div>
-                  </div>
+                <article className="rounded-[1.6rem] bg-bright-snow p-6">
+                  <HeartHandshake className="h-5 w-5 text-sky-surge" />
+                  <p className="mt-5 font-heading text-4xl font-extrabold">500+</p>
+                  <p className="font-heading text-sm font-semibold uppercase tracking-[0.14em]">Contributions</p>
+                  <p className="mt-2 font-description text-sm leading-6 text-prussian-blue/65">Updates shared by the sangat.</p>
                 </article>
               </div>
-
-              <div className="mt-7 flex flex-wrap gap-2.5">
-                {techStack.map((chip) => <span key={chip} className="rounded-full border border-prussian-blue/12 bg-bright-snow/75 px-3.5 py-2 font-description text-xs uppercase tracking-[0.14em]">{chip}</span>)}
+              <div className="mt-8 flex flex-wrap items-center gap-4" aria-label="Gurmat Darbar social links">
+                {socials.map((social) => (
+                  <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={`Gurmat Darbar on ${social.label}`} className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-1 hover:border-sky-surge hover:shadow-soft sm:h-16 sm:w-16">
+                    <Image src={social.icon} alt="" width={30} height={30} className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
+                  </a>
+                ))}
+                <span className="font-accent text-xl italic text-prussian-blue/65">@gurmatdarbar</span>
               </div>
-              <p className="mt-7 font-description text-sm leading-7 text-prussian-blue/72">A dedicated team of sewadars works behind the scenes to verify listings, support contributors, and keep the platform useful for the sangat.</p>
             </div>
 
             <div>
@@ -102,14 +98,15 @@ export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-da
                 />
               ))}
             </div>
-            <div className="mt-6 flex flex-wrap items-center gap-3" aria-label="Gurmat Darbar social links">
-              {socials.map((social) => (
-                <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={`Gurmat Darbar on ${social.label}`} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-0.5 hover:border-sky-surge">
-                  <Image src={social.icon} alt="" width={24} height={24} className="h-6 w-6 object-contain" />
-                </a>
-              ))}
-              <span className="font-accent text-lg italic text-prussian-blue/65">@gurmatdarbar</span>
-            </div>
+            <article className="mt-6 rounded-[1.6rem] bg-prussian-blue p-6 text-bright-snow sm:p-7">
+              <div className="flex items-start gap-4">
+                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-surge text-ink-black"><Bot className="h-6 w-6" /></span>
+                <div>
+                  <h3 className="font-heading text-xl font-bold">AI Poster Intelligence</h3>
+                  <p className="mt-2 font-description text-sm leading-7 text-bright-snow/78">A multilingual, Multi-RAG workflow that understands uploaded posters, extracts event information, and automatically fills structured details so listings are ready to publish.</p>
+                </div>
+              </div>
+            </article>
           </div>
           </div>
         </div>
