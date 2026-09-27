@@ -4,10 +4,12 @@ import Link from "next/link";
 const quickLinks = [
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
+    { label: "Community", href: "#community" },
     { label: "Work", href: "#work" },
     { label: "Projects", href: "#projects" },
     { label: "Contact", href: "#contact" },
     { label: "Resume", href: "/resume" },
+    { label: "Wall of Fame", href: "/walloffame" },
 ];
 
 const socialLinks = [

@@ -12,11 +12,13 @@ import {
   MoonStar,
   SunMedium,
   UserRound,
+  UsersRound,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { id: "home", label: "Home", icon: Home },
   { id: "about", label: "About", icon: UserRound },
+  { id: "community", label: "Community", icon: UsersRound },
   { id: "work", label: "Work", icon: BriefcaseBusiness },
   { id: "projects", label: "Projects", icon: CodeXml },
   { id: "contact", label: "Contact", icon: Mail },
@@ -45,7 +47,7 @@ function DesktopNav({ activeSection, indicator, navRef, onNavigate }) {
   return (
     <nav
       ref={navRef}
-      className="glass relative hidden items-center gap-2 rounded-full border border-alice-blue/60 px-3 py-2 shadow-soft sm:flex dark:border-alice-blue/10"
+      className="glass relative hidden items-center gap-2 rounded-full border border-alice-blue/60 px-3 py-2 shadow-soft xl:flex dark:border-alice-blue/10"
     >
       {indicator ? (
         <motion.span
@@ -81,7 +83,7 @@ function MobileNav({ activeSection, indicator, navRef, onNavigate }) {
   return (
     <nav
       ref={navRef}
-      className="glass relative flex items-center gap-1 rounded-full border border-alice-blue/60 px-3 py-2 shadow-soft dark:border-alice-blue/10 sm:hidden"
+      className="glass relative flex items-center gap-1 rounded-full border border-alice-blue/60 px-3 py-2 shadow-soft dark:border-alice-blue/10 xl:hidden"
     >
       {indicator ? (
         <motion.span
@@ -262,7 +264,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-4 flex justify-center px-4 sm:hidden">
+      <div className="fixed inset-x-0 bottom-4 flex justify-center px-4 xl:hidden">
         <MobileNav
           activeSection={activeSection}
           indicator={mobileIndicator}

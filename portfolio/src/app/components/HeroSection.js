@@ -27,7 +27,7 @@ const gridBackground = {
   backgroundPosition: "center center",
 };
 
-export default function HeroSection() {
+export default function HeroSection({ headline = "AI Engineer", summary }) {
   const { theme } = useTheme();
   const sectionRef = useRef(null);
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -194,7 +194,7 @@ export default function HeroSection() {
               className="px-6 font-accent italic font-semibold text-papaya-whip tracking-normal"
               style={{ WebkitTextStroke: "5px #0B0F19", paintOrder: "stroke fill" }}
             >
-              AI Engineer
+              {headline}
             </span>
           </h1>
 
@@ -214,8 +214,7 @@ export default function HeroSection() {
           </div>
 
           <p className="mt-6 max-w-[60ch] px-10 font-description text-md leading-7 text-prussian-blue/60 dark:text-alice-blue sm:text-base lg:text-lg">
-            Building the bridge between humans and AI.
-            I help people build their dream AI applications, be it - <span className="font-bold">classical</span>, <span className="font-bold">Agentic</span> or <span className="font-bold">fine-tuned</span> workflows with End-to-End deployment.
+            {summary || <>Building the bridge between humans and AI. I help people build their dream AI applications, from <span className="font-bold">classical</span> and <span className="font-bold">agentic</span> systems to <span className="font-bold">fine-tuned</span> workflows.</>}
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-5 sm:mt-14 sm:flex-row sm:gap-8">

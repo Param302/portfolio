@@ -28,8 +28,10 @@ export function ThemeProvider({ children }) {
     useEffect(() => {
         const resolvedTheme = getPreferredTheme();
         applyTheme(resolvedTheme);
-        setTheme(resolvedTheme);
-        setMounted(true);
+        const frame = window.requestAnimationFrame(() => {
+            setTheme(resolvedTheme);
+            setMounted(true);
+        });
 
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
         const handleMediaChange = (event) => {
@@ -49,6 +51,7 @@ export function ThemeProvider({ children }) {
         }
 
         return () => {
+            window.cancelAnimationFrame(frame);
             if (mediaQuery.removeEventListener) {
                 mediaQuery.removeEventListener("change", handleMediaChange);
             } else {

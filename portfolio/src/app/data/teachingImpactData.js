@@ -1,8 +1,4 @@
-export const impactStats = [
-  { value: "175K+", label: "Learners" },
-  { value: "70+", label: "Live Sessions" },
-  { value: "500+", label: "Student Feedbacks" },
-];
+import importedFeedbacks from "@/app/data/feedbacks.generated.json";
 
 export const feedbacks = {
   row1: [
@@ -48,3 +44,13 @@ export const feedbacks = {
     "It was detailed and Parampreet always tried to keep the sessions interactive.",
   ],
 };
+
+const repositoryFeedbacks = [...feedbacks.row1, ...feedbacks.row2, ...feedbacks.row3];
+
+export const allFeedbacks = importedFeedbacks.length > 0 ? importedFeedbacks : repositoryFeedbacks;
+
+export const impactStats = [
+  { value: "175K+", label: "Learners" },
+  { value: "70+", label: "Live Sessions" },
+  { value: `${allFeedbacks.length}`, label: "Published Feedbacks" },
+];

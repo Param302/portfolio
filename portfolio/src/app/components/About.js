@@ -6,32 +6,11 @@ import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 
-const skills = [
-  "PyTorch",
-  "LangGraph",
-  "FastAPI",
-  "Snowflake",
-  "GCP",
-  "Full-Stack Dev",
-];
-
-const socialLinks = [
-  {
-    href: "https://www.linkedin.com/in/param302",
-    icon: "/socials/linkedin.png",
-    label: "LinkedIn",
-  },
-  {
-    href: "https://github.com/Param302",
-    icon: "/socials/github.png",
-    label: "GitHub",
-  },
-  {
-    href: "https://www.youtube.com/@Param3021",
-    icon: "/socials/youtube.png",
-    label: "YouTube",
-  }
-];
+const socialIcons = {
+  linkedin: "/socials/linkedin.png",
+  github: "/socials/github.png",
+  youtube: "/socials/youtube.png",
+};
 
 const palette = [
   { dot: "rgba(255, 237, 212, 0.8)", line: "rgba(255, 237, 212, 0.7)" },
@@ -55,9 +34,13 @@ function createDots(width, height) {
   });
 }
 
-export default function About() {
+export default function About({ content }) {
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
+  const { profile } = content;
+  const education = content.education[0];
+  const skills = content.skills.flatMap((group) => group.items).slice(0, 7);
+  const socialLinks = profile.socials.filter((link) => socialIcons[link.label.toLowerCase()]).map((link) => ({ ...link, icon: socialIcons[link.label.toLowerCase()] }));
   const sectionRef = useRef(null);
   const canvasRef = useRef(null);
   const dotsRef = useRef([]);
@@ -180,7 +163,7 @@ export default function About() {
       ref={sectionRef}
       onMouseMove={handlePointerMove}
       onMouseLeave={handlePointerLeave}
-      className="section-anchor relative flex flex-col items-center w-screen overflow-hidden bg-sky-surge px-8 py-16 sm:px-20 sm:py-20"
+      className="section-anchor relative flex w-full flex-col items-center overflow-hidden bg-sky-surge px-8 py-16 sm:px-20 sm:py-20"
     >
       <canvas
         ref={canvasRef}
@@ -225,7 +208,7 @@ export default function About() {
         <div className="relative">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
             <p className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              Parampreet Singh
+              {profile.name}
             </p>
             <Link
               href="/resume"
@@ -234,7 +217,7 @@ export default function About() {
               Resume
             </Link>
           </div>
-          <p className="mt-2 font-accent text-2xl italic text-papaya-whip sm:text-3xl leading-tighter">Based in India</p>
+          <p className="mt-2 font-accent text-2xl italic text-papaya-whip sm:text-3xl leading-tighter">{profile.headline} · {profile.location}</p>
           <Link
             href="/resume"
             className="mt-4 inline-flex sm:hidden items-center justify-center rounded-full bg-prussian-blue px-5 py-2.5 font-heading text-sm font-semibold text-bright-snow transition hover:-translate-y-0.5 hover:bg-ink-black"
@@ -243,11 +226,7 @@ export default function About() {
           </Link>
 
           <p className="mt-6 max-w-[66ch] font-description text-base font-medium leading-8 text-foreground">
-            I am an AI/ML Engineer specialized in building production-grade AI systems. Currently, I&apos;m focused on finetuning Small Language Models (SLMs) and scaling Gurmat Darbar, a full-stack platform for the Sikh community.
-            <br />
-            Educator at heart, I&apos;ve delivered 70+ live sessions on Python and ML to 100K+ learners.
-            <br />
-            My work sits at the intersection of deep learning applications & scalable backend architecture.
+            {content.summary}
           </p>
 
           <div className={`mt-7 rounded-[1.75rem] p-5 sm:p-6 backdrop-blur-sm ${isDarkTheme ? 'bg-prussian-blue' : 'bg-papaya-whip'} `}>
@@ -257,10 +236,10 @@ export default function About() {
               </div>
               <div className="space-y-0.5">
                 <p className={`font-heading text-lg font-semibold ${isDarkTheme ? 'text-papaya-whip' : 'text-prussian-blue'}`}>
-                  BS in Data Science and Applications, IIT Madras (2022-Present)
+                  {education.program}, {education.school} ({education.dates})
                 </p>
                 <p className={`font-description text-sm leading-6 ${isDarkTheme ? 'text-papaya-whip/80' : 'text-prussian-blue/80'}`}>
-                  LLMs, Mathematical Foundations for GenAI, and Software Engineering.
+                  {education.details.join(" ")}
                 </p>
               </div>
             </div>
