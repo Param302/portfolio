@@ -95,7 +95,7 @@ html.dark {
   -webkit-mask-image: linear-gradient(to bottom, black 42%, transparent 100%);
 }
 
-@media (min-width: 1024px) and (max-height: 759px) {
+@media (min-width: 1024px) and (max-height: 820px) {
   .project-stack-card {
     position: static !important;
     min-height: auto !important;

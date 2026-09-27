@@ -48,7 +48,7 @@ export default function TeachingImpact({ subscriberLabel = "4K" }) {
             <Image src="/yt-channel.png" alt="" fill sizes="100vw" className="object-cover dark:hidden" />
             <Image src="/yt-channel-dark.png" alt="" fill sizes="100vw" className="hidden object-cover dark:block" />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-bright-snow/96 via-bright-snow/88 to-bright-snow/30 dark:from-ink-black/96 dark:via-ink-black/88 dark:to-ink-black/36" />
+          <div className="absolute inset-0 bg-gradient-to-b from-bright-snow/95 via-bright-snow/95 to-bright-snow/80 dark:from-ink-black/95 dark:via-ink-black/95 dark:to-ink-black/80 sm:bg-gradient-to-r sm:from-bright-snow/95 sm:via-bright-snow/90 sm:to-bright-snow/30 sm:dark:from-ink-black/95 sm:dark:via-ink-black/90 sm:dark:to-ink-black/40" />
           <div className="relative z-10 flex min-h-[320px] flex-col justify-between gap-7 p-6 sm:min-h-[355px] sm:p-9 lg:flex-row lg:items-center lg:p-12">
             <div className="flex max-w-3xl items-start gap-4 sm:gap-7">
               <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center sm:h-28 sm:w-28">
