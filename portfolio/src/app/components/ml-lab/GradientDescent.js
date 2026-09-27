@@ -47,6 +47,11 @@ export default function GradientDescent() {
   const ball = projectedPath[projectedPath.length - 1];
   const origin = projectPoint(0, 0, 0, angle);
   const status = escaped ? "Overshot the surface" : converged ? "Minimum found" : points.length >= 101 ? "100 steps completed" : running ? "Descending" : "Ready to step";
+  const xStart = projectPoint(-3.5, 0, 0, angle);
+  const xEnd = projectPoint(3.5, 0, 0, angle);
+  const yStart = projectPoint(0, -3.5, 0, angle);
+  const yEnd = projectPoint(0, 3.5, 0, angle);
+  const zEnd = projectPoint(0, 0, 12, angle);
 
   function reset(nextRate = rate) {
     setRate(nextRate);
@@ -59,16 +64,25 @@ export default function GradientDescent() {
       <div className={styles.surface}>
         <div className={styles.visualLabel}><span>LOSS LANDSCAPE</span><span>f(x, y) = ½(x² + 3y²)</span></div>
         <svg viewBox="0 0 680 460" role="img" aria-label={`Three-dimensional loss surface. ${points.length - 1} gradient steps. Current loss ${loss(current).toFixed(4)}. ${status}.`} className={styles.surfaceSvg}>
-          <defs><radialGradient id="gd-glow"><stop stopColor="#1bb6e0" stopOpacity=".2" /><stop offset="1" stopColor="#1bb6e0" stopOpacity="0" /></radialGradient></defs>
+          <defs>
+            <radialGradient id="gd-glow"><stop stopColor="#1bb6e0" stopOpacity=".2" /><stop offset="1" stopColor="#1bb6e0" stopOpacity="0" /></radialGradient>
+            <marker id="gd-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="currentColor" /></marker>
+          </defs>
           <ellipse cx="340" cy="310" rx="310" ry="130" fill="url(#gd-glow)" />
           {mesh.map((cell) => <polygon key={cell.key} points={cell.points} fill="#1bb6e0" fillOpacity={cell.opacity} stroke="#1bb6e0" strokeOpacity=".3" strokeWidth=".65" />)}
-          {[[3.3, 0, "x"], [0, 3.3, "y"]].map(([x, y, label]) => { const end = projectPoint(x, y, 0, angle); return <g key={label} fill="currentColor" opacity=".6"><line x1={origin.x} y1={origin.y} x2={end.x} y2={end.y} stroke="currentColor" strokeDasharray="4 5" /><text x={end.x + 6} y={end.y + 16} fontSize="14">{label}</text></g>; })}
+          <g fill="currentColor" opacity=".78" stroke="currentColor" strokeWidth="1.5">
+            <line x1={xStart.x} y1={xStart.y} x2={xEnd.x} y2={xEnd.y} markerEnd="url(#gd-arrow)" />
+            <line x1={yStart.x} y1={yStart.y} x2={yEnd.x} y2={yEnd.y} markerEnd="url(#gd-arrow)" />
+            <line x1={origin.x} y1={origin.y} x2={zEnd.x} y2={zEnd.y} markerEnd="url(#gd-arrow)" />
+            <text x={xEnd.x + 8} y={xEnd.y + 15} stroke="none" fontSize="15">x</text>
+            <text x={yEnd.x + 8} y={yEnd.y + 15} stroke="none" fontSize="15">y</text>
+            <text x={zEnd.x + 10} y={zEnd.y - 5} stroke="none" fontSize="15">z</text>
+          </g>
           <circle cx={origin.x} cy={origin.y} r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
           <polyline points={projectedPath.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="#e47724" strokeWidth="3" strokeLinejoin="round" />
           {projectedPath.slice(0, -1).map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.8" fill="#e47724" />)}
           <circle cx={ball.x} cy={ball.y} r="9" fill="#ffedd4" stroke="#9b4914" strokeWidth="3" />
         </svg>
-        <p className={styles.plotLegend}>Cyan: loss surface · Amber: descent path</p>
         <label className={styles.rotation}>Rotate the surface<input aria-label="Surface rotation" type="range" min="-2.8" max="2.8" step="0.05" value={angle} onChange={(event) => setAngle(Number(event.target.value))} /></label>
       </div>
       <div className={styles.controls}>
@@ -82,12 +96,6 @@ export default function GradientDescent() {
           <button onClick={() => setPoints([...points, gradientStep(current, rate)])} disabled={done || running} aria-label="Take one gradient step"><SkipForward size={17} />Step</button>
           <button onClick={() => reset()} aria-label="Reset gradient descent"><RotateCcw size={17} /></button>
         </div>
-        <div className={styles.insight}>
-          <strong>{status}</strong>
-          <p>{escaped ? "The learning rate is too large: each jump amplifies the error. Lower it and try again." : converged ? "The gradient is almost zero. Both coordinates have settled near the bottom of the bowl." : "Each step moves against the gradient. Try 0.72 to see why a bigger step isn't always faster."}</p>
-          <code>θ ← θ − η ∇f(θ)</code>
-        </div>
-        <p className={styles.note}>An exact quadratic, not a trained network. The path stops if it leaves the plotted surface. No automatic playback.</p>
       </div>
     </div>
   );

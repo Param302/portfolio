@@ -61,7 +61,6 @@ export default function ForwardPassNetwork() {
               </g>;
             }))}
           </svg>
-          <p className={styles.hint}>Hover, focus, or tap a word to trace its strongest contributions.</p>
           <div className={styles.predictionStatus}><span><span style={{ color: "#1bb6e0" }}>●</span> Positive weight</span><span><span style={{ color: "#e9b27d" }}>●</span> Negative weight</span></div>
         </div>
         <div className={styles.panel}>
@@ -73,10 +72,8 @@ export default function ForwardPassNetwork() {
             </button>)}
           </div>
           <div className={styles.predictionStatus}><span>Score: {prediction.logits[selected].toFixed(2)}</span><span>Entropy: {prediction.entropy.toFixed(2)} bits</span></div>
-          <p className={`${styles.hint} mt-4`}>Temperature changes the distribution, not the network’s scores.</p>
         </div>
       </div>
-      <p className={styles.footnote}><strong>P(word) = softmax(score / temperature).</strong> Fixed synthetic weights, two tanh layers, five possible words. The highlighted paths show the two largest activation × weight contributions per neuron—not a full explanation of a real LLM.</p>
     </div>
   );
 }
