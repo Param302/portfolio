@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ArrowUpRight, Zap } from "lucide-react";
 import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
@@ -136,10 +137,19 @@ export default function Projects() {
   const reduceMotion = useReducedMotion();
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
+  const [contactApproaching, setContactApproaching] = useState(false);
+
+  useEffect(() => {
+    const contact = document.getElementById("contact");
+    if (!contact) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setContactApproaching(entry.isIntersecting), { threshold: 0.01 });
+    observer.observe(contact);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section id="projects" className="section-anchor relative isolate w-full bg-bright-snow dark:bg-ink-black">
-      <div className="relative z-40 bg-bright-snow px-4 py-6 dark:bg-ink-black lg:sticky lg:top-[5.25rem]">
+      <div className={`relative z-40 bg-bright-snow px-4 py-6 transition-opacity duration-200 dark:bg-ink-black lg:sticky lg:top-[5.25rem] ${contactApproaching ? "pointer-events-none invisible opacity-0" : "visible opacity-100"}`}>
         <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">Projects</h2>
       </div>
       <div className="w-full">
