@@ -12,13 +12,13 @@ import {
   MoonStar,
   SunMedium,
   UserRound,
-  UsersRound,
+  Handshake,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { id: "home", label: "Home", icon: Home },
   { id: "about", label: "About", icon: UserRound },
-  { id: "community", label: "Community", icon: UsersRound },
+  { id: "community", label: "Community", icon: Handshake },
   { id: "work", label: "Work", icon: BriefcaseBusiness },
   { id: "projects", label: "Projects", icon: CodeXml },
   { id: "contact", label: "Contact", icon: Mail },

@@ -107,7 +107,7 @@ function CommunityCarousel({ codexImages, pyDelhiImages, extraImages }) {
                 <Image src="/socials/codex.png" alt="OpenAI" width={20} height={20} className="h-4 w-4 object-contain" />
                 Codex Ambassador, New Delhi
               </span>
-              <p className="mt-3 hidden max-w-xl font-description text-sm leading-6 text-bright-snow/85 sm:block">Hosted community events and two hackathons, including one that brought together approximately 150 participants.</p>
+              <p className="mt-3 hidden max-w-xl font-description text-sm leading-6 text-bright-snow/85 sm:block">Hosted various community events and hackathons, by managing over 150 participants</p>
             </>
           ) : null}
           {activeSlide.kind === "pydelhi" ? <span className="rounded-full bg-papaya-whip px-4 py-2 font-accent text-lg italic text-prussian-blue">PyDelhi</span> : null}

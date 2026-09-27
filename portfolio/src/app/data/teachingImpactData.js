@@ -50,7 +50,7 @@ const repositoryFeedbacks = [...feedbacks.row1, ...feedbacks.row2, ...feedbacks.
 export const allFeedbacks = importedFeedbacks.length > 0 ? importedFeedbacks : repositoryFeedbacks;
 
 export const impactStats = [
-  { value: "175K+", label: "Learners" },
-  { value: "70+", label: "Live Sessions" },
-  { value: `${allFeedbacks.length}`, label: "Published Feedbacks" },
+  { value: "200K+", label: "Learners" },
+  { value: "70+", label: "Sessions" },
+  { value: "500+", label: "Feedbacks" },
 ];

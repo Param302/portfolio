@@ -10,6 +10,12 @@ import { allFeedbacks, impactStats } from "@/app/data/teachingImpactData";
 function FeedbackRow({ direction, items, duration }) {
   const reduceMotion = useReducedMotion();
   const doubled = [...items, ...items];
+  const cardStyles = [
+    "bg-papaya-whip text-prussian-blue dark:bg-papaya-whip dark:text-ink-black",
+    "bg-sky-surge/15 text-prussian-blue dark:bg-sky-surge/20 dark:text-bright-snow",
+    "bg-prussian-blue text-bright-snow dark:bg-prussian-blue dark:text-bright-snow",
+    "bg-bright-snow text-prussian-blue dark:bg-alice-blue/10 dark:text-bright-snow",
+  ];
 
   return (
     <div className="overflow-hidden" aria-hidden="true">
@@ -19,7 +25,7 @@ function FeedbackRow({ direction, items, duration }) {
         transition={reduceMotion ? undefined : { duration, ease: "linear", repeat: Number.POSITIVE_INFINITY }}
       >
         {doubled.map((item, index) => (
-          <article key={`${direction}-${index}`} className="flex h-28 w-[260px] shrink-0 items-center rounded-[1.4rem] bg-bright-snow px-5 py-4 text-sm leading-6 text-prussian-blue shadow-sm dark:bg-prussian-blue dark:text-bright-snow sm:w-[310px]">
+          <article key={`${direction}-${index}`} className={`flex h-28 w-[260px] shrink-0 items-center rounded-[1.4rem] px-5 py-4 text-sm leading-6 shadow-sm sm:w-[310px] ${cardStyles[index % cardStyles.length]}`}>
             <p className="line-clamp-3">{item}</p>
           </article>
         ))}
@@ -93,7 +99,7 @@ export default function TeachingImpact({ subscriberLabel = "4K" }) {
           })}
         </div>
 
-        <div className="mt-14 text-center">
+        <div className="mt-24 text-center sm:mt-28">
           <p className="font-accent text-4xl italic text-prussian-blue/85 dark:text-bright-snow/85 sm:text-5xl">Wall of Fame</p>
           <div className="mx-auto mt-4 h-px w-full max-w-3xl bg-prussian-blue/18 dark:bg-bright-snow/16" />
         </div>
