@@ -1,0 +1,61 @@
+.page { min-height: 100svh; background: var(--color-background); color: var(--color-foreground); padding: 0 clamp(16px, 4vw, 72px) 32px; }
+.topbar, .intro, .lab, .footer { max-width: 1440px; margin-inline: auto; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 24px; }
+.identity, .topActions, .topActions a { display: flex; align-items: center; gap: 10px; }
+.identity { font-size: 14px; font-weight: 650; }
+.identity img { height: 38px; width: 32px; object-fit: contain; }
+.topActions { gap: 18px; font-size: 13px; }
+.topActions button { border: 1px solid var(--color-border); border-radius: 50%; padding: 11px; }
+.intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 32px 0 36px; }
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .19em; opacity: .65; }
+.intro h1 { font-size: clamp(30px, 4vw, 54px); line-height: 1.15; letter-spacing: -.045em; margin-top: 13px; }
+.intro h1 em { font-family: var(--font-instrument), serif; font-weight: 400; letter-spacing: -.015em; }
+.intro > div > p:last-child { font-size: 14px; opacity: .7; margin-top: 13px; }
+.indexMark { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.indexMark span { font-family: var(--font-instrument), serif; font-style: italic; font-size: 72px; line-height: 1; color: #118aaa; }
+.indexMark p { font-size: 11px !important; line-height: 1.6; margin: 0 !important; }
+.lab { border: 1px solid var(--color-border); border-radius: 24px; background: var(--color-surface); overflow: hidden; }
+.tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--color-border); padding: 12px; gap: 5px; background: color-mix(in srgb, var(--color-background) 65%, transparent); }
+.tabs button { display: flex; align-items: center; gap: 8px; flex-grow: 1; padding: 12px 10px; border-radius: 10px; font-size: 12px; transition: background .2s; white-space: nowrap; }
+.tabs button span { font-size: 10px; opacity: .5; }
+.tabs button:hover { background: color-mix(in srgb, #1bb6e0 10%, transparent); }
+.tabs button[aria-selected=true] { background: #1bb6e0; color: #0b0f19; font-weight: 650; }
+.panel { padding: clamp(16px, 3vw, 36px); min-width: 0; }
+.panelHeading { margin-bottom: 24px; }
+.panelHeading h2 { font-size: clamp(23px, 2.3vw, 32px); letter-spacing: -.03em; margin-block: 6px; }
+.panelHeading > p:last-child { font-size: 13px; line-height: 1.7; opacity: .7; max-width: 760px; }
+.demoGrid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr); gap: 28px; }
+.surface { min-width: 0; overflow: hidden; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-background); align-self: start; }
+.visualLabel { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 18px 18px 0; font-size: 10px; opacity: .65; letter-spacing: .05em; }
+.surfaceSvg { width: 100%; display: block; }
+.plotLegend { margin: -12px 20px 14px; font-size: 11px; opacity: .65; }
+.rotation { display: flex; align-items: center; gap: 20px; margin: 0 20px 18px; font-size: 11px; }
+.rotation input { min-width: 0; flex: 1; }
+.controls { align-self: center; min-width: 0; }
+.sliderLabel { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.sliderLabel output { font-variant-numeric: tabular-nums; font-size: 22px; font-family: var(--font-instrument), serif; }
+.page input[type=range] { accent-color: #118aaa; width: 100%; min-height: 28px; cursor: pointer; }
+.rangeEnds { display: flex; justify-content: space-between; font-size: 10px; opacity: .6; margin-top: 3px; }
+.presets { display: flex; gap: 8px; margin-block: 16px 25px; }
+.presets button { border: 1px solid var(--color-border); border-radius: 50px; padding: 7px 12px; font-size: 11px; }
+.presets button[aria-pressed=true] { border-color: #118aaa; color: #118aaa; }
+.readouts { display: grid; grid-template-columns: 1fr 1fr; border-block: 1px solid var(--color-border); padding-block: 16px; margin-bottom: 18px; }
+.readouts div { display: flex; flex-direction: column; gap: 4px; }
+.readouts span { font-size: 11px; opacity: .6; }
+.readouts strong { font-size: 23px; font-variant-numeric: tabular-nums; letter-spacing: -.03em; font-weight: 500; }
+.transport { display: flex; gap: 8px; }
+.transport button { border: 1px solid var(--color-border); display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 13px; border-radius: 10px; font-size: 12px; min-height: 42px; }
+.transport button.primaryButton { background: #1bb6e0; border-color: #1bb6e0; color: #0b0f19; flex: 1; font-weight: 650; }
+.transport button:disabled { opacity: .45; cursor: not-allowed; }
+.insight { margin-top: 22px; padding-left: 14px; border-left: 2px solid #1bb6e0; }
+.insight strong { font-size: 13px; }
+.insight p { font-size: 12px; line-height: 1.8; opacity: .7; margin: 7px 0 10px; }
+.insight code { font-size: 12px; }
+.note { font-size: 10px; line-height: 1.7; opacity: .6; margin-top: 19px; }
+.footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; font-size: 11px; padding: 22px 4px; }
+.footer p { opacity: .6; }
+.footer a { display: inline-flex; gap: 8px; align-items: center; }
+.page button:focus-visible, .page a:focus-visible, .page input:focus-visible, .panel:focus-visible { outline: 2px solid #118aaa; outline-offset: 4px; }
+@media (max-width: 850px) { .demoGrid { grid-template-columns: 1fr; gap: 24px; } .controls { width: 100%; } .indexMark { display: none; } .tabs button { flex: 1 0 23%; } }
+@media (max-width: 520px) { .topActions { gap: 10px; } .topActions a span { display: none; } .intro { padding: 20px 0 28px; } .intro h1 em { display: block; margin-top: 5px; } .tabs { padding: 8px; } .tabs button { font-size: 11px; flex: 1 0 43%; padding: 10px 8px; } .tabs button:last-child { flex-grow: 0; } .panelHeading { margin-bottom: 18px; } .rotation { gap: 10px; font-size: 10px; } .lab { border-radius: 18px; } }
+@media (prefers-reduced-motion: reduce) { .page *, .page *::before, .page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
