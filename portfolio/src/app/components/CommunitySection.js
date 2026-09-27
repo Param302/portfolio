@@ -1,27 +1,149 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Braces, MapPin, UsersRound } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import TeachingImpact from "@/app/components/TeachingImpact";
 
-function Gallery({ title, images }) {
+function seededShuffle(items) {
+  const shuffled = [...items];
+  let seed = Date.now() % 2147483647;
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    seed = (seed * 48271) % 2147483647;
+    const swapIndex = seed % (index + 1);
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function CommunityCarousel({ codexImages, pyDelhiImages, extraImages }) {
+  const originalSlides = useMemo(() => [
+    ...codexImages.map((src) => ({ src, kind: "codex" })),
+    ...pyDelhiImages.map((src) => ({ src, kind: "pydelhi" })),
+    ...extraImages.map((src) => ({ src, kind: "extra" })),
+  ], [codexImages, extraImages, pyDelhiImages]);
+  const [slides, setSlides] = useState(originalSlides);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStart = useRef(null);
+
+  useEffect(() => {
+    if (!originalSlides.length) return;
+    const storageKey = "itsparam-community-slide-order";
+    const storedOrder = window.sessionStorage.getItem(storageKey);
+    if (storedOrder) {
+      try {
+        const paths = JSON.parse(storedOrder);
+        const byPath = new Map(originalSlides.map((slide) => [slide.src, slide]));
+        const ordered = paths.map((path) => byPath.get(path)).filter(Boolean);
+        const missing = originalSlides.filter((slide) => !paths.includes(slide.src));
+        setSlides([...ordered, ...missing]);
+        return;
+      } catch {
+        window.sessionStorage.removeItem(storageKey);
+      }
+    }
+    const randomized = seededShuffle(originalSlides);
+    setSlides(randomized);
+    window.sessionStorage.setItem(storageKey, JSON.stringify(randomized.map((slide) => slide.src)));
+  }, [originalSlides]);
+
+  const selectRelative = useCallback((delta) => {
+    setActiveIndex((current) => (current + delta + slides.length) % slides.length);
+  }, [slides.length]);
+
+  useEffect(() => {
+    if (paused || slides.length < 2) return undefined;
+    const timer = window.setInterval(() => selectRelative(1), 4000);
+    return () => window.clearInterval(timer);
+  }, [paused, selectRelative, slides.length]);
+
+  if (!slides.length) return null;
+  const activeSlide = slides[activeIndex % slides.length];
+
   return (
-    <div className="mt-5 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2" aria-label={`${title} event photos`} role="list" tabIndex={0}>
-      {images.map((src, index) => <div key={src} role="listitem" className="relative aspect-square min-w-[42%] snap-start overflow-hidden rounded-2xl bg-prussian-blue/10 sm:min-w-[31%]"><Image src={src} alt={`${title} event ${index + 1} of ${images.length}`} fill sizes="(min-width: 1024px) 15vw, 42vw" className="object-cover transition duration-500 hover:scale-105" /></div>)}
+    <div
+      className="group relative mt-7 aspect-video w-full overflow-hidden rounded-[1.75rem] bg-ink-black shadow-[0_24px_70px_rgba(26,34,53,0.18)] outline-none"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Community events"
+      tabIndex={0}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "ArrowLeft") selectRelative(-1);
+        if (event.key === "ArrowRight") selectRelative(1);
+      }}
+      onTouchStart={(event) => { touchStart.current = event.touches[0]?.clientX ?? null; setPaused(true); }}
+      onTouchEnd={(event) => {
+        const end = event.changedTouches[0]?.clientX;
+        if (touchStart.current !== null && typeof end === "number" && Math.abs(end - touchStart.current) > 45) selectRelative(end > touchStart.current ? -1 : 1);
+        touchStart.current = null;
+        setPaused(false);
+      }}
+    >
+      {slides.map((slide, index) => (
+        <Image
+          key={slide.src}
+          src={slide.src}
+          alt={slide.kind === "codex" ? "Codex Ambassador community event in New Delhi" : slide.kind === "pydelhi" ? "PyDelhi community meetup" : "Community event with Parampreet Singh"}
+          fill
+          sizes="(min-width: 1280px) 1120px, 92vw"
+          className={`object-cover transition duration-700 ease-out ${index === activeIndex ? "scale-100 opacity-100" : "scale-[1.025] opacity-0"}`}
+          priority={index === 0}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-t from-ink-black/85 via-ink-black/10 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-5 p-5 sm:p-7 lg:p-9">
+        <div className="max-w-2xl text-bright-snow">
+          {activeSlide.kind === "codex" ? (
+            <>
+              <span className="inline-flex items-center gap-2 rounded-full bg-bright-snow px-3 py-1.5 font-heading text-xs font-semibold text-ink-black sm:text-sm">
+                <Image src="/socials/codex.png" alt="OpenAI" width={20} height={20} className="h-4 w-4 object-contain" />
+                Codex Ambassador, New Delhi
+              </span>
+              <p className="mt-3 hidden max-w-xl font-description text-sm leading-6 text-bright-snow/85 sm:block">Hosted community events and two hackathons, including one that brought together approximately 150 participants.</p>
+            </>
+          ) : null}
+          {activeSlide.kind === "pydelhi" ? <span className="rounded-full bg-papaya-whip px-4 py-2 font-accent text-lg italic text-prussian-blue">PyDelhi</span> : null}
+        </div>
+        <div className="hidden shrink-0 gap-2 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 sm:flex">
+          <button type="button" onClick={() => selectRelative(-1)} aria-label="Previous community image" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-bright-snow/40 bg-ink-black/45 text-bright-snow backdrop-blur hover:bg-ink-black"><ArrowLeft className="h-4 w-4" /></button>
+          <button type="button" onClick={() => selectRelative(1)} aria-label="Next community image" className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-bright-snow/40 bg-ink-black/45 text-bright-snow backdrop-blur hover:bg-ink-black"><ArrowRight className="h-4 w-4" /></button>
+        </div>
+      </div>
+      <div className="absolute right-5 top-5 z-10 flex max-w-[60%] flex-wrap justify-end gap-1.5 opacity-60 transition group-hover:opacity-100 group-focus-within:opacity-100">
+        {slides.map((slide, index) => <button key={`${slide.src}-dot`} type="button" onClick={() => setActiveIndex(index)} aria-label={`Show community image ${index + 1}`} aria-current={index === activeIndex ? "true" : undefined} className={`h-1.5 rounded-full transition-all ${index === activeIndex ? "w-7 bg-sky-surge" : "w-1.5 bg-bright-snow/80"}`} />)}
+      </div>
     </div>
   );
 }
 
-export default function CommunitySection({ codexImages, pyDelhiImages, subscriberLabel }) {
+export default function CommunitySection({ codexImages = [], pyDelhiImages = [], extraImages = [], subscriberLabel }) {
   return (
-    <section id="community" className="section-anchor bg-papaya-whip px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-      <div className="mx-auto max-w-7xl">
-        <div className="mx-auto max-w-4xl text-center"><p className="font-heading text-sm uppercase tracking-[0.3em] text-prussian-blue/60">Community builder & educator</p><h2 className="mt-4 font-accent text-5xl font-bold italic tracking-tight text-prussian-blue sm:text-6xl lg:text-7xl">Building with people</h2><p className="mx-auto mt-5 max-w-2xl font-description leading-8 text-prussian-blue/75">Organizing, teaching, and creating spaces where people can learn, build, and ship together.</p></div>
-        <div className="mt-12 grid gap-5 lg:grid-cols-2">
-          <article className="rounded-[2rem] bg-prussian-blue p-6 text-bright-snow shadow-soft sm:p-8"><div className="flex items-center gap-3"><span className="rounded-2xl bg-sky-surge p-3 text-ink-black"><Braces className="h-6 w-6" /></span><div><h3 className="font-heading text-2xl font-bold">Codex Ambassador</h3><p className="font-description text-sm opacity-70"><MapPin className="mr-1 inline h-4 w-4" />New Delhi</p></div></div><p className="mt-5 font-description leading-7 text-bright-snow/80">Official regional ambassador. Hosted community events and two hackathons, including one that brought together approximately 150 participants.</p><Gallery title="Codex New Delhi" images={codexImages} /></article>
-          <article className="rounded-[2rem] bg-bright-snow p-6 text-prussian-blue shadow-soft sm:p-8"><div className="flex items-center gap-3"><span className="rounded-2xl bg-papaya-whip p-3"><UsersRound className="h-6 w-6" /></span><div><h3 className="font-heading text-2xl font-bold">PyDelhi</h3><p className="font-description text-sm opacity-65">Organizing team</p></div></div><p className="mt-5 font-description leading-7 text-prussian-blue/75">Helping organize Delhi&apos;s official Python community chapter and volunteering across meetups that connect local learners, maintainers, and builders.</p><Gallery title="PyDelhi" images={pyDelhiImages} /></article>
+    <>
+      <section id="community" className="section-anchor bg-papaya-whip px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="font-accent text-5xl font-bold italic tracking-tight text-prussian-blue sm:text-6xl lg:text-7xl">Community</h2>
+            <p className="mx-auto mt-5 max-w-3xl font-description text-base leading-8 text-prussian-blue/75 sm:text-lg">I build communities, organize meetups and hackathons, and create spaces where people learn and ship together.</p>
+            <span className="mt-6 inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 bg-bright-snow px-4 py-2 font-heading text-sm font-semibold text-prussian-blue shadow-sm">
+              <Image src="/socials/codex.png" alt="OpenAI" width={22} height={22} className="h-5 w-5 object-contain" />
+              Codex Ambassador · New Delhi
+            </span>
+          </div>
+          <div className="mx-auto mt-14 max-w-6xl">
+            <h3 className="font-heading text-3xl font-bold tracking-tight text-prussian-blue sm:text-4xl">Building with people</h3>
+            <CommunityCarousel codexImages={codexImages} pyDelhiImages={pyDelhiImages} extraImages={extraImages} />
+          </div>
         </div>
-        <TeachingImpact subscriberLabel={subscriberLabel} />
-      </div>
-    </section>
+      </section>
+      <TeachingImpact subscriberLabel={subscriberLabel} />
+    </>
   );
 }
