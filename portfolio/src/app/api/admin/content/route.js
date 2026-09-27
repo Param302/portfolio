@@ -72,7 +72,7 @@ export async function POST(request) {
         WITH current AS (
           SELECT 1 FROM resume_state WHERE id = 1 AND published_revision_id IS NOT DISTINCT FROM ${input.basePublishedRevisionId} FOR UPDATE
         ), source AS (
-          SELECT content, latex_source, pdf_data, page_count FROM resume_revisions WHERE id = ${input.revisionId} AND pdf_data IS NOT NULL AND page_count = 1
+          SELECT content, latex_source, pdf_data, page_count FROM resume_revisions WHERE id = ${input.revisionId} AND pdf_data IS NOT NULL AND page_count BETWEEN 1 AND 2
         ), archived AS (
           UPDATE resume_revisions SET status = 'archived'
           WHERE status = 'published' AND EXISTS (SELECT 1 FROM current) AND EXISTS (SELECT 1 FROM source)
@@ -105,7 +105,7 @@ export async function POST(request) {
         if (!rows[0]?.draft_revision_id) return NextResponse.json({ error: "A newer draft exists. Refresh before saving again." }, { status: 409 });
       } else {
         if (input.basePublishedRevisionId === undefined) return NextResponse.json({ error: "Refresh the editor before publishing." }, { status: 409 });
-        if (input.pageCount !== 1 || !input.pdfBase64) return NextResponse.json({ error: "Publish requires a successful one-page PDF preview." }, { status: 400 });
+        if (![1, 2].includes(input.pageCount) || !input.pdfBase64) return NextResponse.json({ error: "Publish requires a successful one- or two-page PDF preview." }, { status: 400 });
         const pdf = Buffer.from(input.pdfBase64, "base64");
         if (pdf.length < 100 || pdf.length > 2_500_000 || pdf.subarray(0, 4).toString() !== "%PDF") return NextResponse.json({ error: "The compiled PDF is invalid or too large." }, { status: 400 });
         const rows = await sql`
@@ -116,7 +116,7 @@ export async function POST(request) {
           ),
           inserted AS (
             INSERT INTO resume_revisions (id, content, latex_source, pdf_data, page_count, status, created_by, audit, published_at)
-            SELECT ${id}, ${JSON.stringify(content)}::jsonb, ${latex}, decode(${input.pdfBase64}, 'base64'), 1, 'published', ${admin.user_id}, ${audit}::jsonb, NOW()
+            SELECT ${id}, ${JSON.stringify(content)}::jsonb, ${latex}, decode(${input.pdfBase64}, 'base64'), ${input.pageCount}, 'published', ${admin.user_id}, ${audit}::jsonb, NOW()
             WHERE EXISTS (SELECT 1 FROM current) RETURNING id
           )
           UPDATE resume_state SET draft_revision_id = (SELECT id FROM inserted), published_revision_id = (SELECT id FROM inserted), updated_at = NOW()
