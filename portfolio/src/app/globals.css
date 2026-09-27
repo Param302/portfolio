@@ -104,7 +104,6 @@ html.dark {
 }
 
 .feedback-wheel {
-  --feedback-item-height: 120px;
   --feedback-wheel-height: min(72vh, 640px);
   height: var(--feedback-wheel-height);
   overflow-y: auto;
@@ -120,17 +119,21 @@ html.dark {
 }
 
 .feedback-wheel-track {
-  padding-block: calc((var(--feedback-wheel-height) - var(--feedback-item-height)) / 2);
+  padding-block: calc(var(--feedback-wheel-height) / 2 - 3.5rem);
 }
 
 .feedback-wheel-item {
-  height: var(--feedback-item-height);
+  min-height: 7.5rem;
+  padding-block: .4rem;
 }
 
 @media (max-width: 639px) {
   .feedback-wheel {
-    --feedback-item-height: 108px;
     --feedback-wheel-height: min(68vh, 520px);
+  }
+
+  .feedback-wheel-item {
+    min-height: 6.75rem;
   }
 }
 

@@ -70,24 +70,15 @@ function FeedbackNode({ quote, index, hovered, onHover, reduceMotion }) {
 
 function FeedbackWheel({ feedbacks, reduceMotion }) {
   const viewportRef = useRef(null);
+  const itemRefs = useRef([]);
   const [focusedRaw, setFocusedRaw] = useState(feedbacks.length);
   const repeatedFeedbacks = [...feedbacks, ...feedbacks, ...feedbacks];
-
-  const readItemHeight = () => {
-    const viewport = viewportRef.current;
-    if (!viewport) return 120;
-    return Number.parseFloat(window.getComputedStyle(viewport).getPropertyValue("--feedback-item-height")) || 120;
-  };
 
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport || feedbacks.length === 0) return undefined;
 
-    const placeInMiddle = () => {
-      const itemHeight = readItemHeight();
-      viewport.scrollTop = feedbacks.length * itemHeight;
-      setFocusedRaw(feedbacks.length);
-    };
+    const placeInMiddle = () => itemRefs.current[feedbacks.length]?.scrollIntoView({ block: "center" });
 
     const frame = window.requestAnimationFrame(placeInMiddle);
     window.addEventListener("resize", placeInMiddle);
@@ -100,20 +91,25 @@ function FeedbackWheel({ feedbacks, reduceMotion }) {
   function syncFocusedItem() {
     const viewport = viewportRef.current;
     if (!viewport || feedbacks.length === 0) return;
-    const itemHeight = readItemHeight();
-    const loopHeight = feedbacks.length * itemHeight;
+    const viewportCenter = viewport.getBoundingClientRect().top + viewport.clientHeight / 2;
+    let nearest = focusedRaw;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    itemRefs.current.forEach((item, index) => {
+      if (!item) return;
+      const rect = item.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height / 2 - viewportCenter);
+      if (distance < nearestDistance) { nearestDistance = distance; nearest = index; }
+    });
+    setFocusedRaw(nearest);
 
-    if (viewport.scrollTop < loopHeight * 0.5) {
-      viewport.scrollTop += loopHeight;
-    } else if (viewport.scrollTop > loopHeight * 2.5) {
-      viewport.scrollTop -= loopHeight;
-    }
-
-    setFocusedRaw(Math.round(viewport.scrollTop / itemHeight));
+    const third = viewport.scrollHeight / 3;
+    if (viewport.scrollTop < third * 0.35) viewport.scrollTop += third;
+    else if (viewport.scrollTop > third * 1.65) viewport.scrollTop -= third;
   }
 
   function nudge(direction) {
-    viewportRef.current?.scrollBy({ top: readItemHeight() * direction, behavior: reduceMotion ? "auto" : "smooth" });
+    const next = Math.max(0, Math.min(repeatedFeedbacks.length - 1, focusedRaw + direction));
+    itemRefs.current[next]?.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
   }
 
   return (
@@ -140,8 +136,8 @@ function FeedbackWheel({ feedbacks, reduceMotion }) {
             "scale-[0.72] border-transparent bg-bright-snow text-prussian-blue opacity-15 blur-[3px]",
           ];
           return (
-            <article key={`${index}-${feedback}`} className="feedback-wheel-item flex snap-center items-center justify-center px-3 sm:px-8">
-              <button type="button" onClick={() => viewportRef.current?.children[0]?.children[index]?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" })} className={`flex h-[calc(var(--feedback-item-height)-0.8rem)] w-full max-w-2xl items-center justify-center rounded-[1.6rem] border px-6 text-center font-description text-sm leading-6 transition duration-300 sm:px-10 sm:text-base sm:leading-7 ${visualStyles[distance]}`}>
+            <article ref={(element) => { itemRefs.current[index] = element; }} key={`${index}-${feedback}`} className="feedback-wheel-item flex snap-center items-center justify-center px-3 sm:px-8">
+              <button type="button" onClick={() => itemRefs.current[index]?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" })} className={`flex min-h-24 w-full max-w-2xl items-center justify-center rounded-[1.6rem] border px-6 py-5 text-center font-description text-sm leading-6 transition duration-300 [overflow-wrap:anywhere] sm:min-h-28 sm:px-10 sm:py-6 sm:text-base sm:leading-7 ${visualStyles[distance]}`}>
                 “{feedback}”
               </button>
             </article>
