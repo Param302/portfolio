@@ -1,52 +1,114 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Bot, MapPinned, Pause, Play, Users } from "lucide-react";
+import { ArrowUpRight, Bot, CalendarDays, HandHeart, Users } from "lucide-react";
 import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
 
-const stats = [
-  { title: "1,500+ Users", detail: "Growing community reach since launch.", icon: Users },
-  { title: "Global Samagam Discovery", detail: "150+ events and 200+ community contributions.", icon: MapPinned },
-  { title: "AI Poster Intelligence", detail: "Understands posters, extracts event fields, and prepares listings for publication.", icon: Bot },
+const metrics = [
+  { value: "1,500+", label: "Users", detail: "People reached since launch", icon: Users },
+  { value: "300+", label: "Samagams", detail: "Events brought into one place", icon: CalendarDays },
+  { value: "500+", label: "Contributions", detail: "Updates shared by the sangat", icon: HandHeart },
 ];
 
 const techStack = ["FastAPI", "PostgreSQL", "Redis", "GCP Cloud Run", "Multilingual GenAI"];
 
-export default function GurmatDarbarSpotlight({ screenshots = ["/gurmatdarbar.png"] }) {
-  const shouldReduceMotion = useReducedMotion();
+const socials = [
+  { label: "Facebook", icon: "/socials/facebook.png", href: "https://www.facebook.com/gurmatdarbar" },
+  { label: "Instagram", icon: "/socials/instagram.png", href: "https://www.instagram.com/gurmatdarbar" },
+  { label: "YouTube", icon: "/socials/youtube.png", href: "https://www.youtube.com/@gurmatdarbar" },
+  { label: "LinkedIn", icon: "/socials/linkedin.png", href: "https://www.linkedin.com/company/gurmatdarbar" },
+  { label: "WhatsApp", icon: "/socials/whatsapp.png", href: "https://gurmatdarbar.com" },
+];
+
+export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-darbar/gd-original.png"] }) {
+  const reduceMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(!shouldReduceMotion);
-  const [temporarilyPaused, setTemporarilyPaused] = useState(false);
-  const carouselPlaying = playing && !temporarilyPaused && !shouldReduceMotion;
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (!carouselPlaying || screenshots.length < 2) return undefined;
+    if (reduceMotion || paused || screenshots.length < 2) return undefined;
     const timer = window.setInterval(() => setIndex((current) => (current + 1) % screenshots.length), 3000);
     return () => window.clearInterval(timer);
-  }, [carouselPlaying, screenshots.length]);
-
-  const show = (next) => setIndex((next + screenshots.length) % screenshots.length);
+  }, [paused, reduceMotion, screenshots.length]);
 
   return (
-    <section className="w-full border-y border-prussian-blue/15 dark:border-alice-blue/10">
-      <div className="grid lg:grid-cols-[6fr_4fr]">
-        <div className="bg-papaya-whip px-6 py-10 text-prussian-blue sm:px-8 lg:px-10 lg:py-14">
-          <div className="flex flex-wrap items-center gap-3"><h2 className="font-heading text-4xl font-extrabold tracking-tight lg:text-5xl">Gurmat Darbar</h2><span className="rounded-full border border-prussian-blue/10 bg-bright-snow/70 px-4 py-1.5 font-accent text-lg italic">Founder</span></div>
-          <a href="https://gurmatdarbar.com" target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 bg-bright-snow/75 px-4 py-2 font-description text-sm font-medium transition hover:-translate-y-0.5 hover:text-sky-surge">gurmatdarbar.com <ArrowUpRight className="h-4 w-4" /></a>
-          <p className="mt-7 max-w-3xl font-description text-base leading-8 sm:text-lg">Building a digital ecosystem for Sikh community events, combining local discovery, community contributions, and an AI-assisted publishing workflow.</p>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {stats.map(({ title, detail, icon: Icon }) => <article key={title} className="rounded-[1.5rem] bg-bright-snow p-5 shadow-[0_12px_32px_rgba(11,15,25,0.08)] dark:bg-prussian-blue dark:text-papaya-whip"><div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-surge/12"><Icon className="h-5 w-5" /></div><p className="mt-4 font-heading text-lg font-semibold leading-snug">{title}</p><p className="mt-2 font-description text-sm leading-6 opacity-75">{detail}</p></article>)}
+    <section className="section-anchor overflow-hidden bg-bright-snow text-prussian-blue dark:bg-ink-black dark:text-bright-snow">
+      <div className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="grid items-start gap-10 xl:grid-cols-[0.9fr_1.1fr] xl:gap-14">
+          <div className="rounded-[2.25rem] bg-papaya-whip p-6 text-prussian-blue shadow-[0_24px_70px_rgba(26,34,53,0.10)] sm:p-9 lg:p-11">
+            <div className="flex flex-wrap items-center justify-between gap-5">
+              <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={230} height={104} className="h-auto w-44 object-contain sm:w-56" />
+              <span className="rounded-full bg-prussian-blue px-4 py-2 font-accent text-lg italic text-bright-snow">Founder</span>
+            </div>
+            <h2 className="mt-9 font-heading text-4xl font-extrabold tracking-tight sm:text-5xl">Discover samagams. Contribute with sangat.</h2>
+            <p className="mt-5 max-w-3xl font-description text-base leading-8 text-prussian-blue/78 sm:text-lg">A digital ecosystem for Sikh community events—bringing trusted discovery, community contributions, and thoughtful technology into one useful home.</p>
+            <a href="https://gurmatdarbar.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-sky-surge px-5 py-3 font-heading text-sm font-semibold text-ink-black transition hover:-translate-y-0.5 hover:bg-[#36c3e8]">Visit gurmatdarbar.com <ArrowUpRight className="h-4 w-4" /></a>
+
+            <div className="mt-9 grid gap-3 sm:grid-cols-3">
+              {metrics.map(({ value, label, detail, icon: Icon }) => (
+                <article key={label} className="rounded-[1.5rem] bg-bright-snow p-5 shadow-[0_12px_30px_rgba(11,15,25,0.08)]">
+                  <Icon className="h-5 w-5 text-sky-surge" />
+                  <p className="mt-4 font-heading text-3xl font-extrabold">{value}</p>
+                  <p className="font-heading text-sm font-semibold uppercase tracking-[0.14em]">{label}</p>
+                  <p className="mt-2 font-description text-xs leading-5 text-prussian-blue/65">{detail}</p>
+                </article>
+              ))}
+            </div>
+
+            <article className="mt-5 rounded-[1.65rem] bg-prussian-blue p-6 text-bright-snow sm:p-7">
+              <div className="flex items-start gap-4">
+                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-surge text-ink-black"><Bot className="h-6 w-6" /></span>
+                <div>
+                  <h3 className="font-heading text-xl font-bold">AI Poster Intelligence</h3>
+                  <p className="mt-2 font-description text-sm leading-7 text-bright-snow/78">Understands uploaded posters, extracts structured event fields automatically, and prepares each listing to go live with less manual work.</p>
+                </div>
+              </div>
+            </article>
+
+            <div className="mt-7 flex flex-wrap gap-2.5">
+              {techStack.map((chip) => <span key={chip} className="rounded-full border border-prussian-blue/12 bg-bright-snow/75 px-3.5 py-2 font-description text-xs uppercase tracking-[0.14em]">{chip}</span>)}
+            </div>
+            <p className="mt-7 font-description text-sm leading-7 text-prussian-blue/72">A dedicated team of sewadars works behind the scenes to verify listings, support contributors, and keep the platform useful for the sangat.</p>
+            <div className="mt-5 flex flex-wrap items-center gap-2.5" aria-label="Gurmat Darbar social links">
+              {socials.map((social) => (
+                <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={`Gurmat Darbar on ${social.label}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-0.5 hover:border-sky-surge hover:shadow-md">
+                  <Image src={social.icon} alt="" width={22} height={22} className="h-5 w-5 object-contain" />
+                </a>
+              ))}
+              <span className="ml-1 font-accent text-base italic text-prussian-blue/65">@gurmatdarbar</span>
+            </div>
           </div>
-          <div className="mt-8 flex flex-wrap gap-2.5">{techStack.map((chip) => <span key={chip} className="rounded-full border border-prussian-blue/12 bg-bright-snow/70 px-3.5 py-2 font-description text-xs uppercase tracking-[0.16em]">{chip}</span>)}</div>
-        </div>
-        <div className="flex flex-col items-center justify-center gap-5 bg-bright-snow px-6 py-10 dark:bg-ink-black lg:px-8" onMouseEnter={() => setTemporarilyPaused(true)} onMouseLeave={() => setTemporarilyPaused(false)} onFocusCapture={() => setTemporarilyPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setTemporarilyPaused(false); }}>
-          <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar logo" width={200} height={90} className="rounded-xl border-2 border-prussian-blue bg-papaya-whip px-4 py-2" />
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border-2 border-prussian-blue dark:border-bright-snow">
-            {screenshots.map((src, screenshotIndex) => <Image key={src} src={src} alt={`Gurmat Darbar platform screen ${screenshotIndex + 1}`} fill sizes="(min-width: 1024px) 40vw, 100vw" className={`object-cover transition duration-700 ${screenshotIndex === index ? "opacity-100" : "pointer-events-none opacity-0"}`} />)}
+
+          <div className="xl:sticky xl:top-28">
+            <div
+              className="relative aspect-video w-full overflow-hidden rounded-[2rem] bg-prussian-blue shadow-[0_28px_90px_rgba(11,15,25,0.22)] outline-none"
+              role="region"
+              aria-roledescription="carousel"
+              aria-label="Gurmat Darbar product screenshots"
+              tabIndex={0}
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
+              onFocus={() => setPaused(true)}
+              onBlur={() => setPaused(false)}
+            >
+              {screenshots.map((src, screenshotIndex) => (
+                <Image
+                  key={src}
+                  src={src}
+                  alt={`Gurmat Darbar platform screenshot ${screenshotIndex + 1}`}
+                  fill
+                  sizes="(min-width: 1280px) 54vw, 96vw"
+                  className={`object-cover transition duration-700 ease-out ${screenshotIndex === index ? "scale-100 opacity-100" : "scale-[1.015] opacity-0"}`}
+                  priority={screenshotIndex === 0}
+                />
+              ))}
+            </div>
+            <div className="mt-6 rounded-[1.75rem] border border-prussian-blue/10 bg-background p-6 dark:border-bright-snow/10 sm:p-7">
+              <p className="font-accent text-2xl italic text-prussian-blue dark:text-bright-snow">Built for trust, not noise.</p>
+              <p className="mt-3 font-description text-sm leading-7 text-prussian-blue/68 dark:text-bright-snow/68">Every workflow is shaped around making real community information easier to discover, verify, and share.</p>
+            </div>
           </div>
-          <div className="flex items-center gap-3"><button type="button" onClick={() => show(index - 1)} aria-label="Previous screenshot" className="rounded-full border border-prussian-blue/15 p-2.5 dark:border-alice-blue/20"><ArrowLeft className="h-4 w-4" /></button><button type="button" disabled={shouldReduceMotion} onClick={() => setPlaying((value) => !value)} aria-label={playing ? "Pause carousel" : "Play carousel"} className="rounded-full bg-sky-surge p-2.5 text-ink-black disabled:cursor-not-allowed disabled:opacity-50">{playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}</button><button type="button" onClick={() => show(index + 1)} aria-label="Next screenshot" className="rounded-full border border-prussian-blue/15 p-2.5 dark:border-alice-blue/20"><ArrowRight className="h-4 w-4" /></button></div>
-          <p className="font-description text-xs text-prussian-blue/60 dark:text-bright-snow/60">{index + 1} / {screenshots.length}</p>
         </div>
       </div>
     </section>
