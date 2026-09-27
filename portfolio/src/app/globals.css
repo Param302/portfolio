@@ -103,23 +103,32 @@ html.dark {
   }
 }
 
-@keyframes feedback-orbit {
-  to {
-    transform: rotate(360deg);
-  }
+@keyframes feedback-ring-spin {
+  to { transform: rotate(360deg); }
 }
 
-.feedback-orbit {
-  animation: feedback-orbit 80s linear infinite;
+@keyframes feedback-node-counter-spin {
+  to { transform: rotate(-360deg); }
+}
+
+.feedback-ring-track {
+  animation: feedback-ring-spin var(--orbit-duration, 80s) linear infinite;
   animation-play-state: paused;
 }
 
-.feedback-orbit[data-playing="true"] {
+.feedback-orbit-node {
+  animation: feedback-node-counter-spin var(--orbit-duration, 80s) linear infinite;
+  animation-play-state: paused;
+}
+
+.feedback-ring-track[data-playing="true"],
+.feedback-orbit-node[data-playing="true"] {
   animation-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .feedback-orbit {
+  .feedback-ring-track,
+  .feedback-orbit-node {
     animation: none;
   }
 }
