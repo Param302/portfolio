@@ -1,37 +1,152 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useReducedMotion } from "framer-motion";
-import { ArrowLeft, Pause, Play, Search } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowDown, ArrowLeft } from "lucide-react";
 
-const PAGE_SIZE = 18;
-const RINGS = [
-  { start: 0, count: 7, size: "min(92vw, 1280px)", duration: "88s" },
-  { start: 7, count: 6, size: "min(69vw, 940px)", duration: "70s" },
-  { start: 13, count: 5, size: "min(47vw, 650px)", duration: "54s" },
+const NODE_LAYOUTS = [
+  { left: "7%", top: "43%" },
+  { left: "92%", top: "39%" },
+  { left: "11%", top: "76%" },
+  { left: "88%", top: "78%" },
+  { left: "50%", top: "89%" },
+  { left: "24%", top: "32%" },
+  { left: "76%", top: "31%" },
+  { left: "33%", top: "84%" },
+  { left: "67%", top: "88%" },
+  { left: "3%", top: "61%" },
+  { left: "97%", top: "60%" },
+  { left: "20%", top: "91%" },
+  { left: "81%", top: "92%" },
+  { left: "40%", top: "36%" },
+  { left: "61%", top: "35%" },
+  { left: "50%", top: "27%" },
 ];
 
-function QuoteNode({ quote, displayIndex, ringIndex, nodeIndex, count, playing, onSelect }) {
-  const angle = (nodeIndex / count) * 360 + ringIndex * 17;
-  const visibility = displayIndex >= 12 ? "hidden xl:block" : "";
+function movementFor(index) {
+  const x = 10 + (index % 5) * 5;
+  const y = 8 + (index % 4) * 4;
+  const direction = index % 2 === 0 ? 1 : -1;
+
+  return {
+    x: [0, direction * x, -direction * (x * 0.7), 0],
+    y: [0, -y, y * 0.8, 0],
+    rotateX: [0, direction * (4 + index % 8), -direction * 3, 0],
+    rotateY: [0, -direction * (7 + index % 10), direction * 5, 0],
+    rotateZ: [index % 2 ? -3 : 3, index % 2 ? 4 : -4, index % 2 ? -3 : 3],
+  };
+}
+
+function FeedbackNode({ quote, index, hovered, onHover, reduceMotion }) {
+  const layout = NODE_LAYOUTS[index];
+  const isHovered = hovered === index;
+  const isMuted = hovered !== null && !isHovered;
+  const mobileVisibility = index >= 8 ? "hidden lg:block" : index >= 5 ? "hidden sm:block" : "block";
+
   return (
-    <div className={`feedback-node-arm absolute left-1/2 top-1/2 h-px w-1/2 origin-left ${visibility}`} style={{ "--node-angle": `${angle}deg`, transform: `rotate(${angle}deg)` }}>
-      <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2" style={{ transform: `translate(50%, -50%) rotate(-${angle}deg)` }}>
-        <button
-          type="button"
-          className="feedback-orbit-node group/node flex w-40 items-center rounded-2xl border border-bright-snow/20 bg-ink-black/82 px-4 py-3 text-left font-description text-xs leading-5 text-bright-snow shadow-[0_14px_36px_rgba(0,0,0,0.24)] backdrop-blur transition hover:z-50 hover:scale-110 hover:border-sky-surge hover:bg-prussian-blue focus:z-50 focus:scale-110 focus:border-sky-surge focus:outline-none focus:ring-2 focus:ring-sky-surge sm:w-48"
-          data-playing={playing}
-          onMouseEnter={() => onSelect(displayIndex, true)}
-          onMouseLeave={() => onSelect(displayIndex, false)}
-          onFocus={() => onSelect(displayIndex, true)}
-          onBlur={() => onSelect(displayIndex, false)}
-          onClick={() => onSelect(displayIndex, true)}
-          aria-label={`Read feedback: ${quote}`}
-        >
-          <span className="line-clamp-3">“{quote}”</span>
-        </button>
+    <div className={`absolute -translate-x-1/2 -translate-y-1/2 ${mobileVisibility}`} style={{ left: layout.left, top: layout.top, perspective: "700px" }}>
+      <motion.button
+        type="button"
+        animate={reduceMotion ? undefined : movementFor(index)}
+        transition={reduceMotion ? undefined : { duration: 11 + (index % 6) * 1.7, ease: "easeInOut", repeat: Number.POSITIVE_INFINITY, delay: -(index % 7) * 1.2 }}
+        whileHover={reduceMotion ? undefined : { scale: 1.08, z: 38 }}
+        whileFocus={reduceMotion ? undefined : { scale: 1.08, z: 38 }}
+        onMouseEnter={() => onHover(index)}
+        onMouseLeave={() => onHover(null)}
+        onFocus={() => onHover(index)}
+        onBlur={() => onHover(null)}
+        onClick={() => onHover(index)}
+        aria-label={`Focus feedback: ${quote}`}
+        className={`w-32 rounded-2xl border px-3.5 py-3 text-left font-description text-[0.68rem] leading-4 text-bright-snow transition-[filter,opacity,border-color,background-color] duration-300 sm:w-44 sm:px-4 sm:text-xs sm:leading-5 ${isHovered ? "z-30 border-sky-surge bg-sky-surge/18 opacity-100" : "border-bright-snow/16 bg-ink-black/72"} ${isMuted ? "blur-[3px] opacity-20" : "opacity-80 hover:opacity-100"}`}
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        <span className="line-clamp-3">“{quote}”</span>
+      </motion.button>
+    </div>
+  );
+}
+
+function FeedbackWheel({ feedbacks, reduceMotion }) {
+  const viewportRef = useRef(null);
+  const [focusedRaw, setFocusedRaw] = useState(feedbacks.length);
+  const repeatedFeedbacks = [...feedbacks, ...feedbacks, ...feedbacks];
+
+  const readItemHeight = () => {
+    const viewport = viewportRef.current;
+    if (!viewport) return 120;
+    return Number.parseFloat(window.getComputedStyle(viewport).getPropertyValue("--feedback-item-height")) || 120;
+  };
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || feedbacks.length === 0) return undefined;
+
+    const placeInMiddle = () => {
+      const itemHeight = readItemHeight();
+      viewport.scrollTop = feedbacks.length * itemHeight;
+      setFocusedRaw(feedbacks.length);
+    };
+
+    const frame = window.requestAnimationFrame(placeInMiddle);
+    window.addEventListener("resize", placeInMiddle);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", placeInMiddle);
+    };
+  }, [feedbacks.length]);
+
+  function syncFocusedItem() {
+    const viewport = viewportRef.current;
+    if (!viewport || feedbacks.length === 0) return;
+    const itemHeight = readItemHeight();
+    const loopHeight = feedbacks.length * itemHeight;
+
+    if (viewport.scrollTop < loopHeight * 0.5) {
+      viewport.scrollTop += loopHeight;
+    } else if (viewport.scrollTop > loopHeight * 2.5) {
+      viewport.scrollTop -= loopHeight;
+    }
+
+    setFocusedRaw(Math.round(viewport.scrollTop / itemHeight));
+  }
+
+  function nudge(direction) {
+    viewportRef.current?.scrollBy({ top: readItemHeight() * direction, behavior: reduceMotion ? "auto" : "smooth" });
+  }
+
+  return (
+    <div
+      ref={viewportRef}
+      className="feedback-wheel mx-auto w-full max-w-3xl outline-none"
+      onScroll={syncFocusedItem}
+      onKeyDown={(event) => {
+        if (event.key === "ArrowDown") { event.preventDefault(); nudge(1); }
+        if (event.key === "ArrowUp") { event.preventDefault(); nudge(-1); }
+      }}
+      role="region"
+      aria-label="All learner feedback. Scroll or use the arrow keys."
+      tabIndex={0}
+    >
+      <div className="feedback-wheel-track">
+        {repeatedFeedbacks.map((feedback, index) => {
+          const distance = Math.min(Math.abs(index - focusedRaw), 4);
+          const visualStyles = [
+            "scale-100 border-sky-surge bg-prussian-blue text-bright-snow opacity-100 blur-0",
+            "scale-[0.92] border-prussian-blue/10 bg-bright-snow text-prussian-blue opacity-70 blur-[0.7px]",
+            "scale-[0.84] border-prussian-blue/8 bg-bright-snow text-prussian-blue opacity-42 blur-[1.4px]",
+            "scale-[0.77] border-transparent bg-bright-snow text-prussian-blue opacity-25 blur-[2px]",
+            "scale-[0.72] border-transparent bg-bright-snow text-prussian-blue opacity-15 blur-[3px]",
+          ];
+          return (
+            <article key={`${index}-${feedback}`} className="feedback-wheel-item flex snap-center items-center justify-center px-3 sm:px-8">
+              <button type="button" onClick={() => viewportRef.current?.children[0]?.children[index]?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" })} className={`flex h-[calc(var(--feedback-item-height)-0.8rem)] w-full max-w-2xl items-center justify-center rounded-[1.6rem] border px-6 text-center font-description text-sm leading-6 transition duration-300 sm:px-10 sm:text-base sm:leading-7 ${visualStyles[distance]}`}>
+                “{feedback}”
+              </button>
+            </article>
+          );
+        })}
       </div>
     </div>
   );
@@ -40,24 +155,27 @@ function QuoteNode({ quote, displayIndex, ringIndex, nodeIndex, count, playing, 
 export default function WallOfFameClient({ feedbacks }) {
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
-  const [playing, setPlaying] = useState(!reduceMotion);
-  const [temporarilyPaused, setTemporarilyPaused] = useState(false);
-  const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const visibleNodes = feedbacks.slice(0, Math.min(18, feedbacks.length));
-  const filtered = useMemo(() => feedbacks.filter((item) => item.toLowerCase().includes(query.toLowerCase())), [feedbacks, query]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const orbitPlaying = playing && !temporarilyPaused && !reduceMotion;
+  const [hovered, setHovered] = useState(null);
+  const visibleNodes = feedbacks.slice(0, Math.min(NODE_LAYOUTS.length, feedbacks.length));
+  const displayedIndex = hovered ?? active;
+  const displayedQuote = feedbacks[displayedIndex] || "Thank you for learning with me.";
 
-  const selectQuote = (index, shouldPause) => {
-    setActive(index);
-    setTemporarilyPaused(shouldPause);
-  };
+  useEffect(() => {
+    if (reduceMotion || feedbacks.length < 2 || hovered !== null) return undefined;
+    const timer = window.setInterval(() => {
+      setActive((current) => (current + 1 + Math.floor(Math.random() * (feedbacks.length - 1))) % feedbacks.length);
+    }, 4200);
+    return () => window.clearInterval(timer);
+  }, [feedbacks.length, hovered, reduceMotion]);
+
+  function focusNode(index) {
+    setHovered(index);
+    if (index !== null) setActive(index);
+  }
 
   return (
     <main className="min-h-screen overflow-hidden bg-papaya-whip pb-20 text-prussian-blue">
-      <section className="relative min-h-[780px] overflow-hidden bg-prussian-blue px-4 pb-14 pt-6 text-bright-snow sm:px-6 lg:min-h-screen lg:px-8">
+      <section className="relative min-h-[760px] overflow-hidden bg-prussian-blue px-4 pb-14 pt-6 text-bright-snow sm:px-6 lg:min-h-screen lg:px-8">
         <div className="relative z-50 mx-auto flex max-w-7xl items-center justify-between gap-3">
           <Link href="/" className="inline-flex items-center gap-3 rounded-full border border-bright-snow/14 bg-bright-snow/10 px-3 py-2 font-heading text-sm font-semibold backdrop-blur transition hover:border-sky-surge">
             <Image src="/parampreet.png" alt="Parampreet Singh" width={34} height={34} className="h-8 w-8 rounded-full object-cover" />
@@ -69,48 +187,31 @@ export default function WallOfFameClient({ feedbacks }) {
         <header className="relative z-40 mx-auto mt-10 max-w-4xl text-center">
           <p className="font-heading text-xs uppercase tracking-[0.32em] text-bright-snow/55">Teaching impact</p>
           <h1 className="mt-3 font-accent text-6xl font-bold italic sm:text-7xl lg:text-8xl">Wall of Fame</h1>
-          <p className="mx-auto mt-4 max-w-2xl font-description text-sm leading-7 text-bright-snow/68 sm:text-base">{feedbacks.length} anonymous notes from live sessions, revision marathons, and mentoring.</p>
+          <p className="mx-auto mt-4 max-w-2xl font-description text-sm leading-7 text-bright-snow/68 sm:text-base">Anonymous notes from live sessions, revision marathons, and mentoring.</p>
         </header>
 
-        <div className="absolute inset-0 z-0 hidden md:block" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(27,182,224,0.22),transparent_45%)]" />
-          {RINGS.map((ring, ringIndex) => (
-            <div key={ring.size} className="feedback-ring absolute left-1/2 top-[58%] aspect-square -translate-x-1/2 -translate-y-1/2 rounded-full border border-bright-snow/[0.045]" style={{ width: ring.size }}>
-              <div className="feedback-ring-track absolute inset-0" data-playing={orbitPlaying} style={{ "--orbit-duration": ring.duration }}>
-                {visibleNodes.slice(ring.start, ring.start + ring.count).map((quote, nodeIndex) => (
-                  <QuoteNode key={`${ring.start}-${quote}`} quote={quote} displayIndex={ring.start + nodeIndex} ringIndex={ringIndex} nodeIndex={nodeIndex} count={ring.count} playing={orbitPlaying} onSelect={selectQuote} />
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="absolute inset-x-0 bottom-0 top-36 z-10" aria-label="Floating learner feedback">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(27,182,224,0.18),transparent_43%)]" />
+          {visibleNodes.map((quote, index) => <FeedbackNode key={`${index}-${quote}`} quote={quote} index={index} hovered={hovered} onHover={focusNode} reduceMotion={reduceMotion} />)}
         </div>
 
-        <div className="relative z-30 mx-auto mt-9 grid max-w-xl grid-cols-2 gap-3 md:hidden">
-          {visibleNodes.slice(0, 8).map((quote, index) => (
-            <button key={quote} type="button" onClick={() => setActive(index)} className={`min-h-28 rounded-2xl border p-4 text-left font-description text-xs leading-5 transition ${active === index ? "border-sky-surge bg-sky-surge text-ink-black" : "border-bright-snow/15 bg-bright-snow/8 text-bright-snow"}`}><span className="line-clamp-4">“{quote}”</span></button>
-          ))}
+        <div className="absolute left-1/2 top-[59%] z-30 w-[min(88vw,620px)] -translate-x-1/2 -translate-y-1/2 rounded-[2rem] border border-bright-snow/14 bg-ink-black/90 p-6 text-center backdrop-blur sm:p-9">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.p key={displayedIndex} initial={reduceMotion ? false : { opacity: 0, y: 10, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={reduceMotion ? undefined : { opacity: 0, y: -8, scale: 0.98 }} transition={{ duration: reduceMotion ? 0 : 0.42 }} className="font-accent text-xl italic leading-8 sm:text-2xl sm:leading-9">“{displayedQuote}”</motion.p>
+          </AnimatePresence>
         </div>
 
-        <div className="relative z-40 mx-auto mt-8 w-full max-w-xl rounded-[2rem] border border-bright-snow/14 bg-ink-black/92 p-6 text-center shadow-2xl backdrop-blur md:absolute md:left-1/2 md:top-[58%] md:mt-0 md:-translate-x-1/2 md:-translate-y-1/2 sm:p-8">
-          <p className="font-accent text-xl italic leading-8 sm:text-2xl sm:leading-9">“{visibleNodes[active]}”</p>
-          <button type="button" disabled={reduceMotion} onClick={() => setPlaying((value) => !value)} className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full bg-sky-surge px-4 py-2 font-heading text-sm font-semibold text-ink-black transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
-            {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            {reduceMotion ? "Motion reduced" : playing ? "Pause motion" : "Play motion"}
-          </button>
-        </div>
+        <a href="#all-feedback" className="absolute bottom-7 left-1/2 z-40 inline-flex -translate-x-1/2 items-center gap-2 rounded-full border border-bright-snow/15 bg-bright-snow/10 px-4 py-2 font-heading text-xs font-semibold text-bright-snow transition hover:border-sky-surge"><ArrowDown className="h-4 w-4" />Read every note</a>
       </section>
 
-      <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8" aria-labelledby="feedback-list-title">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div><h2 id="feedback-list-title" className="font-heading text-3xl font-bold">Read every note</h2><p className="mt-1 font-description text-sm opacity-65">Searchable and keyboard-friendly.</p></div>
-          <label className="relative block sm:w-80"><Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" /><span className="sr-only">Search feedback</span><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search feedback" className="w-full rounded-full border border-prussian-blue/15 bg-bright-snow py-3 pl-11 pr-4 outline-none transition focus:border-sky-surge focus:ring-4 focus:ring-sky-surge/10" /></label>
+      <section id="all-feedback" className="mx-auto mt-16 max-w-5xl scroll-mt-8 px-4 sm:px-6 lg:px-8" aria-labelledby="feedback-list-title">
+        <div className="text-center">
+          <h2 id="feedback-list-title" className="font-accent text-5xl font-bold italic sm:text-6xl">Every note</h2>
+          <p className="mx-auto mt-3 max-w-xl font-description text-sm leading-7 opacity-65">Scroll slowly. The note in focus comes forward, like turning a digital crown.</p>
         </div>
-        {pageItems.length > 0 ? (
-          <div className="mt-8 columns-1 gap-4 md:columns-2 xl:columns-3">
-            {pageItems.map((feedback) => <article key={feedback} className="mb-4 break-inside-avoid rounded-[1.5rem] bg-bright-snow p-5 text-sm leading-7 shadow-[0_12px_30px_rgba(11,15,25,0.06)]">{feedback}</article>)}
-          </div>
-        ) : <p className="mt-8 rounded-[1.5rem] bg-bright-snow p-8 text-center font-description opacity-70">No feedback matches that search.</p>}
-        <div className="mt-8 flex items-center justify-center gap-4"><button type="button" disabled={page === 1} onClick={() => setPage((value) => value - 1)} className="rounded-full border border-prussian-blue/15 px-5 py-2 disabled:opacity-35">Previous</button><span className="font-description text-sm">{page} / {pageCount}</span><button type="button" disabled={page === pageCount} onClick={() => setPage((value) => value + 1)} className="rounded-full border border-prussian-blue/15 px-5 py-2 disabled:opacity-35">Next</button></div>
+        <div className="mt-8 rounded-[2.2rem] border border-prussian-blue/10 bg-bright-snow/55 px-2 sm:px-5">
+          <FeedbackWheel feedbacks={feedbacks} reduceMotion={reduceMotion} />
+        </div>
       </section>
     </main>
   );

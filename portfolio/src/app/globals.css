@@ -103,33 +103,34 @@ html.dark {
   }
 }
 
-@keyframes feedback-ring-spin {
-  to { transform: rotate(360deg); }
+.feedback-wheel {
+  --feedback-item-height: 120px;
+  --feedback-wheel-height: min(72vh, 640px);
+  height: var(--feedback-wheel-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, transparent, black 17%, black 83%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 17%, black 83%, transparent);
 }
 
-@keyframes feedback-node-counter-spin {
-  to { transform: rotate(-360deg); }
+.feedback-wheel::-webkit-scrollbar {
+  display: none;
 }
 
-.feedback-ring-track {
-  animation: feedback-ring-spin var(--orbit-duration, 80s) linear infinite;
-  animation-play-state: paused;
+.feedback-wheel-track {
+  padding-block: calc((var(--feedback-wheel-height) - var(--feedback-item-height)) / 2);
 }
 
-.feedback-orbit-node {
-  animation: feedback-node-counter-spin var(--orbit-duration, 80s) linear infinite;
-  animation-play-state: paused;
+.feedback-wheel-item {
+  height: var(--feedback-item-height);
 }
 
-.feedback-ring-track[data-playing="true"],
-.feedback-orbit-node[data-playing="true"] {
-  animation-play-state: running;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .feedback-ring-track,
-  .feedback-orbit-node {
-    animation: none;
+@media (max-width: 639px) {
+  .feedback-wheel {
+    --feedback-item-height: 108px;
+    --feedback-wheel-height: min(68vh, 520px);
   }
 }
 
