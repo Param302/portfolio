@@ -32,9 +32,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# local package and content-source caches
+.npm-cache/
+content-source/feedback/*
+!content-source/feedback/.gitkeep
 
 # typescript
 *.tsbuildinfo

@@ -1,103 +1,45 @@
-import nodemailer from "nodemailer";
+import { createHash, randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+import { sendContactEmail } from "@/lib/contact-email";
+import { getSql, isDatabaseConfigured } from "@/lib/db";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getRequestMeta } from "@/lib/request-meta";
 
 export const dynamic = "force-dynamic";
 
-function buildTransporter() {
-    const host = process.env.SMTP_HOST || "smtp.gmail.com";
-    const port = Number(process.env.SMTP_PORT || 465);
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
-    const secure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === "true" : port === 465;
-
-    if (!user || !pass) {
-        throw new Error("SMTP credentials are not configured.");
-    }
-
-    return nodemailer.createTransport({
-        host,
-        port,
-        secure,
-        auth: { user, pass },
-    });
-}
-
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function escapeHtml(value) {
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
+const contactSchema = z.object({ name: z.string().trim().min(1).max(120), email: z.string().trim().email().max(240), message: z.string().trim().min(10).max(5000), website: z.string().max(0).optional().default("") });
 
 export async function POST(request) {
+  const meta = getRequestMeta(request);
+  try {
+    const data = contactSchema.parse(await request.json());
+    if (!isDatabaseConfigured()) return NextResponse.json({ error: "The contact form is temporarily unavailable. Please email hey@itsparam.in." }, { status: 503 });
+    if (!await checkRateLimit({ bucket: "contact", key: meta.ipHash, limit: 5, windowSeconds: 3600 })) return NextResponse.json({ error: "Too many messages. Please try again later." }, { status: 429 });
+    const fingerprint = createHash("sha256").update(`${data.email.toLowerCase()}|${data.message.toLowerCase()}`).digest("hex");
+    const id = randomUUID();
+    let storedId = id;
+    const sql = getSql();
+    const rows = await sql`
+      INSERT INTO contact_messages (id, name, email, message, fingerprint, ip_address, ip_hash, user_agent)
+      VALUES (${id}, ${data.name}, ${data.email.toLowerCase()}, ${data.message}, ${fingerprint}, ${meta.ip}, ${meta.ipHash}, ${meta.userAgent})
+      ON CONFLICT (fingerprint) DO UPDATE SET updated_at = contact_messages.updated_at
+      RETURNING id
+    `;
+    storedId = rows[0].id;
+    if (storedId !== id) return NextResponse.json({ ok: true, duplicate: true });
     try {
-        const { name, email, subject, message } = await request.json();
-
-        if (!name || !email || !message) {
-            return NextResponse.json(
-                { error: "Name, email, and message are required." },
-                { status: 400 }
-            );
-        }
-
-        if (!isValidEmail(email)) {
-            return NextResponse.json(
-                { error: "Please provide a valid email address." },
-                { status: 400 }
-            );
-        }
-
-        const transporter = buildTransporter();
-        const fromAddress = process.env.SMTP_USER || "hey@itsparam.in";
-        const toAddress = process.env.CONTACT_TO || "hey@itsparam.in";
-        const mailSubject =
-            subject && subject.trim().length > 0
-                ? subject.trim()
-                : `New Portfolio Message from ${name}`;
-        const safeName = escapeHtml(name);
-        const safeEmail = escapeHtml(email);
-        const safeSubject = escapeHtml(mailSubject);
-        const safeMessage = escapeHtml(message);
-
-        await transporter.sendMail({
-            from: `"${name} - from Portfolio website" <${fromAddress}>`,
-            to: toAddress,
-            replyTo: `${name} <${email}>`,
-            subject: mailSubject,
-            text: [
-                `Name: ${name}`,
-                `Email: ${email}`,
-                "",
-                "Message:",
-                message,
-            ].join("\n"),
-            html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.5;color:#1a2235;">
-          <h2 style="margin:0 0 12px;">New Portfolio Contact Message</h2>
-          <p><strong>Name:</strong> ${safeName}</p>
-          <p><strong>Email:</strong> ${safeEmail}</p>
-          <p><strong>Subject:</strong> ${safeSubject}</p>
-          <p><strong>Message:</strong></p>
-          <p style="white-space:pre-wrap;">${safeMessage}</p>
-        </div>
-      `,
-        });
-
-        return NextResponse.json({ ok: true, message: "Message sent." });
-    } catch (error) {
-        return NextResponse.json(
-            {
-                error:
-                    error?.message ||
-                    "Unable to send message right now. Please try again later.",
-            },
-            { status: 500 }
-        );
+      await sendContactEmail(data);
+      await sql`UPDATE contact_messages SET notification_status = 'sent', updated_at = NOW() WHERE id = ${storedId}`;
+    } catch (mailError) {
+      console.error("Contact notification failed after message persistence.", mailError);
+      await sql`UPDATE contact_messages SET notification_status = 'failed', notification_error = ${String(mailError.message || "Notification failed").slice(0, 1000)}, updated_at = NOW() WHERE id = ${storedId}`;
     }
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    if (error instanceof z.ZodError) return NextResponse.json({ error: "Please check your name, email, and message." }, { status: 400 });
+    console.error("Contact submission failed.", error);
+    return NextResponse.json({ error: "Unable to send your message right now." }, { status: 500 });
+  }
 }
