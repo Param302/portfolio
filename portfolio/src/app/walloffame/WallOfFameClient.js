@@ -13,17 +13,22 @@ const BLINK_INTERVAL = [1.55, 2.95];
 const LIKED_STORAGE_KEY = "wall-of-fame-liked-v1";
 const VISITOR_STORAGE_KEY = "wall-of-fame-visitor-v1";
 const STREAM_OFFSETS = [-2, -1, 0, 1, 2];
-const NODE_LAYOUT = Array.from({ length: 42 }, (_, index) => {
-  const duration = 11 + (index * 7) % 13;
+const hashUnit = (seed) => {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return Math.round((value - Math.floor(value)) * 1_000_000) / 1_000_000;
+};
+
+const NODE_LAYOUT = Array.from({ length: 84 }, (_, index) => {
+  const seed = index + 1;
+  const duration = 13 + hashUnit(seed + 31) * 13;
   return {
-    x: 4 + (index * 37) % 92,
-    y: 7 + (index * 53) % 87,
-    size: 5 + (index * 5) % 11,
-    dx: (index % 2 ? -1 : 1) * (14 + (index * 7) % 23),
-    dy: (index % 3 ? 1 : -1) * (13 + (index * 11) % 25),
+    x: 2 + hashUnit(seed) * 96,
+    y: 3 + hashUnit(seed * 3.71 + 17) * 94,
+    size: 5 + Math.round(hashUnit(seed * 5.13 + 7) * 9),
+    dx: (index % 2 ? -1 : 1) * (10 + hashUnit(seed * 7.31) * 27),
+    dy: (index % 3 ? 1 : -1) * (10 + hashUnit(seed * 9.73) * 29),
     duration,
-    delay: -((index * 1.9) % duration),
-    tone: ["peach", "blue", "white"][index % 3],
+    delay: -(hashUnit(seed * 11.47 + 5) * duration),
   };
 });
 
@@ -236,7 +241,6 @@ export default function WallOfFameClient({ feedbacks }) {
           <span
             key={feedback.id}
             className={styles.nodePath}
-            data-tone={layout.tone}
             style={{
               "--node-x": `${layout.x}%`,
               "--node-y": `${layout.y}%`,
@@ -252,7 +256,6 @@ export default function WallOfFameClient({ feedbacks }) {
                 layoutId={`feedback-node-${feedback.id}`}
                 type="button"
                 className={styles.node}
-                data-tone={layout.tone}
                 aria-label={`Open appreciation: ${feedback.text.slice(0, 72)}`}
                 onClick={() => setExpanded(feedback)}
                 transition={{ duration: reduceMotion ? 0 : 0.48, ease: [0.22, 1, 0.36, 1] }}

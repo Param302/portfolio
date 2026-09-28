@@ -9,7 +9,6 @@
   --wall-glass: #ffffffb8;
   --wall-glass-border: #1420371f;
   --wall-glass-shadow: 0 14px 38px #2d536d20, inset 0 1px 0 #ffffff;
-  --wall-orbit: #18334a0d;
   --wall-overlay: linear-gradient(180deg, #edf7fa21 0%, #d8e9efad 48%, #d8e9ef00 100%);
   position: fixed;
   inset: 0;
@@ -38,7 +37,6 @@
   --wall-glass: #111b2bbf;
   --wall-glass-border: #edf4ff1f;
   --wall-glass-shadow: 0 14px 38px #050b1642, inset 0 1px 0 #ffffff0c;
-  --wall-orbit: #f3d5b20b;
   --wall-overlay: linear-gradient(180deg, #0e182516 0%, #09121f8c 46%, #09121f00 100%);
   color-scheme: dark;
 }
@@ -50,23 +48,16 @@
   background: var(--wall-background);
 }
 
-.ambient::before,
-.ambient::after {
-  position: absolute;
-  border: 1px solid var(--wall-orbit);
-  border-radius: 50%;
-  content: "";
-  pointer-events: none;
-}
-
-.ambient::before { top: -22vw; left: 50%; width: 75vw; height: 75vw; transform: translateX(-50%); }
-.ambient::after { right: -19vw; bottom: -31vw; width: 65vw; height: 65vw; }
-
 .nav {
+  --nav-gutter: 32px;
   position: absolute;
   z-index: 70;
-  inset: 14px 18px auto;
+  top: 16px;
+  left: 50%;
+  width: min(100%, 1280px);
   height: 54px;
+  transform: translateX(-50%);
+  box-sizing: border-box;
   pointer-events: none;
 }
 
@@ -102,7 +93,7 @@
 .nameChip {
   position: absolute;
   top: 0;
-  left: 0;
+  left: var(--nav-gutter);
   display: inline-flex;
   height: 48px;
   align-items: center;
@@ -123,7 +114,7 @@
 .themeButton {
   position: absolute;
   top: 0;
-  right: 0;
+  right: var(--nav-gutter);
   display: grid;
   width: 48px;
   height: 48px;
@@ -228,9 +219,6 @@
   box-shadow: 0 0 0 5px #edc18b0a, 0 0 19px #f1c58a4f;
   transition: box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
 }
-
-.node[data-tone="blue"] { border-color: #7ce4ffb8; background: #28b9df; box-shadow: 0 0 0 5px #28b9df0d, 0 0 18px #28b9df70; }
-.node[data-tone="white"] { border-color: #ffffffbf; background: #f7fbff; box-shadow: 0 0 0 5px #ffffff0d, 0 0 18px #bfefff6b; }
 
 .node::after { position: absolute; inset: -13px; border-radius: 50%; content: ""; }
 .node:hover,
@@ -416,7 +404,7 @@
 }
 
 @media (max-width: 640px) {
-  .nav { inset: 9px 8px auto; height: 44px; }
+  .nav { --nav-gutter: 16px; top: 16px; height: 44px; }
   .homeButton { width: 42px; height: 42px; }
   .homeButton svg { width: 16px; height: 16px; }
   .themeButton { width: 42px; height: 42px; }
@@ -437,8 +425,11 @@
   .spotlightCard[data-size="long"] { height: min(52vh, 392px); }
 }
 
+@media (min-width: 641px) and (max-width: 1023px) {
+  .nav { --nav-gutter: 24px; }
+}
+
 @media (max-height: 650px) {
-  .nav { top: 8px; }
   .intro { padding-top: 50px; }
   .heading p { margin-top: 4px; }
   .avatar { width: clamp(92px, 16vh, 120px); height: clamp(94px, 16.5vh, 123px); }

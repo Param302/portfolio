@@ -163,7 +163,7 @@ function makeStarGeometry() {
   const outline = new THREE.Shape();
   for (let index = 0; index < 10; index++) {
     const angle = Math.PI / 2 + index * Math.PI / 5;
-    const radius = (index % 2 ? 25 : 62) * PIXEL_SCALE;
+    const radius = (index % 2 ? 29 : 71) * PIXEL_SCALE;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
     if (index) outline.lineTo(x, y); else outline.moveTo(x, y);
