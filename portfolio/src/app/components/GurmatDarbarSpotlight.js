@@ -73,11 +73,10 @@ function SocialLinks() {
 }
 
 function ScreenshotCarousel({ screenshots, index, setPaused }) {
+  const activeScreenshot = screenshots[index % screenshots.length];
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-[2rem] bg-prussian-blue outline-none" role="region" aria-roledescription="carousel" aria-label="Gurmat Darbar product screenshots" tabIndex={0} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
-      {screenshots.map((src, screenshotIndex) => (
-        <Image key={src} src={src} alt={`Gurmat Darbar platform screenshot ${screenshotIndex + 1}`} fill sizes="(min-width: 1280px) 54vw, 96vw" className={`object-cover transition duration-700 ease-out ${screenshotIndex === index ? "scale-100 opacity-100" : "scale-[1.015] opacity-0"}`} priority={screenshotIndex === 0} />
-      ))}
+      <Image key={activeScreenshot} src={activeScreenshot} alt={`Gurmat Darbar platform screenshot ${index + 1}`} fill sizes="(min-width: 1280px) 54vw, 96vw" loading="lazy" className="object-cover" />
     </div>
   );
 }

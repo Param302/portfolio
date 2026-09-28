@@ -15,8 +15,10 @@ export async function POST(request) {
   const meta = getRequestMeta(request);
   try {
     const input = schema.parse(await request.json());
+    if (!await checkRateLimit({ bucket: "admin-login-global", key: "all", limit: 200, windowSeconds: 86400 })) {
+      return NextResponse.json({ error: "Sign-in has reached its daily safety limit. Try again tomorrow." }, { status: 429 });
+    }
     if (!await checkRateLimit({ bucket: "admin-login", key: meta.ipHash, limit: 8, windowSeconds: 900 })) {
-      await recordAdminAudit({ eventType: "login", outcome: "throttled", meta, metadata: { email: input.email.toLowerCase() } });
       return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
     }
     const sql = getSql();

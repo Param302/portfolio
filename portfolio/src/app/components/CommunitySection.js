@@ -87,17 +87,15 @@ function CommunityCarousel({ codexImages, pyDelhiImages, extraImages }) {
         setPaused(false);
       }}
     >
-      {slides.map((slide, index) => (
-        <Image
-          key={slide.src}
-          src={slide.src}
-          alt={slide.kind === "codex" ? "Codex Ambassador community event in New Delhi" : slide.kind === "pydelhi" ? "PyDelhi community meetup" : "Community event with Parampreet Singh"}
-          fill
-          sizes="(min-width: 1280px) 1120px, 92vw"
-          className={`object-cover transition duration-700 ease-out ${index === activeIndex ? "scale-100 opacity-100" : "scale-[1.025] opacity-0"}`}
-          priority={index === 0}
-        />
-      ))}
+      <Image
+        key={activeSlide.src}
+        src={activeSlide.src}
+        alt={activeSlide.kind === "codex" ? "Codex Ambassador community event in New Delhi" : activeSlide.kind === "pydelhi" ? "PyDelhi community meetup" : "Community event with Parampreet Singh"}
+        fill
+        sizes="(min-width: 1280px) 1120px, 92vw"
+        loading="lazy"
+        className="object-cover"
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-ink-black/85 via-ink-black/10 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-5 p-5 sm:p-7 lg:p-9">
         <div className="max-w-2xl text-bright-snow">

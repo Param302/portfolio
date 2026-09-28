@@ -21,8 +21,10 @@ export async function POST(request) {
     if (!isDatabaseConfigured()) {
       return NextResponse.json({ error: "Likes are temporarily unavailable." }, { status: 503 });
     }
+    if (!await checkRateLimit({ bucket: "wall-feedback-like-global", key: "all", limit: 2000, windowSeconds: 86400 })) {
+      return NextResponse.json({ error: "The daily reaction limit has been reached. Please try again tomorrow." }, { status: 429 });
+    }
     if (!await checkRateLimit({ bucket: "wall-feedback-like", key: meta.ipHash, limit: 80, windowSeconds: 900 })) {
-      await recordAdminAudit({ eventType: "feedback_like", outcome: "throttled", meta, metadata: { feedbackId: input.feedbackId } });
       return NextResponse.json({ error: "Too many reactions. Please try again shortly." }, { status: 429 });
     }
 

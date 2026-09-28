@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, ChevronDown, FileText, History, Inbox, Loader2, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, RotateCcw, Save, ScrollText, Send, Trash2, UserRound, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, FileText, History, Inbox, Loader2, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, RefreshCw, RotateCcw, Save, ScrollText, Send, Trash2, UserRound, X } from "lucide-react";
 
 import { generateResumeLatex } from "@/lib/latex";
 
@@ -17,7 +17,7 @@ export default function AdminDashboard({ session }) {
   const router = useRouter();
   const worker = useRef(null);
   const compileRequest = useRef(0);
-  const pendingTabs = useRef(new Set());
+  const pendingTabs = useRef(new Map());
   const loadedTabs = useRef(new Set());
   const [document, setDocument] = useState(null);
   const [revisionState, setRevisionState] = useState({ draftRevisionId: null, publishedRevisionId: null });
@@ -35,38 +35,68 @@ export default function AdminDashboard({ session }) {
   const [notice, setNotice] = useState("");
   const [cacheNeedsRetry, setCacheNeedsRetry] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [tabStatus, setTabStatus] = useState({ resume: "idle", logs: "idle", inbox: "idle" });
+  const [dirty, setDirty] = useState(false);
+  const [tabStatus, setTabStatus] = useState({ resume: "idle", history: "idle", logs: "idle", inbox: "idle" });
 
   const loadTab = useCallback(async (tab, { force = false } = {}) => {
-    if (pendingTabs.current.has(tab) || (!force && loadedTabs.current.has(tab))) return;
-    const endpoints = { resume: "/api/admin/content", logs: "/api/admin/logs", inbox: "/api/admin/inbox" };
-    pendingTabs.current.add(tab);
-    setTabStatus((current) => ({ ...current, [tab]: "loading" }));
-    try {
-      const response = await fetch(endpoints[tab]);
-      if (response.status === 401) { router.refresh(); return; }
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || `Unable to load ${tab}.`);
-      if (tab === "resume") {
-        setDocument(result.document);
-        setHistory(result.history || []);
-        setRevisionState({ draftRevisionId: result.draftRevisionId ?? null, publishedRevisionId: result.publishedRevisionId ?? null });
-      } else if (tab === "logs") {
-        setLogs({ events: result.events || [], sessions: result.sessions || [], users: result.users || [] });
-      } else {
-        setMessages(result.messages || []);
+    if (pendingTabs.current.has(tab)) return pendingTabs.current.get(tab);
+    if (!force && loadedTabs.current.has(tab)) return undefined;
+    const endpoints = { resume: "/api/admin/content?section=resume", history: "/api/admin/content?section=history", logs: "/api/admin/logs", inbox: "/api/admin/inbox" };
+    const request = (async () => {
+      setTabStatus((current) => ({ ...current, [tab]: loadedTabs.current.has(tab) ? "refreshing" : "loading" }));
+      try {
+        const response = await fetch(endpoints[tab], { cache: "no-store" });
+        if (response.status === 401) { router.refresh(); return; }
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || `Unable to load ${tab}.`);
+        if (tab === "resume") {
+          setDocument(result.document);
+          setRevisionState({ draftRevisionId: result.draftRevisionId ?? null, publishedRevisionId: result.publishedRevisionId ?? null });
+          setDirty(false);
+        } else if (tab === "history") {
+          setHistory(result.history || []);
+        } else if (tab === "logs") {
+          setLogs({ events: result.events || [], sessions: result.sessions || [], users: result.users || [] });
+        } else {
+          setMessages(result.messages || []);
+        }
+        loadedTabs.current.add(tab);
+        setTabStatus((current) => ({ ...current, [tab]: "ready" }));
+      } catch (error) {
+        setNotice(error.message || `Unable to load ${tab}.`);
+        setTabStatus((current) => ({ ...current, [tab]: loadedTabs.current.has(tab) ? "ready" : "error" }));
+      } finally {
+        pendingTabs.current.delete(tab);
       }
-      loadedTabs.current.add(tab);
-      setTabStatus((current) => ({ ...current, [tab]: "ready" }));
-    } catch (error) {
-      setNotice(error.message || `Unable to load ${tab}.`);
-      setTabStatus((current) => ({ ...current, [tab]: "error" }));
-    } finally {
-      pendingTabs.current.delete(tab);
-    }
+    })();
+    pendingTabs.current.set(tab, request);
+    return request;
   }, [router]);
 
   useEffect(() => { loadTab(activeTab); }, [activeTab, loadTab]);
+  useEffect(() => {
+    let cancelled = false;
+    let idleId;
+    let timerId;
+    const pauseForIdle = () => new Promise((resolve) => {
+      if ("requestIdleCallback" in window) idleId = window.requestIdleCallback(resolve, { timeout: 1200 });
+      else timerId = window.setTimeout(resolve, 350);
+    });
+    const preload = async () => {
+      for (const tab of ["resume", "history", "logs", "inbox"]) {
+        if (cancelled) return;
+        await loadTab(tab);
+        if (cancelled) return;
+        await pauseForIdle();
+      }
+    };
+    preload();
+    return () => {
+      cancelled = true;
+      if (idleId && "cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
+      if (timerId) window.clearTimeout(timerId);
+    };
+  }, [loadTab]);
   useEffect(() => {
     setSidebarCollapsed(window.localStorage.getItem("portfolio-admin-sidebar") === "collapsed");
     setNow(new Date());
@@ -84,14 +114,14 @@ export default function AdminDashboard({ session }) {
   }, []);
   useEffect(() => { if (!document || !worker.current) return undefined; const requestId = compileRequest.current + 1; compileRequest.current = requestId; setPreview((old) => ({ ...old, status: old.url ? "stale" : "compiling" })); const timer = window.setTimeout(() => { setPreview((old) => ({ ...old, status: "compiling" })); worker.current.postMessage({ type: "compile", requestId, source: generateResumeLatex(document) }); }, 700); return () => window.clearTimeout(timer); }, [document]);
 
-  function set(path, value) { setDocument((current) => { const clone = structuredClone(current); let target = clone; for (let i = 0; i < path.length - 1; i += 1) target = target[path[i]]; target[path.at(-1)] = value; return clone; }); }
-  function move(collection, from, to) { setDocument((current) => { const clone = structuredClone(current); const [item] = clone[collection].splice(from, 1); clone[collection].splice(to, 0, item); return clone; }); }
-  function remove(collection, index) { setDocument((current) => ({ ...current, [collection]: current[collection].filter((_, itemIndex) => itemIndex !== index) })); }
-  function add(collection, item) { setDocument((current) => ({ ...current, [collection]: [...current[collection], item] })); }
+  function set(path, value) { setDirty(true); setDocument((current) => { const clone = structuredClone(current); let target = clone; for (let i = 0; i < path.length - 1; i += 1) target = target[path[i]]; target[path.at(-1)] = value; return clone; }); }
+  function move(collection, from, to) { setDirty(true); setDocument((current) => { const clone = structuredClone(current); const [item] = clone[collection].splice(from, 1); clone[collection].splice(to, 0, item); return clone; }); }
+  function remove(collection, index) { setDirty(true); setDocument((current) => ({ ...current, [collection]: current[collection].filter((_, itemIndex) => itemIndex !== index) })); }
+  function add(collection, item) { setDirty(true); setDocument((current) => ({ ...current, [collection]: [...current[collection], item] })); }
 
   async function save(action) {
     setSaving(true); setNotice("");
-    try { const payload = { action, content: document, baseDraftRevisionId: revisionState.draftRevisionId, basePublishedRevisionId: revisionState.publishedRevisionId }; if (action === "publish") { payload.pageCount = preview.pageCount; payload.pdfBase64 = toBase64(preview.bytes); } const response = await fetch("/api/admin/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); setHistory(result.history || []); setRevisionState({ draftRevisionId: result.draftRevisionId ?? null, publishedRevisionId: result.publishedRevisionId ?? null }); setCacheNeedsRetry(Boolean(result.cacheWarning)); setNotice(result.cacheWarning || (action === "publish" ? "Published successfully." : "Draft saved.")); }
+    try { const payload = { action, content: document, baseDraftRevisionId: revisionState.draftRevisionId, basePublishedRevisionId: revisionState.publishedRevisionId }; if (action === "publish") { payload.pageCount = preview.pageCount; payload.pdfBase64 = toBase64(preview.bytes); } const response = await fetch("/api/admin/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); setHistory(result.history || []); loadedTabs.current.add("history"); setTabStatus((current) => ({ ...current, history: "ready" })); setRevisionState({ draftRevisionId: result.draftRevisionId ?? null, publishedRevisionId: result.publishedRevisionId ?? null }); setDirty(false); setCacheNeedsRetry(Boolean(result.cacheWarning)); setNotice(result.cacheWarning || (action === "publish" ? "Published successfully." : "Draft saved.")); }
     catch (error) { setNotice(error.message || "Save failed."); }
     finally { setSaving(false); }
   }
@@ -99,12 +129,19 @@ export default function AdminDashboard({ session }) {
   async function retryCache() { setSaving(true); try { const response = await fetch("/api/admin/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "refresh" }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); setCacheNeedsRetry(false); setNotice("Public cache refreshed."); } catch (error) { setNotice(error.message); } finally { setSaving(false); } }
   async function updateMessage(id, action) { const response = await fetch("/api/admin/inbox", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, action }) }); const result = await response.json(); if (!response.ok) { setNotice(result.error); return; } await loadTab("inbox", { force: true }); }
   async function logout() { await fetch("/api/admin/logout", { method: "POST" }); router.refresh(); }
+  async function refreshActivePanel() {
+    if (activeTab === "resume" && dirty && !window.confirm("Refresh the resume panel and discard unsaved changes?")) return;
+    setNotice("");
+    if (activeTab === "resume") await Promise.all([loadTab("resume", { force: true }), loadTab("history", { force: true })]);
+    else await loadTab(activeTab, { force: true });
+  }
 
   const selectedMessage = useMemo(() => messages.find((message) => message.id === selectedMessageId) || messages[0] || null, [messages, selectedMessageId]);
   const toggleSidebar = () => setSidebarCollapsed((current) => { const next = !current; window.localStorage.setItem("portfolio-admin-sidebar", next ? "collapsed" : "expanded"); return next; });
   const chooseTab = (tab) => { setActiveTab(tab); setMobileMenuOpen(false); };
+  const activePanelRefreshing = ["loading", "refreshing"].includes(tabStatus[activeTab]) || (activeTab === "resume" && ["loading", "refreshing"].includes(tabStatus.history));
+  const activePanelLabel = activeTab === "resume" ? "Resume" : activeTab === "logs" ? "Logs" : "Inbox";
 
-  if (!document) return <main className="flex min-h-screen items-center justify-center bg-ink-black px-5 text-bright-snow">{tabStatus.resume === "error" ? <div className="text-center"><p className="font-heading text-xl font-semibold">The Resume panel could not load.</p><button type="button" onClick={() => loadTab("resume", { force: true })} className="mt-4 rounded-full bg-sky-surge px-5 py-2 text-sm font-semibold text-ink-black">Try again</button></div> : <Loader2 className="h-8 w-8 animate-spin" />}</main>;
   return <main className="min-h-screen bg-[#eef3f7] text-prussian-blue">
     <div className={`grid min-h-screen transition-[grid-template-columns] duration-300 ${sidebarCollapsed ? "md:grid-cols-[82px_minmax(0,1fr)]" : "md:grid-cols-[250px_minmax(0,1fr)]"}`}>
       {mobileMenuOpen ? <button type="button" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 z-40 bg-ink-black/35 backdrop-blur-[2px] md:hidden" /> : null}
@@ -116,7 +153,7 @@ export default function AdminDashboard({ session }) {
             <button type="button" onClick={() => setProfileOpen((current) => !current)} className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-prussian-blue text-bright-snow" aria-label="Show signed in account" aria-expanded={profileOpen}><UserRound className="h-5 w-5" /></button>
             {profileOpen ? <div className="absolute right-0 top-12 max-w-[calc(100vw-2rem)] rounded-xl border border-prussian-blue/10 bg-white px-4 py-3 text-sm shadow-xl"><p className="truncate font-heading font-semibold">{session.email}</p><p className="mt-1 text-xs text-prussian-blue/45">Owner</p></div> : null}
           </div>
-          {activeTab === "resume" ? <div className="mt-3 grid grid-cols-2 gap-2 md:hidden"><button type="button" disabled={saving} onClick={() => save("save")} className="inline-flex items-center justify-center gap-2 rounded-xl border border-prussian-blue/15 px-4 py-2.5 text-sm"><Save className="h-4 w-4" />Save draft</button><button type="button" disabled={saving || preview.status !== "ready" || preview.pageCount < 1 || preview.pageCount > 2} onClick={() => save("publish")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-surge px-4 py-2.5 text-sm font-semibold text-ink-black disabled:opacity-40"><Send className="h-4 w-4" />Publish</button></div> : null}
+          {activeTab === "resume" ? <div className="mt-3 grid grid-cols-2 gap-2 md:hidden"><button type="button" disabled={saving || !document} onClick={() => save("save")} className="inline-flex items-center justify-center gap-2 rounded-xl border border-prussian-blue/15 px-4 py-2.5 text-sm disabled:opacity-40"><Save className="h-4 w-4" />Save draft</button><button type="button" disabled={saving || !document || preview.status !== "ready" || preview.pageCount < 1 || preview.pageCount > 2} onClick={() => save("publish")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-surge px-4 py-2.5 text-sm font-semibold text-ink-black disabled:opacity-40"><Send className="h-4 w-4" />Publish</button></div> : null}
           <div className="hidden items-center justify-between gap-5 md:flex">
             <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2 text-xs">
               <span className="inline-flex items-center gap-2 font-heading font-semibold"><UserRound className="h-4 w-4 text-sky-surge" />{session.email}<span className="rounded-full bg-sky-surge/12 px-2 py-1 text-[10px] uppercase tracking-[0.12em]">Owner</span></span>
@@ -124,12 +161,15 @@ export default function AdminDashboard({ session }) {
               <span className="opacity-60">IP {session.ip_address || "Unavailable"}</span>
               <span className="font-mono opacity-60">{now ? now.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "medium" }) : "-"}</span>
             </div>
-            {activeTab === "resume" ? <div className="flex shrink-0 gap-2"><button type="button" disabled={saving} onClick={() => save("save")} className="inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 px-4 py-2 text-sm"><Save className="h-4 w-4" />Save draft</button><button type="button" disabled={saving || preview.status !== "ready" || preview.pageCount < 1 || preview.pageCount > 2} onClick={() => save("publish")} className="inline-flex items-center gap-2 rounded-full bg-sky-surge px-4 py-2 text-sm font-semibold text-ink-black disabled:opacity-40"><Send className="h-4 w-4" />Save &amp; Publish</button></div> : null}
+            <div className="flex shrink-0 gap-2">
+              <button type="button" onClick={refreshActivePanel} disabled={activePanelRefreshing} className="inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 px-4 py-2 text-sm font-semibold disabled:cursor-wait disabled:opacity-60" aria-label={`Refresh ${activePanelLabel} panel`}><RefreshCw className={`h-4 w-4 ${activePanelRefreshing ? "animate-spin" : ""}`} />Refresh {activePanelLabel}</button>
+              {activeTab === "resume" ? <><button type="button" disabled={saving || !document} onClick={() => save("save")} className="inline-flex items-center gap-2 rounded-full border border-prussian-blue/15 px-4 py-2 text-sm disabled:opacity-40"><Save className="h-4 w-4" />Save draft</button><button type="button" disabled={saving || !document || preview.status !== "ready" || preview.pageCount < 1 || preview.pageCount > 2} onClick={() => save("publish")} className="inline-flex items-center gap-2 rounded-full bg-sky-surge px-4 py-2 text-sm font-semibold text-ink-black disabled:opacity-40"><Send className="h-4 w-4" />Save &amp; Publish</button></> : null}
+            </div>
           </div>
         </header>
         {notice && <div role="status" className="flex flex-wrap items-center justify-between gap-3 border-b border-sky-surge/25 bg-sky-surge/10 px-6 py-3 text-sm"><span>{notice}</span>{cacheNeedsRetry && <button type="button" disabled={saving} onClick={retryCache} className="rounded-full border border-prussian-blue/20 px-3 py-1.5 font-semibold">Retry cache refresh</button>}</div>}
 
-        {activeTab === "resume" ? <>
+        {activeTab === "resume" ? document ? <>
           <div className="z-30 flex justify-center border-b border-prussian-blue/10 bg-[#eef3f7] p-3 xl:hidden">
             <div className="grid w-full max-w-sm grid-cols-2 rounded-xl border border-prussian-blue/10 bg-white p-1">
               <button type="button" onClick={() => setResumeView("edit")} className={`rounded-lg px-4 py-2 text-sm font-semibold ${resumeView === "edit" ? "bg-prussian-blue text-white" : "text-prussian-blue/60"}`}>Edit</button>
@@ -145,13 +185,14 @@ export default function AdminDashboard({ session }) {
         <EditorSection title="Projects" collapsible onAdd={() => add("projects", { id: crypto.randomUUID(), name: "New project", subtitle: "", description: "Description", bullets: ["Achievement"], skills: [], image: "/projects/pocket-coder.png", theme: "surface", links: [] })}>{document.projects.map((item, index) => <Item key={item.id} title={item.name} controls={<MoveButtons index={index} length={document.projects.length} onMove={(from, to) => move("projects", from, to)} onRemove={() => remove("projects", index)} />}><div className="grid gap-3 sm:grid-cols-2"><Field label="Name" value={item.name} onChange={(value) => set(["projects", index, "name"], value)} /><Field label="Subtitle" value={item.subtitle} onChange={(value) => set(["projects", index, "subtitle"], value)} /><Field label="Image path" value={item.image} onChange={(value) => set(["projects", index, "image"], value)} /><Field label="Theme" value={item.theme} onChange={(value) => set(["projects", index, "theme"], value)} /></div><Area label="Description" value={item.description} onChange={(value) => set(["projects", index, "description"], value)} /><Area label="Bullets · one per line" value={item.bullets.join("\n")} onChange={(value) => set(["projects", index, "bullets"], value.split("\n").filter(Boolean))} /><Field label="Skills · comma separated" value={item.skills.join(", ")} onChange={(value) => set(["projects", index, "skills"], value.split(",").map((part) => part.trim()).filter(Boolean))} /><Area label="Links · Label | URL" value={item.links.map((link) => `${link.label} | ${link.href}`).join("\n")} onChange={(value) => set(["projects", index, "links"], value.split("\n").map((line) => { const [label, href] = line.split("|").map((part) => part.trim()); return { label: label || "Link", href: href || "" }; }).filter((link) => link.href))} /></Item>)}</EditorSection>
         <EditorSection title="Skills" collapsible onAdd={() => add("skills", { label: "Group", items: [] })}>{document.skills.map((group, index) => <Item key={`${group.label}-${index}`} title={group.label} controls={<MoveButtons index={index} length={document.skills.length} onMove={(from, to) => move("skills", from, to)} onRemove={() => remove("skills", index)} />}><Field label="Group" value={group.label} onChange={(value) => set(["skills", index, "label"], value)} /><Field label="Items · comma separated" value={group.items.join(", ")} onChange={(value) => set(["skills", index, "items"], value.split(",").map((part) => part.trim()).filter(Boolean))} /></Item>)}</EditorSection>
         <EditorSection title="Co-Curricular & Achievements" collapsible><Area label="Achievements · one per line" rows={8} value={document.achievements.join("\n")} onChange={(value) => set(["achievements"], value.split("\n").filter(Boolean))} /></EditorSection>
-            <RevisionHistory history={history} onRestore={restore} />
+            <RevisionHistory history={history} onRestore={restore} status={tabStatus.history} onRetry={() => loadTab("history", { force: true })} />
           </div>
           <PdfPreview preview={preview} className={resumeView === "preview" ? "block" : "hidden xl:block"} />
-        </div></> : null}
+        </div></> : <WorkspaceState label="resume" status={tabStatus.resume} onRetry={() => loadTab("resume", { force: true })} /> : null}
 
-        {activeTab === "logs" ? tabStatus.logs === "ready" ? <LogsWorkspace logs={logs} /> : <WorkspaceState label="activity logs" status={tabStatus.logs} onRetry={() => loadTab("logs", { force: true })} /> : null}
-        {activeTab === "inbox" ? tabStatus.inbox === "ready" ? <InboxWorkspace messages={messages} selected={selectedMessage} onSelect={setSelectedMessageId} onUpdate={updateMessage} /> : <WorkspaceState label="inbox" status={tabStatus.inbox} onRetry={() => loadTab("inbox", { force: true })} /> : null}
+        {activeTab === "logs" ? ["ready", "refreshing"].includes(tabStatus.logs) ? <LogsWorkspace logs={logs} /> : <WorkspaceState label="activity logs" status={tabStatus.logs} onRetry={() => loadTab("logs", { force: true })} /> : null}
+        {activeTab === "inbox" ? ["ready", "refreshing"].includes(tabStatus.inbox) ? <InboxWorkspace messages={messages} selected={selectedMessage} onSelect={setSelectedMessageId} onUpdate={updateMessage} /> : <WorkspaceState label="inbox" status={tabStatus.inbox} onRetry={() => loadTab("inbox", { force: true })} /> : null}
+        <button type="button" onClick={refreshActivePanel} disabled={activePanelRefreshing} className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-5 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-prussian-blue text-bright-snow shadow-[0_12px_36px_rgba(8,28,42,0.32)] transition hover:bg-ink-black disabled:cursor-wait disabled:opacity-70 md:hidden" aria-label={`Refresh ${activePanelLabel} panel`} title={`Refresh ${activePanelLabel}`}><RefreshCw className={`h-5 w-5 ${activePanelRefreshing ? "animate-spin" : ""}`} /></button>
       </div>
     </div>
   </main>;
@@ -173,9 +214,12 @@ function AdminSidebar({ activeTab, onChange, collapsed, onToggle, onLogout, mobi
   </aside>;
 }
 
-function RevisionHistory({ history, onRestore }) {
+function RevisionHistory({ history, onRestore, status, onRetry }) {
   return <EditorSection title="Revision history" icon={<History className="h-5 w-5" />} collapsible>
-    {history.length ? history.map((revision) => <div key={revision.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-prussian-blue/10 p-3 text-sm"><div><span className={`rounded-full px-2 py-1 text-xs ${revision.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100"}`}>{revision.status}</span><span className="ml-2 opacity-60">{new Date(revision.created_at).toLocaleString()}</span></div>{revision.page_count >= 1 && revision.page_count <= 2 ? <button type="button" onClick={() => onRestore(revision.id)} className="inline-flex items-center gap-1 rounded-full border border-prussian-blue/15 px-3 py-1.5"><RotateCcw className="h-3.5 w-3.5" />Restore</button> : null}</div>) : <p className="text-sm opacity-55">No saved revisions yet.</p>}
+    {status === "error" && !history.length ? <div className="flex flex-wrap items-center justify-between gap-3 text-sm"><span className="text-rose-700">Revision history could not load.</span><button type="button" onClick={onRetry} className="rounded-full border border-prussian-blue/15 px-3 py-1.5 font-semibold">Try again</button></div> : null}
+    {["idle", "loading"].includes(status) && !history.length ? <div className="flex items-center gap-2 text-sm opacity-55"><Loader2 className="h-4 w-4 animate-spin text-sky-surge" />Loading revision history…</div> : null}
+    {history.length ? <>{status === "refreshing" ? <div className="mb-3 flex items-center gap-2 text-xs opacity-55"><Loader2 className="h-3.5 w-3.5 animate-spin text-sky-surge" />Refreshing history…</div> : null}{history.map((revision) => <div key={revision.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-prussian-blue/10 p-3 text-sm"><div><span className={`rounded-full px-2 py-1 text-xs ${revision.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100"}`}>{revision.status}</span><span className="ml-2 opacity-60">{new Date(revision.created_at).toLocaleString()}</span></div>{revision.page_count >= 1 && revision.page_count <= 2 ? <button type="button" onClick={() => onRestore(revision.id)} className="inline-flex items-center gap-1 rounded-full border border-prussian-blue/15 px-3 py-1.5"><RotateCcw className="h-3.5 w-3.5" />Restore</button> : null}</div>)}</> : null}
+    {status === "ready" && !history.length ? <p className="text-sm opacity-55">No saved revisions yet.</p> : null}
   </EditorSection>;
 }
 

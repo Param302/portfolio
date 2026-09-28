@@ -21,25 +21,44 @@ const writeSchema = z.object({
   basePublishedRevisionId: revisionPointer.optional(),
 });
 
-async function loadAdminContent() {
+async function loadAdminResume() {
   const sql = getSql();
-  const [stateRows, history] = await Promise.all([
-    sql`
-      SELECT s.draft_revision_id, s.published_revision_id,
-        d.content AS draft_content, p.content AS published_content
-      FROM resume_state s
-      LEFT JOIN resume_revisions d ON d.id = s.draft_revision_id
-      LEFT JOIN resume_revisions p ON p.id = s.published_revision_id
-      WHERE s.id = 1
-    `,
-    sql`SELECT id, status, page_count, created_at, published_at, audit FROM resume_revisions ORDER BY created_at DESC LIMIT 30`,
-  ]);
+  const stateRows = await sql`
+    SELECT s.draft_revision_id, s.published_revision_id,
+      d.content AS draft_content, p.content AS published_content
+    FROM resume_state s
+    LEFT JOIN resume_revisions d ON d.id = s.draft_revision_id
+    LEFT JOIN resume_revisions p ON p.id = s.published_revision_id
+    WHERE s.id = 1
+  `;
   const state = stateRows[0] || {};
-  return { document: state.draft_content || state.published_content || defaultResumeDocument, draftRevisionId: state.draft_revision_id || null, publishedRevisionId: state.published_revision_id || null, history };
+  return {
+    document: state.draft_content || state.published_content || defaultResumeDocument,
+    draftRevisionId: state.draft_revision_id || null,
+    publishedRevisionId: state.published_revision_id || null,
+  };
 }
 
-export async function GET() {
-  try { await requireAdmin(); return NextResponse.json(await loadAdminContent()); }
+async function loadAdminHistory() {
+  const sql = getSql();
+  const history = await sql`SELECT id, status, page_count, created_at, published_at, audit FROM resume_revisions ORDER BY created_at DESC LIMIT 30`;
+  return { history };
+}
+
+async function loadAdminContent() {
+  const [resume, history] = await Promise.all([loadAdminResume(), loadAdminHistory()]);
+  return { ...resume, ...history };
+}
+
+export async function GET(request) {
+  try {
+    await requireAdmin();
+    const section = new URL(request.url).searchParams.get("section") || "all";
+    if (section === "resume") return NextResponse.json(await loadAdminResume());
+    if (section === "history") return NextResponse.json(await loadAdminHistory());
+    if (section !== "all") return NextResponse.json({ error: "Unknown admin content section." }, { status: 400 });
+    return NextResponse.json(await loadAdminContent());
+  }
   catch (error) { return NextResponse.json({ error: error.message }, { status: error.status || 500 }); }
 }
 

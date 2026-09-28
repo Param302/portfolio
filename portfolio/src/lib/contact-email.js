@@ -7,7 +7,15 @@ function escapeHtml(value) {
 export async function sendContactEmail({ name, email, subject, message }) {
   const port = Number(process.env.SMTP_PORT || 465);
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) throw new Error("Email notification is not configured.");
-  const transporter = nodemailer.createTransport({ host: process.env.SMTP_HOST || "smtp.gmail.com", port, secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === "true" : port === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port,
+    secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === "true" : port === 465,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 8000,
+  });
   await transporter.sendMail({
     from: `"Portfolio contact" <${process.env.SMTP_USER}>`,
     to: process.env.CONTACT_TO || "hey@itsparam.in",

@@ -16,6 +16,7 @@ export async function POST(request) {
   try {
     const data = contactSchema.parse(await request.json());
     if (!isDatabaseConfigured()) return NextResponse.json({ error: "The contact form is temporarily unavailable. Please email hey@itsparam.in." }, { status: 503 });
+    if (!await checkRateLimit({ bucket: "contact-global", key: "all", limit: 500, windowSeconds: 86400 })) return NextResponse.json({ error: "The contact form has reached its daily limit. Please email hey@itsparam.in." }, { status: 429 });
     if (!await checkRateLimit({ bucket: "contact", key: meta.ipHash, limit: 5, windowSeconds: 3600 })) return NextResponse.json({ error: "Too many messages. Please try again later." }, { status: 429 });
     const fingerprint = createHash("sha256").update(`${data.email.toLowerCase()}|${data.subject.toLowerCase()}|${data.message.toLowerCase()}`).digest("hex");
     const id = randomUUID();
@@ -29,6 +30,10 @@ export async function POST(request) {
     `;
     storedId = rows[0].id;
     if (storedId !== id) return NextResponse.json({ ok: true, duplicate: true });
+    if (!await checkRateLimit({ bucket: "contact-notification-global", key: "all", limit: 100, windowSeconds: 86400 })) {
+      await sql`UPDATE contact_messages SET notification_status = 'failed', notification_error = 'Daily email notification limit reached; message remains available in the admin inbox.', updated_at = NOW() WHERE id = ${storedId}`;
+      return NextResponse.json({ ok: true });
+    }
     try {
       await sendContactEmail(data);
       await sql`UPDATE contact_messages SET notification_status = 'sent', updated_at = NOW() WHERE id = ${storedId}`;
