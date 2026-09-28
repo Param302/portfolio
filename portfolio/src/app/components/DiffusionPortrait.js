@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import styles from "./DiffusionPortrait.module.css";
 
-const SAMPLE_WIDTH = 540;
+const REVEAL_DURATION = 2200;
+const SAMPLE_WIDTH = 260;
 
-/** A lightweight blur-to-detail diffusion analogy, not an in-browser model. */
+/** A lightweight diffusion-inspired reveal, not an in-browser model. */
 export default function DiffusionPortrait({ backgroundColor }) {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
@@ -22,64 +23,104 @@ export default function DiffusionPortrait({ backgroundColor }) {
 
     const context = canvas.getContext("2d", { alpha: false });
     if (!context || !window.IntersectionObserver) return undefined;
+
+    const source = document.createElement("canvas");
+    const sourceContext = source.getContext("2d", { alpha: false, willReadFrequently: true });
+    if (!sourceContext) return undefined;
+
+    const color = typeof backgroundColor === "string" && /^#[0-9a-f]{6}$/i.test(backgroundColor)
+      ? [1, 3, 5].map((offset) => Number.parseInt(backgroundColor.slice(offset, offset + 2), 16))
+      : [248, 250, 252];
+    let sourcePixels;
     let ready = false;
-    let finished = false;
     let inView = false;
-    let fallbackTimer;
+    let frame;
+    let startedAt;
 
     const finish = () => {
-      if (finished) return;
-      finished = true;
+      cancelAnimationFrame(frame);
       revealedRef.current = true;
-      window.clearTimeout(fallbackTimer);
       container.dataset.reveal = "complete";
     };
 
+    const paint = (progress) => {
+      const eased = progress * progress * (3 - 2 * progress);
+      const noise = Math.pow(1 - eased, 1.85);
+      const signal = Math.sqrt(eased);
+      const width = canvas.width;
+      const height = canvas.height;
+      const imageData = context.createImageData(width, height);
+      const output = imageData.data;
+
+      for (let index = 0; index < output.length; index += 4) {
+        const smoothRandom = Math.random() + Math.random() + Math.random() + Math.random() - 2;
+        const grain = smoothRandom * 32 * noise;
+        output[index] = color[0] * (1 - signal) + sourcePixels[index] * signal + grain;
+        output[index + 1] = color[1] * (1 - signal) + sourcePixels[index + 1] * signal + grain;
+        output[index + 2] = color[2] * (1 - signal) + sourcePixels[index + 2] * signal + grain;
+        output[index + 3] = 255;
+      }
+
+      context.putImageData(imageData, 0, 0);
+      container.style.setProperty("--diffusion-blur", `${(1 - eased) * 5}px`);
+      container.style.setProperty("--diffusion-scale", `${1 + (1 - eased) * 0.018}`);
+    };
+
+    const animate = (timestamp) => {
+      if (!startedAt) startedAt = timestamp;
+      const progress = Math.min((timestamp - startedAt) / REVEAL_DURATION, 1);
+      paint(progress);
+      if (progress < 1) frame = requestAnimationFrame(animate);
+      else finish();
+    };
+
+    const begin = () => {
+      if (!ready || !inView || container.dataset.reveal === "playing") return;
+      container.dataset.reveal = "playing";
+      frame = requestAnimationFrame(animate);
+    };
+
     const setup = () => {
-      if (ready || finished || !portrait.naturalWidth) return;
+      if (ready || !portrait.naturalWidth) return;
       try {
+        const height = Math.round(SAMPLE_WIDTH * portrait.naturalHeight / portrait.naturalWidth);
+        source.width = SAMPLE_WIDTH;
+        source.height = height;
         canvas.width = SAMPLE_WIDTH;
-        canvas.height = Math.round(SAMPLE_WIDTH * portrait.naturalHeight / portrait.naturalWidth);
-        context.fillStyle = backgroundColor;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.imageSmoothingEnabled = true;
-        context.imageSmoothingQuality = "high";
-        context.drawImage(portrait, 0, 0, canvas.width, canvas.height);
+        canvas.height = height;
+        sourceContext.imageSmoothingEnabled = true;
+        sourceContext.imageSmoothingQuality = "high";
+        sourceContext.drawImage(portrait, 0, 0, SAMPLE_WIDTH, height);
+        sourcePixels = sourceContext.getImageData(0, 0, SAMPLE_WIDTH, height).data;
         ready = true;
+        paint(0);
         container.dataset.reveal = "ready";
-        if (inView) begin();
+        begin();
       } catch {
         finish();
       }
     };
 
-    const begin = () => {
-      if (!ready || finished || container.dataset.reveal === "playing") return;
-      container.dataset.reveal = "playing";
-      fallbackTimer = window.setTimeout(finish, 2400);
-    };
-
     const observer = new IntersectionObserver(([entry]) => {
-      inView = entry.isIntersecting && entry.intersectionRatio >= 0.25;
-      if (inView) begin();
-    }, { threshold: 0.25 });
+      inView = entry.isIntersecting && entry.intersectionRatio >= 0.22;
+      begin();
+    }, { threshold: 0.22 });
 
     const handleMotionChange = () => { if (reduceMotion.matches) finish(); };
-    const handleAnimationEnd = (event) => { if (event.target === canvas) finish(); };
     portrait.addEventListener("load", setup, { once: true });
     portrait.addEventListener("error", finish, { once: true });
-    canvas.addEventListener("animationend", handleAnimationEnd);
     reduceMotion.addEventListener("change", handleMotionChange);
     observer.observe(container);
     if (portrait.complete && portrait.naturalWidth) setup();
 
     return () => {
-      window.clearTimeout(fallbackTimer);
+      cancelAnimationFrame(frame);
       observer.disconnect();
       portrait.removeEventListener("load", setup);
       portrait.removeEventListener("error", finish);
-      canvas.removeEventListener("animationend", handleAnimationEnd);
       reduceMotion.removeEventListener("change", handleMotionChange);
+      container.style.removeProperty("--diffusion-blur");
+      container.style.removeProperty("--diffusion-scale");
       delete container.dataset.reveal;
     };
   }, [backgroundColor]);
