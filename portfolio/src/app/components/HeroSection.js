@@ -141,9 +141,9 @@ export default function HeroSection({ headline = "AI Engineer", summary }) {
       ref={sectionRef}
       onMouseMove={handlePointerMove}
       onMouseLeave={handlePointerLeave}
-      className="section-anchor relative isolate flex min-h-screen items-center overflow-hidden bg-bright-snow dark:bg-ink-black"
+      className="section-anchor relative isolate flex min-h-screen items-center overflow-hidden"
     >
-      {/* <div className="absolute inset-0 -z-30 bg-ink-black" /> */}
+      <div className="absolute inset-0 -z-30 bg-bright-snow dark:bg-ink-black" />
 
       {mounted ? <>
         <video
@@ -175,7 +175,7 @@ export default function HeroSection({ headline = "AI Engineer", summary }) {
         />
       </> : null}
 
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-papaya-whip/35 via-papaya-whip/30 to-sky-surge dark:from-ink-black/35 dark:via-ink-black/30" />
+      {mounted ? <div className={`absolute inset-0 -z-10 bg-gradient-to-b to-sky-surge ${isDarkTheme ? "from-ink-black/35 via-ink-black/30" : "from-papaya-whip/35 via-papaya-whip/30"}`} /> : null}
 
       {!isDarkTheme ? (
         <motion.div
