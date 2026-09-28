@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { RefreshCcw } from "lucide-react";
 import FameCharacter from "@/app/walloffame/FameCharacter";
 import DiffusionPortrait from "./DiffusionPortrait";
 import styles from "./AboutPortrait.module.css";
@@ -12,8 +13,8 @@ export default function AboutPortrait({ backgroundColor, frameColor }) {
   const [flipping, setFlipping] = useState(false);
 
   useEffect(() => {
-    // The avatar's real WebGL probe and one-second deadline remain the final
-    // gate. A static photo is the initial HTML and the fallback at every stage.
+    // Keep the photo as initial HTML while the compatible avatar loads in the
+    // background, before the visitor reaches this section.
     setCanEnhance(Boolean(window.CSS?.supports("perspective", "1000px") && window.CSS.supports("backface-visibility", "hidden") && window.CSS.supports("transform-style", "preserve-3d")));
   }, []);
 
@@ -45,7 +46,7 @@ export default function AboutPortrait({ backgroundColor, frameColor }) {
       <div className={styles.rotor}>
         <div className={`${styles.face} ${styles.front}`} aria-hidden={!ready || showPhoto}>
           <div className={styles.surface}>
-            {canEnhance && <FameCharacter fallback="none" paused={showPhoto} onReadyChange={handleReady} />}
+            {canEnhance && <FameCharacter background fallback="none" paused={showPhoto} onReadyChange={handleReady} />}
           </div>
         </div>
         <div className={`${styles.face} ${styles.back}`} aria-hidden={ready && !showPhoto}>
@@ -63,7 +64,7 @@ export default function AboutPortrait({ backgroundColor, frameColor }) {
           aria-disabled={flipping}
           title={showPhoto ? "Click to flip back to the avatar" : "Click to flip to the photo"}
         >
-          <span className={styles.hint} aria-hidden="true">{showPhoto ? "View avatar" : "View photo"} <span aria-hidden="true">↔</span></span>
+          <span className={styles.hint} aria-hidden="true"><RefreshCcw /></span>
         </button>
       )}
     </div>

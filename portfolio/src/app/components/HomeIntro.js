@@ -2,7 +2,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import FameCharacter from "@/app/walloffame/FameCharacter";
-import HeroActions from "./HeroActions";
 import HeroAccent from "./HeroAccent";
 import styles from "./HomeIntro.module.css";
 
@@ -63,7 +62,9 @@ export default function HomeIntro({ children }) {
     // time too, so hydration does not add another full greeting or miss the fuse.
     const entranceClock = overlayRef.current.getAnimations?.()[0]?.currentTime;
     const elapsed = typeof entranceClock === "number" ? entranceClock : 0;
-    const greetingRemaining = Math.max(0, ENTER_MS + HOLD_MS - elapsed);
+    // The same buttons become positionable at hydration. Give visitors the
+    // full hold with those controls visible even on a slow first JS load.
+    const greetingRemaining = Math.max(HOLD_MS, ENTER_MS + HOLD_MS - elapsed);
     let arrivalTimer;
     const holdTimer = window.setTimeout(() => {
       if (finished.current) return;
@@ -132,14 +133,11 @@ export default function HomeIntro({ children }) {
                   </span>
                 </p>
               </div>
-              <div className={styles.actionsEnter} inert={phase === "docking"}>
-                <HeroActions className={styles.actions} />
-              </div>
             </div>
           </div>
         )}
       </div>
-      <noscript><style>{`[data-home-intro] [data-intro-content], [data-home-intro] [data-intro-reveal], [data-home-intro] [data-intro-chip] { opacity: 1 !important; visibility: visible !important; transform: none !important; animation: none !important; } [data-intro-overlay] { display: none !important; }`}</style></noscript>
+      <noscript><style>{`[data-home-intro] [data-intro-content], [data-home-intro] [data-intro-reveal], [data-home-intro] [data-intro-chip], [data-home-intro] [data-intro-actions] { opacity: 1 !important; visibility: visible !important; transform: none !important; animation: none !important; } [data-intro-overlay] { display: none !important; }`}</style></noscript>
     </IntroContext.Provider>
   );
 }

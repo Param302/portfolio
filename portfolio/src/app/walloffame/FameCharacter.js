@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { beginAvatarEnhancement, probeAvatarSupport } from "./avatar-enhancement.mjs";
+import { AVATAR_BACKGROUND_BUDGET_MS, beginAvatarEnhancement, probeAvatarSupport } from "./avatar-enhancement.mjs";
 import { avatarPlaceholderDataUrl, chipPlaceholderDataUrl } from "./avatar-placeholder";
 import styles from "./FameCharacter.module.css";
 
-export default function FameCharacter({ reaction = "idle", reactionKey = 0, compact = false, reduceMotion = false, paused = false, eager = false, fallback = "portrait", className = "", onReadyChange }) {
+export default function FameCharacter({ reaction = "idle", reactionKey = 0, compact = false, reduceMotion = false, paused = false, eager = false, background = false, fallback = "portrait", className = "", onReadyChange }) {
   const host = useRef(null);
   const scene = useRef(null);
   const currentReaction = useRef({ reaction, reactionKey });
@@ -15,6 +15,7 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
   const readyCallback = useRef(onReadyChange);
   const [ready, setReady] = useState(false);
   const [portraitLoaded, setPortraitLoaded] = useState(false);
+  const [loadState, setLoadState] = useState("pending");
   const useChipFallback = fallback === "chip";
 
   useEffect(() => { readyCallback.current = onReadyChange; }, [onReadyChange]);
@@ -25,6 +26,10 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
     let enhancement;
     let probe;
     let observer;
+    let idleTask;
+    let backgroundTimer;
+    let retryTimer;
+    let supportRetries = background ? 1 : 0;
     const element = host.current;
     const media = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     const publishReady = (isReady) => {
@@ -38,9 +43,21 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
       started = true;
       const startedAt = performance.now();
       probe = probeAvatarSupport({ window, document, navigator, reduceMotion });
-      if (!probe.supported) return;
+      if (!probe.supported) {
+        // A context can be temporarily unavailable while the intro releases
+        // its GPU resources. About gets one later probe, never a scroll loop.
+        if (probe.reason === "unsupported" && supportRetries > 0) {
+          supportRetries--;
+          started = false;
+          setLoadState("waiting");
+          retryTimer = window.setTimeout(loadScene, 2500);
+        } else setLoadState(probe.reason);
+        return;
+      }
+      setLoadState("loading");
       enhancement = beginAvatarEnhancement({
         startedAt,
+        ...(background ? { timeoutMs: AVATAR_BACKGROUND_BUDGET_MS } : {}),
         load: () => import("./fame-character-reference-scene"),
         create: async ({ createFameCharacter }, lifecycle) => {
           const instance = await createFameCharacter(element, {
@@ -67,14 +84,24 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
         onReady: (instance) => {
           if (cancelled) { instance.dispose(); return; }
           scene.current = instance;
+          setLoadState("ready");
           publishReady(true);
         },
-        onFallback: () => { probe.release(); publishReady(false); },
+        onFallback: (state) => { probe.release(); if (!cancelled) setLoadState(state); publishReady(false); },
       });
     }
 
     function watchViewport() {
       if (eager) { loadScene(); return; }
+      if (background) {
+        // Let the intro paint first, then prepare About even while offscreen.
+        // Rendering pauses offscreen once initialization has finished.
+        backgroundTimer = window.setTimeout(() => {
+          if (window.requestIdleCallback) idleTask = window.requestIdleCallback(loadScene, { timeout: 1200 });
+          else loadScene();
+        }, 1100);
+        return;
+      }
       if (typeof IntersectionObserver !== "function") return;
       observer = new IntersectionObserver(([entry]) => {
         if (!entry.isIntersecting) return;
@@ -85,6 +112,9 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
     }
     function motionChanged() {
       observer?.disconnect();
+      window.clearTimeout(backgroundTimer);
+      window.clearTimeout(retryTimer);
+      if (idleTask !== undefined) window.cancelIdleCallback?.(idleTask);
       enhancement?.cancel();
       probe?.release?.();
       scene.current = null;
@@ -92,8 +122,7 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
       started = false;
       if (!media?.matches && !reduceMotion) watchViewport();
     }
-    // Reset only after a prop change/re-mount. A slow attempt is not retried on
-    // every scroll, so it cannot turn into delayed surprise animation.
+    // One attempt per mount; background loading has its own generous budget.
     publishReady(false);
     if (!reduceMotion && !media?.matches) watchViewport();
     media?.addEventListener?.("change", motionChanged);
@@ -101,12 +130,15 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
     return () => {
       cancelled = true;
       observer?.disconnect();
+      window.clearTimeout(backgroundTimer);
+      window.clearTimeout(retryTimer);
+      if (idleTask !== undefined) window.cancelIdleCallback?.(idleTask);
       media?.removeEventListener?.("change", motionChanged);
       enhancement?.cancel();
       probe?.release?.();
       scene.current = null;
     };
-  }, [eager, reduceMotion]);
+  }, [eager, background, reduceMotion]);
 
   useEffect(() => {
     motionPreference.current = reduceMotion;
@@ -124,7 +156,7 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
   }, [reaction, reactionKey]);
 
   return (
-    <div className={`${styles.character} ${className}`} data-ready={ready} data-reaction={reaction}>
+    <div className={`${styles.character} ${className}`} data-ready={ready} data-avatar-state={loadState} data-reaction={reaction}>
       <div
         className={styles.portrait}
         role="group"

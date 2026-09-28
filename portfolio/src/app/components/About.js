@@ -172,7 +172,7 @@ export default function About() {
       />
 
       <div className="relative grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
-        <div className="relative flex flex-col items-center mx-auto w-full max-w-md">
+        <div className="relative flex flex-col items-center mx-auto w-full max-w-sm">
           <h2 className={`my-10 inline-block font-accent text-5xl font-bold italic tracking-tight sm:text-5xl lg:text-7xl ${isDarkTheme ? "text-ink-black" : "text-bright-snow"}`}>
             About
           </h2>

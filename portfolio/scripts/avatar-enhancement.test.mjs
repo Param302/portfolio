@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   AVATAR_ENHANCEMENT_BUDGET_MS,
+  AVATAR_BACKGROUND_BUDGET_MS,
   beginAvatarEnhancement,
   probeAvatarSupport,
 } from "../src/app/walloffame/avatar-enhancement.mjs";
@@ -77,6 +78,34 @@ test("a fast instance is promoted once and clears the one-second deadline", asyn
   assert.equal(f.run.state, "ready");
   assert.equal(f.instance.disposals, 0);
   f.run.cancel();
+});
+
+test("About can finish a background load after the intro's one-second limit", async () => {
+  const moduleLoad = deferred();
+  const f = fixture({ timeoutMs: AVATAR_BACKGROUND_BUDGET_MS, load: () => moduleLoad.promise });
+  f.clock.advanceTo(4000);
+  assert.equal(f.run.state, "loading");
+  moduleLoad.resolve({ renderer: "module" });
+  await f.run.settled;
+  assert.equal(f.run.state, "ready");
+  assert.deepEqual(f.ready, [f.instance]);
+  assert.equal(f.clock.pendingTimers, 0);
+  f.run.cancel();
+  assert.equal(f.instance.disposals, 1);
+});
+
+test("background loading still expires and cannot publish a late avatar", async () => {
+  const creation = deferred();
+  const f = fixture({ timeoutMs: AVATAR_BACKGROUND_BUDGET_MS, create: () => creation.promise });
+  await flushMicrotasks();
+  f.clock.advanceTo(AVATAR_BACKGROUND_BUDGET_MS);
+  assert.equal(f.run.state, "timeout");
+  assert.equal(f.run.signal.aborted, true);
+  creation.resolve(f.instance);
+  await f.run.settled;
+  assert.deepEqual(f.ready, []);
+  assert.equal(f.instance.disposals, 1);
+  assert.equal(f.clock.pendingTimers, 0);
 });
 
 test("module import and instance creation share one 1000ms budget", async () => {

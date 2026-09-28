@@ -1,4 +1,5 @@
 export const AVATAR_ENHANCEMENT_BUDGET_MS = 1000;
+export const AVATAR_BACKGROUND_BUDGET_MS = 15000;
 
 function stoppedError(message, name = "AbortError") {
   const error = new Error(message);
@@ -51,7 +52,7 @@ export function beginAvatarEnhancement({ load, create, onReady, onFallback, now 
   const checkpoint = () => {
     if (controller.signal.aborted) throw controller.signal.reason || stoppedError("Avatar enhancement cancelled");
     if (now() >= deadline) {
-      const error = stoppedError("Avatar enhancement exceeded one second", "TimeoutError");
+      const error = stoppedError(`Avatar enhancement exceeded its ${timeoutMs}ms budget`, "TimeoutError");
       expire(error);
       throw error;
     }
@@ -61,7 +62,7 @@ export function beginAvatarEnhancement({ load, create, onReady, onFallback, now 
     await new Promise((resolve) => schedule(resolve, 0));
     checkpoint();
   };
-  timer = schedule(() => expire(stoppedError("Avatar enhancement exceeded one second", "TimeoutError")), Math.max(0, deadline - now()));
+  timer = schedule(() => expire(stoppedError(`Avatar enhancement exceeded its ${timeoutMs}ms budget`, "TimeoutError")), Math.max(0, deadline - now()));
   const settled = (async () => {
     let candidate;
     try {

@@ -31,7 +31,8 @@ const gridBackground = {
 
 export default function HeroSection({ headline = "AI Engineer", summary }) {
   const { theme } = useTheme();
-  const introPhase = useHomeIntro()?.phase || "complete";
+  const intro = useHomeIntro();
+  const introPhase = intro?.phase || "complete";
   const sectionRef = useRef(null);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [interactiveGrid, setInteractiveGrid] = useState(false);
@@ -182,7 +183,7 @@ export default function HeroSection({ headline = "AI Engineer", summary }) {
         />
       ) : null}
 
-      <div className="relative mx-auto flex w-full max-w-7xl justify-center px-4 py-28 sm:px-6 sm:py-32 lg:px-8">
+      <div className="relative mx-auto flex w-full max-w-7xl justify-center px-4 pb-28 pt-16 sm:px-6 sm:py-32 lg:px-8">
         <div data-intro-content className="flex max-w-4xl flex-col items-center pt-8 text-center sm:pt-12">
           {/* <div className="glass-card border-sky-surge inline-flex items-center gap-3 rounded-full px-2 pr-4 py-2 text-sm sm:px-5">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-sky-surge/15 text-sky-surge">
@@ -216,7 +217,7 @@ export default function HeroSection({ headline = "AI Engineer", summary }) {
             {summary || <>Building the bridge between humans and AI. I help people build their dream AI applications, from <span className="font-bold">classical</span> and <span className="font-bold">agentic</span> systems to <span className="font-bold">fine-tuned</span> workflows.</>}
           </p>
 
-          <HeroActions data-intro-reveal style={{ "--intro-delay": "180ms" }} className="mt-6 sm:mt-14" />
+          <HeroActions data-intro-actions className="relative z-[111] mt-6 sm:mt-14" />
         </div>
       </div>
     </section>
