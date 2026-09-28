@@ -6,7 +6,7 @@ import HeroAccent from "./HeroAccent";
 import styles from "./HomeIntro.module.css";
 
 const ENTER_MS = 850;
-const HOLD_MS = 1000;
+const HOLD_MS = 500;
 const FLIGHT_MS = 850;
 const IntroContext = createContext(null);
 

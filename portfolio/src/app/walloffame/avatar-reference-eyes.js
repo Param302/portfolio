@@ -8,6 +8,7 @@ export const REFERENCE_EYES = [
     center: [541, 538],
     outline: [[491, 538], [503, 518], [525, 508], [553, 511], [576, 528], [585, 548], [559, 560], [519, 558], [497, 548]],
     irisRadius: 26,
+    catchlightOffset: [-9, -13],
     whiteSamples: [[506, 538], [576, 541]],
     sparkle: [483, 520],
   },
@@ -15,6 +16,7 @@ export const REFERENCE_EYES = [
     center: [750, 538],
     outline: [[701, 545], [706, 526], [725, 511], [749, 508], [775, 517], [799, 537], [802, 548], [779, 559], [749, 564], [718, 559]],
     irisRadius: 26,
+    catchlightOffset: [-9, -13],
     whiteSamples: [[713, 540], [789, 542]],
     sparkle: [810, 523],
   },
@@ -37,12 +39,14 @@ function makeEyeMaterial(texture, eye, gazePixels) {
     shader.uniforms.referenceGaze = { value: gazePixels };
     shader.uniforms.referenceEyeCenter = { value: new THREE.Vector2(...eye.center) };
     shader.uniforms.referenceIrisRadius = { value: eye.irisRadius };
+    shader.uniforms.referenceCatchlightOffset = { value: new THREE.Vector2(...eye.catchlightOffset) };
     shader.uniforms.referenceWhiteA = { value: new THREE.Vector2(...eye.whiteSamples[0]) };
     shader.uniforms.referenceWhiteB = { value: new THREE.Vector2(...eye.whiteSamples[1]) };
     shader.fragmentShader = shader.fragmentShader.replace("#include <common>", `#include <common>
       uniform vec2 referenceGaze;
       uniform vec2 referenceEyeCenter;
       uniform float referenceIrisRadius;
+      uniform vec2 referenceCatchlightOffset;
       uniform vec2 referenceWhiteA;
       uniform vec2 referenceWhiteB;
     `).replace("#include <map_fragment>", `#include <map_fragment>
@@ -70,9 +74,15 @@ function makeEyeMaterial(texture, eye, gazePixels) {
         irisUv.y = 1.0 - irisUv.y;
         diffuseColor.rgb = mix(diffuseColor.rgb, texture2D(map, irisUv).rgb, irisCoverage);
       }
+      // Repaint the small white reflection from the translated iris center.
+      // Keeping it on the same gaze vector prevents a stationary highlight
+      // from making the moving eye look like a flat texture.
+      vec2 catchlightCenter = referenceEyeCenter + referenceGaze + referenceCatchlightOffset;
+      float catchlight = 1.0 - smoothstep(5.0, 7.5, length(referencePx - catchlightCenter));
+      diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), catchlight * irisCoverage * 0.92);
     `);
   };
-  material.customProgramCacheKey = () => "reference-eye-with-moving-catchlight-v2";
+  material.customProgramCacheKey = () => "reference-eye-with-moving-catchlight-v3";
   return material;
 }
 
