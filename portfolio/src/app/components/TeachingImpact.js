@@ -45,8 +45,8 @@ export default function TeachingImpact({ subscriberLabel = "4K" }) {
     <section className="w-full bg-background py-16 sm:py-20 lg:py-24">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="font-heading text-4xl font-extrabold tracking-tight text-prussian-blue dark:text-bright-snow sm:text-5xl lg:text-6xl">Teaching Impact</h2>
-          <p className="mt-4 font-accent text-base italic leading-7 text-prussian-blue/70 dark:text-bright-snow/70 sm:text-lg">Python, machine learning, revision marathons, and the kind of teaching that turns exam fear into momentum.</p>
+          <h2 className="font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">Teaching</h2>
+          <p className="mt-4 font-description text-base leading-7 text-prussian-blue/70 dark:text-bright-snow/70 sm:text-lg">Python, machine learning, revision marathons, and the kind of teaching that turns exam fear into momentum.</p>
         </div>
 
         <div className="group relative mt-10 min-h-[320px] overflow-hidden rounded-[2rem] border border-prussian-blue/10 shadow-[0_18px_55px_rgba(26,34,53,0.14)] sm:min-h-[355px]">
@@ -64,7 +64,7 @@ export default function TeachingImpact({ subscriberLabel = "4K" }) {
                 <h3 className="font-heading text-3xl font-bold text-ink-black dark:text-bright-snow sm:text-4xl">Parampreet Singh</h3>
                 <p className="mt-1 font-description text-base text-prussian-blue/75 dark:text-bright-snow/75">@Param3021</p>
                 <p className="mt-4 w-fit rounded-full bg-ink-black px-5 py-2 font-heading text-lg font-semibold text-papaya-whip shadow-lg dark:bg-papaya-whip dark:text-ink-black">Subscribers: {subscriberLabel}</p>
-                <p className="mt-4 max-w-2xl font-description text-sm leading-7 text-ink-black/80 dark:text-bright-snow/80 sm:text-base">Covers full Python—from basics to advanced—machine learning, revision sessions, course guidance, and project guidance videos.</p>
+                <p className="mt-4 max-w-2xl font-description text-sm leading-7 text-ink-black/80 dark:text-bright-snow/80 sm:text-base">Covers Python from basics to advanced, machine learning, revision sessions, course guidance, and project guidance videos.</p>
               </div>
             </div>
             <a href="https://www.youtube.com/@Param3021" target="_blank" rel="noopener noreferrer" className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full bg-prussian-blue px-5 py-3 font-heading text-sm font-semibold text-bright-snow transition hover:-translate-y-0.5 hover:bg-ink-black dark:bg-sky-surge dark:text-ink-black">View Channel <ArrowUpRight className="h-4 w-4" /></a>

@@ -138,7 +138,7 @@ export default function CommunitySection({ codexImages = [], pyDelhiImages = [],
             </span>
           </div>
           <div className="mx-auto mt-14 max-w-6xl">
-            <h3 className="font-heading text-3xl font-bold tracking-tight text-prussian-blue sm:text-4xl">Building with people</h3>
+            <h3 className="text-center font-heading text-3xl font-bold tracking-tight text-prussian-blue sm:text-4xl">Building with people</h3>
             <CommunityCarousel codexImages={codexImages} pyDelhiImages={pyDelhiImages} extraImages={extraImages} />
           </div>
         </div>
