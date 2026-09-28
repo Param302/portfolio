@@ -1,16 +1,15 @@
 .root { position: relative; }
 .overlay { position: fixed; inset: 0; z-index: 110; pointer-events: none; }
-:global(html.dark) .overlay::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(11 15 25 / .62), rgb(11 15 25 / .35) 56%, rgb(11 15 25 / .56)); }
 .greeting { --hi-size: clamp(290px, 37svh, 380px); position: absolute; top: clamp(88px, 10svh, 116px); left: 50%; width: calc(100% - 32px); max-width: 1080px; transform: translateX(-50%); text-align: center; }
 .portraitStack { position: relative; z-index: 1; width: clamp(194px, 30svh, 268px); height: clamp(194px, 30svh, 268px); margin-inline: auto; }
 .portraitFlight { position: relative; z-index: 2; width: 100%; height: 100%; transform-origin: center; transition: transform 850ms cubic-bezier(.76, 0, .24, 1); will-change: transform; }
 .portraitEnter { width: 100%; height: 100%; animation: portraitIn 420ms cubic-bezier(.22, 1, .36, 1) both; }
-.wordsEnter { margin-top: 18px; transform-origin: 50% 0; animation: wordsIn 380ms 560ms cubic-bezier(.22, 1, .36, 1) both; }
+.wordsEnter { position: relative; z-index: 2; margin-top: 18px; transform-origin: 50% 0; animation: wordsIn 380ms 560ms cubic-bezier(.22, 1, .36, 1) both; }
 .hi {
   --hi-ink: 255, 237, 212;
   position: absolute;
   z-index: 1;
-  top: 50%;
+  top: 100%;
   left: calc(50% - clamp(10px, 1.4vw, 22px));
   display: flex;
   justify-content: center;
@@ -26,8 +25,8 @@
   line-height: .86;
   text-transform: none;
   filter: drop-shadow(0 3px 2px rgb(11 15 25 / .2));
-  -webkit-mask-image: linear-gradient(to bottom, #000 32%, rgb(0 0 0 / .75) 72%, transparent);
-  mask-image: linear-gradient(to bottom, #000 32%, rgb(0 0 0 / .75) 72%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 52%, rgb(0 0 0 / .75) 82%, transparent);
+  mask-image: linear-gradient(to bottom, #000 52%, rgb(0 0 0 / .75) 82%, transparent);
 }
 .hiLetter {
   display: block;
@@ -39,11 +38,11 @@
   animation: hiCascade 360ms 440ms cubic-bezier(.22, 1, .36, 1) both;
 }
 .hiLetter + .hiLetter { align-self: flex-end; font-size: 1em; animation-delay: 490ms; }
-.nameLine { display: flex; align-items: baseline; justify-content: center; gap: .3em; margin: 0; color: var(--color-foreground); font-family: var(--font-geist), sans-serif; font-size: clamp(32px, 4.4vw, 58px); font-weight: 500; line-height: 1.12; }
+.nameLine { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; margin: 0; color: var(--color-foreground); font-family: var(--font-geist), sans-serif; font-size: clamp(32px, 4.4vw, 58px); font-weight: 500; line-height: 1.06; text-align: center; }
 .prefix { color: #0b0f19; }
 :global(html.dark) .prefix { color: #f8fafc; }
-.nameFlight { display: inline-block; max-width: 100%; transform-origin: center; transition: transform 850ms cubic-bezier(.76, 0, .24, 1); will-change: transform; }
-.name { display: inline-block; }
+.nameFlight { display: inline-block; max-width: 100%; transform-origin: center; white-space: nowrap; transition: transform 850ms cubic-bezier(.76, 0, .24, 1); will-change: transform; }
+.name { display: inline-block; padding-inline: .35rem; font-size: clamp(38px, 10vw, 72px); }
 .root :global([data-intro-actions]) { transition: transform 850ms cubic-bezier(.22, 1, .36, 1); }
 .root[data-home-intro="greeting"] :global([data-intro-actions]) { z-index: 111; visibility: visible; transition: none; animation: actionsAppear 280ms 660ms cubic-bezier(.22, 1, .36, 1) both, failOpen 0s 4500ms forwards; }
 .root[data-home-intro="docking"] :global([data-intro-actions]) { visibility: visible; animation: actionsDock 850ms cubic-bezier(.22, 1, .36, 1) both; }

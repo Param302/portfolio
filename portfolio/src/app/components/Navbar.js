@@ -39,7 +39,8 @@ function ThemeToggle({ theme, mounted, onToggle }) {
       className="glass-card inline-flex h-12 w-12 items-center justify-center rounded-full text-prussian-blue transition hover:border-sky-surge hover:text-sky-surge dark:text-bright-snow"
       aria-label={mounted ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : "Toggle theme"}
     >
-      {mounted && theme === "dark" ? <SunMedium className="h-5 w-5" /> : <MoonStar className="h-5 w-5" />}
+      <MoonStar aria-hidden="true" className="h-5 w-5 dark:hidden" />
+      <SunMedium aria-hidden="true" className="hidden h-5 w-5 dark:block" />
     </button>
   );
 }

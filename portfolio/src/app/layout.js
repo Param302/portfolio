@@ -39,9 +39,10 @@ const themeScript = `
       var storageKey = "theme-preference";
       var storedTheme = localStorage.getItem(storageKey);
       var systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      var theme = storedTheme || systemTheme;
+      var theme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : systemTheme;
       document.documentElement.classList.toggle("dark", theme === "dark");
       document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
     } catch (error) {
       document.documentElement.classList.remove("dark");
       document.documentElement.dataset.theme = "light";

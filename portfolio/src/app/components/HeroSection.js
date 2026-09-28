@@ -30,7 +30,7 @@ const gridBackground = {
 };
 
 export default function HeroSection({ headline = "AI Engineer", summary }) {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const intro = useHomeIntro();
   const introPhase = intro?.phase || "complete";
   const sectionRef = useRef(null);
@@ -141,39 +141,41 @@ export default function HeroSection({ headline = "AI Engineer", summary }) {
       ref={sectionRef}
       onMouseMove={handlePointerMove}
       onMouseLeave={handlePointerLeave}
-      className="section-anchor relative isolate flex min-h-screen items-center overflow-hidden"
+      className="section-anchor relative isolate flex min-h-screen items-center overflow-hidden bg-bright-snow dark:bg-ink-black"
     >
       {/* <div className="absolute inset-0 -z-30 bg-ink-black" /> */}
 
-      <video
-        key={`desktop-${theme}`}
-        src={desktopVideoSrc}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        data-fallback-src="/bowl_breathing.mp4"
-        onError={handleVideoError}
-        className="absolute inset-0 -z-20 hidden h-full w-full object-cover sm:block"
-        aria-hidden="true"
-      />
+      {mounted ? <>
+        <video
+          key={`desktop-${theme}`}
+          src={desktopVideoSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          data-fallback-src="/bowl_breathing.mp4"
+          onError={handleVideoError}
+          className="absolute inset-0 -z-20 hidden h-full w-full object-cover sm:block"
+          aria-hidden="true"
+        />
 
-      <video
-        key={`mobile-${theme}`}
-        src={mobileVideoSrc}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        data-fallback-src="/bowl_breathing_mobile.mp4"
-        onError={handleVideoError}
-        className="absolute inset-0 -z-20 h-full w-full object-cover sm:hidden"
-        aria-hidden="true"
-      />
+        <video
+          key={`mobile-${theme}`}
+          src={mobileVideoSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          data-fallback-src="/bowl_breathing_mobile.mp4"
+          onError={handleVideoError}
+          className="absolute inset-0 -z-20 h-full w-full object-cover sm:hidden"
+          aria-hidden="true"
+        />
+      </> : null}
 
-      <div className={`absolute inset-0 -z-10 bg-gradient-to-b to-sky-surge ${isDarkTheme ? 'from-ink-black/35 via-ink-black/30' : 'from-papaya-whip/35 via-papaya-whip/30'}`} />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-papaya-whip/35 via-papaya-whip/30 to-sky-surge dark:from-ink-black/35 dark:via-ink-black/30" />
 
       {!isDarkTheme ? (
         <motion.div
