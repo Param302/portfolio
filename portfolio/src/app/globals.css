@@ -95,14 +95,6 @@ html.dark {
   -webkit-mask-image: linear-gradient(to bottom, black 42%, transparent 100%);
 }
 
-@media (min-width: 1024px) and (max-height: 820px) {
-  .project-stack-card {
-    position: static !important;
-    min-height: auto !important;
-    top: auto !important;
-  }
-}
-
 .feedback-wheel {
   --feedback-wheel-height: min(72vh, 640px);
   height: var(--feedback-wheel-height);

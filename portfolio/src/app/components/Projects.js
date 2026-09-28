@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Zap } from "lucide-react";
 import Image from "next/image";
-import { useReducedMotion } from "framer-motion";
 import { useTheme } from "@/app/ThemeContext";
-import usePortraitStack from "./usePortraitStack";
-import stackStyles from "./PortraitStack.module.css";
 import styles from "./Projects.module.css";
 
 const projects = [
@@ -84,50 +81,48 @@ function projectTheme(theme) {
   };
 }
 
-function ProjectBlock({ project, index, sticky, isDarkTheme }) {
+function ProjectBlock({ project, index, isDarkTheme }) {
   const theme = projectTheme(project.theme);
   const isEven = index % 2 === 1;
   const imageOrderClass = isEven ? "order-1 lg:order-2" : "order-1 lg:order-1";
   const contentOrderClass = isEven ? "order-2 lg:order-1" : "order-2 lg:order-2";
-  const top = `${11.5 + index * 1.15}rem`;
 
   return (
     <article
       data-stack-card
-      data-desktop-sticky={sticky}
-      style={{ "--desktop-stack-top": top, "--stack-index": index, zIndex: 20 + index }}
-      className={`${styles.card} project-stack-card relative grid w-full grid-cols-1 items-center gap-7 overflow-hidden border-t border-black/10 p-7 sm:p-10 lg:grid-cols-2 lg:gap-12 lg:rounded-t-[2rem] lg:p-12 xl:px-16 ${theme.wrapper}`}
+      style={{ "--stack-index": index }}
+      className={`${styles.card} relative grid w-full grid-cols-1 overflow-hidden border border-black/10 ${theme.wrapper}`}
     >
       <div className={`${styles.image} ${imageOrderClass}`}>
-        <div className={`aspect-video overflow-hidden rounded-[1.5rem] border-2 shadow-lg ${isDarkTheme ? "border-bright-snow" : "border-ink-black"}`}>
+        <div className={`${styles.imageFrame} overflow-hidden border-2 shadow-lg ${isDarkTheme ? "border-bright-snow" : "border-ink-black"}`}>
           <Image src={project.image} alt={`${project.name} preview`} width={1200} height={675} className="h-full w-full rounded-[1.1rem] object-cover" />
         </div>
       </div>
 
       <div className={`${styles.content} ${contentOrderClass} flex flex-col`}>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <h3 className={`font-heading text-3xl font-bold tracking-tight sm:text-4xl ${theme.title}`}>{project.name}</h3>
+        <div className={styles.cardHeader}>
+          <h3 className={`${styles.title} font-heading font-bold tracking-tight ${theme.title}`}>{project.name}</h3>
           {project.live ? (
-            <a href={project.live} target="_blank" rel="noopener noreferrer" className="inline-flex w-fit items-center gap-2 rounded-full border border-prussian-blue/15 bg-bright-snow/75 px-4 py-2 font-description text-sm font-medium text-prussian-blue transition hover:-translate-y-0.5 hover:border-sky-surge hover:text-sky-surge">
-              getreadmewithme.vercel.app <ArrowUpRight className="h-4 w-4" />
+            <a href={project.live} target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.name} live site`} className={`${styles.liveLink} inline-flex w-fit items-center gap-2 rounded-full border border-prussian-blue/15 bg-bright-snow/75 font-description font-medium text-prussian-blue transition hover:-translate-y-0.5 hover:border-sky-surge hover:text-sky-surge`}>
+              <span className={styles.liveLabel}>getreadmewithme.vercel.app</span> <ArrowUpRight className="h-4 w-4" />
             </a>
           ) : null}
         </div>
-        <p className={`mt-6 font-description text-base leading-8 sm:text-lg ${theme.body}`}>{project.description}</p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <p className={`${styles.description} font-description ${theme.body}`}>{project.description}</p>
+        <div className={styles.pointers}>
           {project.pointers.map((pointer) => (
-            <article key={pointer} className={`rounded-2xl px-4 py-2 shadow-md ${theme.pointer}`}>
+            <article key={pointer} className={`${styles.pointer} rounded-2xl shadow-md ${theme.pointer}`}>
               <div className="flex items-center gap-2.5">
                 <span className="inline-flex h-8 w-fit shrink-0 items-center justify-center rounded-xl bg-transparent text-ink-black"><Zap className="h-4 w-4" /></span>
-                <p className="font-accent font-medium italic leading-6">{pointer}</p>
+                <p className={`${styles.pointerText} font-accent font-medium italic`}>{pointer}</p>
               </div>
             </article>
           ))}
         </div>
-        <div className="mt-6 flex flex-wrap gap-2.5">
+        <div className={styles.skills}>
           {project.skills.map((skill) => <span key={skill} className={`rounded-full border px-3 py-1.5 font-description text-xs uppercase tracking-[0.18em] ${theme.chip}`}>{skill}</span>)}
         </div>
-        <div className="mt-8">
+        <div className={styles.actions}>
           <a href={project.repo} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-3 rounded-full px-3 py-3 pr-6 font-heading text-base font-semibold transition ${theme.button}`}>
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-bright-snow"><Image src="/socials/github.png" alt="GitHub" width={20} height={20} className="h-5 w-5" /></span>
             Github
@@ -139,8 +134,6 @@ function ProjectBlock({ project, index, sticky, isDarkTheme }) {
 }
 
 export default function Projects() {
-  const stackRef = usePortraitStack();
-  const reduceMotion = useReducedMotion();
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
   const [contactApproaching, setContactApproaching] = useState(false);
@@ -155,12 +148,12 @@ export default function Projects() {
 
   return (
     <section id="projects" className={`${styles.section} section-anchor relative isolate w-full bg-bright-snow dark:bg-ink-black`}>
-      <div className={`${styles.heading} relative z-40 bg-bright-snow px-4 py-6 transition-opacity duration-200 dark:bg-ink-black lg:sticky lg:top-[5.25rem] ${contactApproaching ? "pointer-events-none invisible opacity-0" : "visible opacity-100"}`}>
-        <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">Projects</h2>
+      <div className={`${styles.heading} ${contactApproaching ? styles.headingHidden : ""} bg-bright-snow dark:bg-ink-black`}>
+        <h2 className={`${styles.headingTitle} text-center font-accent font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow`}>Projects</h2>
       </div>
-      <div ref={stackRef} className={`${styles.stack} ${stackStyles.stack} w-full`}>
+      <div className={`${styles.stack} w-full`}>
         {projects.map((project, index) => (
-          <ProjectBlock key={project.name} project={project} index={index} sticky={!reduceMotion} isDarkTheme={isDarkTheme} />
+          <ProjectBlock key={project.name} project={project} index={index} isDarkTheme={isDarkTheme} />
         ))}
       </div>
     </section>
