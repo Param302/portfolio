@@ -61,13 +61,13 @@ function PosterIntelligence() {
 
 function SocialLinks() {
   return (
-    <div className="flex flex-wrap items-center gap-2" aria-label="Gurmat Darbar social links">
+    <div className="flex flex-wrap items-center gap-2 lg:gap-3" aria-label="Gurmat Darbar social links">
       {socials.map((social) => (
-        <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={`Gurmat Darbar on ${social.label}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-1 hover:border-sky-surge hover:shadow-soft">
-          <Image src={social.icon} alt="" width={22} height={22} className="h-5 w-5 object-contain" />
+        <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={`Gurmat Darbar on ${social.label}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-1 hover:border-sky-surge hover:shadow-soft lg:h-14 lg:w-14">
+          <Image src={social.icon} alt="" width={28} height={28} className="h-5 w-5 object-contain lg:h-7 lg:w-7" />
         </a>
       ))}
-      <span className="font-accent text-base italic text-prussian-blue/65">@gurmatdarbar</span>
+      <span className="font-accent text-base italic text-prussian-blue/65 lg:text-lg">@gurmatdarbar</span>
     </div>
   );
 }

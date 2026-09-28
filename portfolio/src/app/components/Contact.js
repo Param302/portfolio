@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Loader2, MoreHorizontal, SendHorizontal } from "lucide-react";
+import { Loader2, SendHorizontal } from "lucide-react";
 import styles from "./Contact.module.css";
 
 const socials = [
@@ -116,7 +116,6 @@ export default function Contact() {
                     <span className={styles.topicShort}>{idea.compactTitle}</span>
                     <span className={styles.topicDescription}>{idea.description}</span>
                   </span>
-                  {index === 3 && <span className={styles.customMarker} aria-hidden="true"><span>OR</span><MoreHorizontal /></span>}
                 </button>
               ))}
             </div>
