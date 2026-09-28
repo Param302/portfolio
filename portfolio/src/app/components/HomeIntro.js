@@ -114,7 +114,10 @@ export default function HomeIntro({ children }) {
           <div ref={overlayRef} className={styles.overlay} data-intro-overlay>
             <div className={styles.greeting}>
               <div className={styles.portraitStack}>
-                <p className={styles.hi}>Hi</p>
+                <p className={styles.hi} aria-label="Hi">
+                  <span className={styles.hiLetter} aria-hidden="true">H</span>
+                  <span className={styles.hiLetter} aria-hidden="true">i</span>
+                </p>
                 <div ref={portraitRef} className={styles.portraitFlight} style={flightStyle(flight?.avatar)}>
                   <div className={styles.portraitEnter}>
                     <FameCharacter eager fallback="chip" reaction="happy" />
