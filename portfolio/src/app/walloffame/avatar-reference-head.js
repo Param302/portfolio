@@ -152,14 +152,14 @@ function createExpressionRig(mesh) {
     const grateful = ['grateful', 'proud', 'warm'].includes(name);
     const leftLift = strength * (liked ? 9 : excited ? 8 : thoughtful ? 5 : concerned ? 2 : grateful ? 2 : 0);
     const rightLift = strength * (liked ? 9 : excited ? 8 : thoughtful ? -1 : concerned ? 2 : grateful ? 2 : 0);
-    const smileLift = strength * (liked ? 10 : excited ? 6 : concerned ? -5 : thoughtful ? -2 : grateful ? 3 : 0);
+    const smileLift = strength * (liked ? 13 : excited ? 6 : concerned ? -5 : thoughtful ? -2 : grateful ? 3 : 0);
     for (const vertex of weightedVertices) {
       const { index, leftBrow, rightBrow, leftCorner, rightCorner, chin } = vertex;
       const mouthWeight = leftCorner + rightCorner;
       position.setXYZ(index,
-        original[index * 3] + (rightCorner - leftCorner) * smileLift * PIXEL_SCALE * 0.16,
-        original[index * 3 + 1] + (leftBrow * leftLift + rightBrow * rightLift + mouthWeight * smileLift - (excited ? chin * strength : 0)) * PIXEL_SCALE,
-        original[index * 3 + 2] + mouthWeight * smileLift * PIXEL_SCALE * 0.12,
+        original[index * 3] + (rightCorner - leftCorner) * smileLift * PIXEL_SCALE * (liked ? 0.42 : 0.16),
+        original[index * 3 + 1] + (leftBrow * leftLift + rightBrow * rightLift + mouthWeight * smileLift - (liked ? chin * strength * 3 : excited ? chin * strength : 0)) * PIXEL_SCALE,
+        original[index * 3 + 2] + mouthWeight * smileLift * PIXEL_SCALE * (liked ? 0.2 : 0.12),
       );
     }
     position.needsUpdate = true;

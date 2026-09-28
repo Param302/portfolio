@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Heart, Home, Minimize2 } from "lucide-react";
+import { Heart, Home, Minimize2, MoonStar, SunMedium } from "lucide-react";
+import { useTheme } from "@/app/ThemeContext";
 import FameCharacter from "./FameCharacter";
 import styles from "./WallOfFame.module.css";
 
@@ -12,22 +13,19 @@ const BLINK_INTERVAL = [1.55, 2.95];
 const LIKED_STORAGE_KEY = "wall-of-fame-liked-v1";
 const VISITOR_STORAGE_KEY = "wall-of-fame-visitor-v1";
 const STREAM_OFFSETS = [-2, -1, 0, 1, 2];
-const NODE_LAYOUT = [
-  { x: 5, y: 18, size: 8, dx: 34, dy: 22, duration: 14, delay: -2 },
-  { x: 15, y: 35, size: 13, dx: -26, dy: 38, duration: 17, delay: -9 },
-  { x: 27, y: 12, size: 7, dx: 22, dy: -20, duration: 11, delay: -4 },
-  { x: 41, y: 27, size: 10, dx: -38, dy: 17, duration: 19, delay: -12 },
-  { x: 61, y: 14, size: 8, dx: 31, dy: 29, duration: 13, delay: -6 },
-  { x: 78, y: 30, size: 14, dx: -24, dy: -33, duration: 18, delay: -3 },
-  { x: 93, y: 17, size: 7, dx: -35, dy: 25, duration: 15, delay: -11 },
-  { x: 8, y: 58, size: 11, dx: 28, dy: -31, duration: 20, delay: -7 },
-  { x: 20, y: 76, size: 7, dx: -21, dy: -27, duration: 12, delay: -5 },
-  { x: 34, y: 52, size: 9, dx: 30, dy: 35, duration: 16, delay: -13 },
-  { x: 50, y: 70, size: 12, dx: -36, dy: 19, duration: 21, delay: -8 },
-  { x: 66, y: 55, size: 7, dx: 26, dy: -37, duration: 14, delay: -10 },
-  { x: 81, y: 78, size: 10, dx: -30, dy: 24, duration: 18, delay: -1 },
-  { x: 95, y: 61, size: 8, dx: -24, dy: -34, duration: 16, delay: -14 },
-];
+const NODE_LAYOUT = Array.from({ length: 42 }, (_, index) => {
+  const duration = 11 + (index * 7) % 13;
+  return {
+    x: 4 + (index * 37) % 92,
+    y: 7 + (index * 53) % 87,
+    size: 5 + (index * 5) % 11,
+    dx: (index % 2 ? -1 : 1) * (14 + (index * 7) % 23),
+    dy: (index % 3 ? 1 : -1) * (13 + (index * 11) % 25),
+    duration,
+    delay: -((index * 1.9) % duration),
+    tone: ["peach", "blue", "white"][index % 3],
+  };
+});
 
 function wrap(index, length) {
   return ((index % length) + length) % length;
@@ -42,6 +40,10 @@ function feedbackSize(text) {
   if (text.length > 520) return "long";
   if (text.length > 230) return "medium";
   return "short";
+}
+
+function feedbackTone(feedback) {
+  return ["peach", "blue", "white", "black"][Number(feedback.order || 0) % 4];
 }
 
 function FeedbackContent({ feedback, liked, pending, interactive = true, onLike }) {
@@ -68,6 +70,7 @@ function FeedbackContent({ feedback, liked, pending, interactive = true, onLike 
 
 export default function WallOfFameClient({ feedbacks }) {
   const reduceMotion = useReducedMotion();
+  const { theme, mounted, toggleTheme } = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
   const [expanded, setExpanded] = useState(null);
   const [likedIds, setLikedIds] = useState(() => new Set());
@@ -233,6 +236,7 @@ export default function WallOfFameClient({ feedbacks }) {
           <span
             key={feedback.id}
             className={styles.nodePath}
+            data-tone={layout.tone}
             style={{
               "--node-x": `${layout.x}%`,
               "--node-y": `${layout.y}%`,
@@ -248,6 +252,7 @@ export default function WallOfFameClient({ feedbacks }) {
                 layoutId={`feedback-node-${feedback.id}`}
                 type="button"
                 className={styles.node}
+                data-tone={layout.tone}
                 aria-label={`Open appreciation: ${feedback.text.slice(0, 72)}`}
                 onClick={() => setExpanded(feedback)}
                 transition={{ duration: reduceMotion ? 0 : 0.48, ease: [0.22, 1, 0.36, 1] }}
@@ -265,6 +270,15 @@ export default function WallOfFameClient({ feedbacks }) {
           <Image src="/parampreet.png" alt="" width={30} height={30} priority />
           <span>Parampreet Singh</span>
         </div>
+        <button
+          type="button"
+          className={styles.themeButton}
+          onClick={toggleTheme}
+          aria-label={mounted ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : "Toggle theme"}
+        >
+          <MoonStar className={styles.moonIcon} aria-hidden="true" />
+          <SunMedium className={styles.sunIcon} aria-hidden="true" />
+        </button>
       </nav>
 
       <section className={styles.intro} aria-labelledby="wall-heading">
@@ -291,18 +305,15 @@ export default function WallOfFameClient({ feedbacks }) {
       >
         <div className={styles.streamStage}>
           {visibleFeedbacks.map(({ feedback, offset }) => (
-            <motion.article
-              layout
+            <article
               key={feedback.id}
               className={styles.feedbackCard}
               data-active={offset === 0}
               data-distance={Math.abs(offset)}
               data-size={feedbackSize(feedback.text)}
+              data-tone={feedbackTone(feedback)}
               aria-hidden={offset !== 0}
-              style={{ "--offset": offset, "--card-scale": 1 - Math.abs(offset) * 0.055, zIndex: 10 - Math.abs(offset) }}
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: Math.abs(offset) === 0 ? 1 : Math.abs(offset) === 1 ? 0.42 : 0.12 }}
-              transition={{ duration: reduceMotion ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
+              style={{ "--offset": offset, "--card-scale": offset === 0 ? 1 : Math.abs(offset) === 1 ? 0.78 : 0.63, zIndex: 10 - Math.abs(offset) }}
             >
               <FeedbackContent
                 feedback={feedback}
@@ -311,7 +322,7 @@ export default function WallOfFameClient({ feedbacks }) {
                 interactive={offset === 0}
                 onLike={likeFeedback}
               />
-            </motion.article>
+            </article>
           ))}
         </div>
       </section>
@@ -329,6 +340,7 @@ export default function WallOfFameClient({ feedbacks }) {
               layoutId={`feedback-node-${expanded.id}`}
               className={`${styles.feedbackCard} ${styles.spotlightCard}`}
               data-size={feedbackSize(expanded.text)}
+              data-tone={feedbackTone(expanded)}
               transition={{ duration: reduceMotion ? 0 : 0.48, ease: [0.22, 1, 0.36, 1] }}
             >
               <button type="button" className={styles.minimizeButton} onClick={() => setExpanded(null)} aria-label="Minimize this appreciation">

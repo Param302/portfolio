@@ -111,10 +111,10 @@ export async function createFameCharacter(host, {
     await stage();
     faceRig = createReferenceEyes(headGroup, { texture, depthAt: head.depthAt, reduceMotion, blinkInterval });
     const teethShape = new THREE.Shape();
-    teethShape.moveTo(-0.135, 0.018);
-    teethShape.quadraticCurveTo(0, 0.055, 0.135, 0.018);
-    teethShape.quadraticCurveTo(0.11, -0.042, 0, -0.05);
-    teethShape.quadraticCurveTo(-0.11, -0.042, -0.135, 0.018);
+    teethShape.moveTo(-0.205, 0.012);
+    teethShape.quadraticCurveTo(0, 0.064, 0.205, 0.012);
+    teethShape.quadraticCurveTo(0.17, -0.052, 0, -0.064);
+    teethShape.quadraticCurveTo(-0.17, -0.052, -0.205, 0.012);
     const teeth = new THREE.Mesh(
       new THREE.ShapeGeometry(teethShape, 18),
       new THREE.MeshBasicMaterial({ color: 0xfff7ea, toneMapped: false, side: THREE.DoubleSide }),
@@ -131,7 +131,7 @@ export async function createFameCharacter(host, {
     const starShape = new THREE.Shape();
     for (let index = 0; index < 10; index++) {
       const angle = Math.PI / 2 + index * Math.PI / 5;
-      const radius = index % 2 ? 0.042 : 0.096;
+      const radius = index % 2 ? 0.058 : 0.14;
       const x = Math.cos(angle) * radius;
       const y = Math.sin(angle) * radius;
       if (index) starShape.lineTo(x, y); else starShape.moveTo(x, y);
@@ -139,7 +139,7 @@ export async function createFameCharacter(host, {
     starShape.closePath();
     const starGeometry = new THREE.ExtrudeGeometry(starShape, { depth: 0.035, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.008, bevelSegments: 1, steps: 1 });
     const starMaterial = new THREE.MeshBasicMaterial({ color: 0xf7c45c, toneMapped: false });
-    [[-1.56, 0.65, 0], [1.53, 0.98, 0], [1.6, 0.25, 0]].forEach((position) => {
+    [[-1.48, 1.18, 0], [1.48, 1.15, 0], [-1.66, 0.48, 0], [1.66, 0.42, 0], [-1.3, -0.18, 0], [1.28, -0.22, 0], [0, 1.76, 0]].forEach((position) => {
       const star = new THREE.Mesh(starGeometry, starMaterial);
       star.position.set(...position);
       sparkles.add(star);
@@ -170,17 +170,19 @@ export async function createFameCharacter(host, {
       else gaze.copy(pointer);
       portrait.position.y = motionReduced ? 0 : Math.sin(elapsed * 1.25) * 0.008
         + (excited ? Math.abs(Math.sin(age * 8)) * Math.exp(-age * 1.8) * 0.11 : 0)
-        + (liked ? Math.sin(age * 31) * 0.025 * likedEnvelope : 0);
+        + (liked ? Math.sin(age * 27) * 0.01 * likedEnvelope : 0);
       teeth.visible = liked;
       teeth.scale.set(0.78 + likedEnvelope * 0.22, 0.35 + likedEnvelope * 0.65, 1);
       headGroup.updateWorldMatrix(true, false);
       lookTarget.set(gaze.x * 4, 0.29 + gaze.y * 3, 10);
       faceRig.setLookTarget(headGroup.worldToLocal(lookTarget));
       faceRig.update(delta);
-      sparkles.visible = currentReaction === "stars";
+      sparkles.visible = currentReaction === "stars" || liked;
       sparkles.children.forEach((star, index) => {
-        star.scale.setScalar(motionReduced ? 1 : 0.86 + Math.sin(elapsed * 2.5 + index * 2) * 0.16);
-        star.rotation.y = motionReduced ? 0 : Math.sin(elapsed * 1.4 + index) * 0.35;
+        const introScale = motionReduced ? 1 : Math.min(1, Math.max(0, age / 0.24));
+        star.scale.setScalar(motionReduced ? 1 : introScale * (0.9 + Math.sin(elapsed * 7 + index * 1.7) * 0.24));
+        star.rotation.z = motionReduced ? 0 : elapsed * (index % 2 ? -0.65 : 0.65) + index;
+        star.rotation.y = motionReduced ? 0 : Math.sin(elapsed * 2.2 + index) * 0.35;
       });
     }
     function tick(time) {
