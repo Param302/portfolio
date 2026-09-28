@@ -145,13 +145,14 @@ function createExpressionRig(mesh) {
     if (name === lastName && Math.abs(strength - lastAmount) < 0.004) return;
     lastName = name;
     lastAmount = strength;
-    const excited = ['excited', 'delighted', 'celebrate', 'celebrating', 'surprised', 'wow'].includes(name);
+    const liked = name === 'liked';
+    const excited = liked || ['excited', 'delighted', 'celebrate', 'celebrating', 'surprised', 'wow'].includes(name);
     const thoughtful = ['thoughtful', 'thinking', 'focused', 'curious'].includes(name);
     const concerned = ['sad', 'concerned', 'worried', 'empathetic'].includes(name);
     const grateful = ['grateful', 'proud', 'warm'].includes(name);
-    const leftLift = strength * (excited ? 8 : thoughtful ? 5 : concerned ? 2 : grateful ? 2 : 0);
-    const rightLift = strength * (excited ? 8 : thoughtful ? -1 : concerned ? 2 : grateful ? 2 : 0);
-    const smileLift = strength * (excited ? 6 : concerned ? -5 : thoughtful ? -2 : grateful ? 3 : 0);
+    const leftLift = strength * (liked ? 9 : excited ? 8 : thoughtful ? 5 : concerned ? 2 : grateful ? 2 : 0);
+    const rightLift = strength * (liked ? 9 : excited ? 8 : thoughtful ? -1 : concerned ? 2 : grateful ? 2 : 0);
+    const smileLift = strength * (liked ? 10 : excited ? 6 : concerned ? -5 : thoughtful ? -2 : grateful ? 3 : 0);
     for (const vertex of weightedVertices) {
       const { index, leftBrow, rightBrow, leftCorner, rightCorner, chin } = vertex;
       const mouthWeight = leftCorner + rightCorner;

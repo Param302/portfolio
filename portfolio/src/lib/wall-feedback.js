@@ -32,13 +32,10 @@ export async function loadWallFeedbacks(feedbacks) {
          feedback_text = EXCLUDED.feedback_text,
          sort_order = EXCLUDED.sort_order,
          active = TRUE,
-         updated_at = CASE
-           WHEN wall_of_fame_feedbacks.feedback_text IS DISTINCT FROM EXCLUDED.feedback_text
-             OR wall_of_fame_feedbacks.sort_order IS DISTINCT FROM EXCLUDED.sort_order
-             OR wall_of_fame_feedbacks.active IS DISTINCT FROM TRUE
-           THEN NOW()
-           ELSE wall_of_fame_feedbacks.updated_at
-         END`,
+         updated_at = NOW()
+       WHERE wall_of_fame_feedbacks.feedback_text IS DISTINCT FROM EXCLUDED.feedback_text
+          OR wall_of_fame_feedbacks.sort_order IS DISTINCT FROM EXCLUDED.sort_order
+          OR wall_of_fame_feedbacks.active IS DISTINCT FROM TRUE`,
       [
         normalized.map((feedback) => feedback.id),
         normalized.map((feedback) => feedback.text),

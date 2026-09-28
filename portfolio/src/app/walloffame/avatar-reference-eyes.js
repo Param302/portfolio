@@ -163,7 +163,7 @@ function makeStarGeometry() {
   const outline = new THREE.Shape();
   for (let index = 0; index < 10; index++) {
     const angle = Math.PI / 2 + index * Math.PI / 5;
-    const radius = (index % 2 ? 2.6 : 6) * PIXEL_SCALE;
+    const radius = (index % 2 ? 10 : 24) * PIXEL_SCALE;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
     if (index) outline.lineTo(x, y); else outline.moveTo(x, y);
@@ -190,7 +190,7 @@ export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = f
   const ownMaterial = (value) => { ownedMaterials.add(value); return value; };
   const lidMaterial = ownMaterial(new THREE.MeshBasicMaterial({ map: texture, toneMapped: false, side: THREE.DoubleSide }));
   const starGeometry = ownGeometry(makeStarGeometry());
-  const starMaterial = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xe9ba54, toneMapped: false }));
+  const starMaterial = ownMaterial(new THREE.MeshBasicMaterial({ color: 0xf3bd43, toneMapped: false }));
 
   const instances = REFERENCE_EYES.map((definition, index) => {
     const surfaceDepth = (px, py) => {
@@ -215,8 +215,8 @@ export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = f
     lower.name = `Reference lower eyelid ${index}`;
     group.add(upper, lower);
     const sparkle = new THREE.Mesh(starGeometry, starMaterial);
-    sparkle.position.fromArray(worldPoint(...definition.sparkle, depthAt(...definition.sparkle) + 0.025));
-    sparkle.name = `Small eye corner sparkle ${index}`;
+    sparkle.position.fromArray(worldPoint(...definition.center, depthAt(...definition.center) + 0.055));
+    sparkle.name = `Golden star eye ${index}`;
     sparkle.visible = false;
     group.add(sparkle);
     return { definition, surfaceDepth, gaze, target: new THREE.Vector2(), upper, lower, sparkle, lidColumns, previousLids: [-1, -1] };
@@ -227,6 +227,7 @@ export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = f
   let reduced = Boolean(reduceMotion);
   let reaction = "idle";
   let elapsed = 0;
+  let reactionAge = 0;
   let blinkAge = Infinity;
   let squint = 0;
   const scheduleBlink = () => lerp(blinkInterval[0], blinkInterval[1], clamp(Number(random()) || 0, 0, 1));
@@ -254,8 +255,10 @@ export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = f
         updateLid(side === 0 ? eye.upper : eye.lower, eye, side === 0 ? "upper" : "lower", closure);
         eye.previousLids[side] = closure;
       });
-      eye.sparkle.visible = reaction === "stars";
-      eye.sparkle.scale.setScalar(reduced ? 1 : 0.95 + Math.sin(elapsed * 3 + index) * 0.06);
+      const starry = reaction === "stars" || reaction === "liked";
+      const starIntro = smooth(clamp(reactionAge / 0.24, 0, 1));
+      eye.sparkle.visible = starry;
+      eye.sparkle.scale.setScalar(reduced ? 1.08 : starIntro * (1.04 + Math.sin(elapsed * 4.2 + index) * 0.08));
     });
   }
   paint(0, true);
@@ -279,7 +282,8 @@ export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = f
     },
     setReaction(next) {
       if (disposed) return;
-      reaction = ["happy", "excited", "stars"].includes(next) ? next : "idle";
+      reaction = ["happy", "excited", "stars", "liked"].includes(next) ? next : "idle";
+      reactionAge = 0;
       paint(0, reduced);
     },
     setReducedMotion(next) {
@@ -298,6 +302,7 @@ export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = f
       if (disposed || reduced) return;
       const delta = clamp(Number.isFinite(deltaSeconds) ? deltaSeconds : 0, 0, 0.1);
       elapsed += delta;
+      reactionAge += delta;
       nextBlink -= delta;
       if (nextBlink <= 0 && blinkAge >= 0.21) { blinkAge = 0; nextBlink = scheduleBlink(); }
       else blinkAge += delta;

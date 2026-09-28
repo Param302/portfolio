@@ -110,6 +110,20 @@ export async function createFameCharacter(host, {
     portrait.add(wardrobe.body);
     await stage();
     faceRig = createReferenceEyes(headGroup, { texture, depthAt: head.depthAt, reduceMotion, blinkInterval });
+    const teethShape = new THREE.Shape();
+    teethShape.moveTo(-0.135, 0.018);
+    teethShape.quadraticCurveTo(0, 0.055, 0.135, 0.018);
+    teethShape.quadraticCurveTo(0.11, -0.042, 0, -0.05);
+    teethShape.quadraticCurveTo(-0.11, -0.042, -0.135, 0.018);
+    const teeth = new THREE.Mesh(
+      new THREE.ShapeGeometry(teethShape, 18),
+      new THREE.MeshBasicMaterial({ color: 0xfff7ea, toneMapped: false, side: THREE.DoubleSide }),
+    );
+    teeth.name = "Small celebration smile teeth";
+    teeth.position.set(0.055, -0.36, head.depthAt(645, 734) + 0.055);
+    teeth.visible = false;
+    teeth.renderOrder = 8;
+    headGroup.add(teeth);
     check();
 
     const sparkles = new THREE.Group();
@@ -147,10 +161,18 @@ export async function createFameCharacter(host, {
     function render() { if (!disposed && !contextLost && !paused) renderer.render(scene, camera); }
     function pose(delta = 0) {
       const excited = currentReaction === "excited";
+      const liked = currentReaction === "liked";
       const age = elapsed - reactionStart;
+      const likedEnvelope = liked
+        ? Math.min(1, Math.max(0, age / 0.14)) * Math.min(1, Math.max(0, (2.08 - age) / 0.14))
+        : 0;
       if (motionReduced) gaze.set(0, 0);
       else gaze.copy(pointer);
-      portrait.position.y = motionReduced ? 0 : Math.sin(elapsed * 1.25) * 0.008 + (excited ? Math.abs(Math.sin(age * 8)) * Math.exp(-age * 1.8) * 0.11 : 0);
+      portrait.position.y = motionReduced ? 0 : Math.sin(elapsed * 1.25) * 0.008
+        + (excited ? Math.abs(Math.sin(age * 8)) * Math.exp(-age * 1.8) * 0.11 : 0)
+        + (liked ? Math.sin(age * 31) * 0.025 * likedEnvelope : 0);
+      teeth.visible = liked;
+      teeth.scale.set(0.78 + likedEnvelope * 0.22, 0.35 + likedEnvelope * 0.65, 1);
       headGroup.updateWorldMatrix(true, false);
       lookTarget.set(gaze.x * 4, 0.29 + gaze.y * 3, 10);
       faceRig.setLookTarget(headGroup.worldToLocal(lookTarget));
@@ -264,7 +286,7 @@ export async function createFameCharacter(host, {
       },
       setReaction(next) {
         if (disposed) return;
-        currentReaction = ["happy", "excited", "stars"].includes(next) ? next : "idle";
+        currentReaction = ["happy", "excited", "stars", "liked"].includes(next) ? next : "idle";
         reactionStart = elapsed;
         head.setExpression(currentReaction);
         faceRig.setReaction(currentReaction);
