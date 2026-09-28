@@ -1,0 +1,235 @@
+.wheel {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  color: #1a2235;
+}
+
+.viewportFrame {
+  position: relative;
+  border-radius: 24px;
+}
+
+.viewportFrame::before,
+.viewportFrame::after {
+  position: absolute;
+  z-index: 2;
+  right: 3px;
+  left: 3px;
+  height: 42px;
+  pointer-events: none;
+  content: "";
+}
+
+.viewportFrame::before {
+  top: 0;
+  background: linear-gradient(#ffedd4, #ffedd400);
+}
+
+.viewportFrame::after {
+  bottom: 0;
+  background: linear-gradient(#ffedd400, #ffedd4);
+}
+
+.viewport {
+  position: relative;
+  height: min(53svh, 420px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  overflow-anchor: none;
+  scrollbar-width: none;
+  border-radius: 24px;
+  outline: 2px solid transparent;
+  outline-offset: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.viewport:focus-visible {
+  outline-color: #1bb6e0;
+}
+
+.track {
+  padding-block: var(--wheel-edge, 210px);
+}
+
+.cycle {
+  display: flow-root;
+}
+
+.item {
+  padding: 8px 30px;
+}
+
+.note {
+  display: flex;
+  width: 100%;
+  min-height: 142px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 21px 30px 22px;
+  border: 1px solid #1a223519;
+  border-radius: 24px;
+  background: #fff8ed;
+  color: #1a2235;
+  text-align: center;
+  cursor: pointer;
+  transform: scale(0.85);
+  opacity: 0.24;
+  transition: transform 220ms ease, opacity 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+}
+
+.note[data-distance="0"] {
+  transform: scale(1);
+  opacity: 1;
+  border-color: #1bb6e0;
+  background: #fffaf2;
+  box-shadow: 0 8px 24px #1a22350a, 0 0 0 1px #1bb6e012;
+}
+
+.note[data-distance="1"] {
+  transform: scale(0.93);
+  opacity: 0.52;
+}
+
+.note[data-distance="2"] {
+  transform: scale(0.88);
+  opacity: 0.32;
+}
+
+.quoteMark {
+  height: 19px;
+  color: #087b9c;
+  font-family: Georgia, serif;
+  font-size: 43px;
+  line-height: 1;
+}
+
+.quote {
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(0.93rem, 1.7vw, 1.08rem);
+  font-weight: 650;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.signature {
+  color: #1a223588;
+  font-family: var(--font-geist), sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 19px;
+  margin-top: 12px;
+}
+
+.control {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid #1a223521;
+  border-radius: 50%;
+  background: #fff8ed;
+  color: #1a2235;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.control:hover {
+  border-color: #1bb6e0;
+  background: #fffaf2;
+}
+
+.control:focus-visible {
+  outline: 2px solid #087b9c;
+  outline-offset: 3px;
+}
+
+.control:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.counter {
+  color: #1a22359e;
+  font-family: var(--font-geist), sans-serif;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.counter strong {
+  color: #1a2235;
+  font-weight: 700;
+}
+
+.hint {
+  margin-top: 13px;
+  color: #1a22358f;
+  text-align: center;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 10px;
+}
+
+.empty {
+  padding: 48px 20px;
+  color: #1a2235;
+  text-align: center;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.wheel[data-reduced-motion="true"] .note,
+.wheel[data-reduced-motion="true"] .control {
+  transition: none;
+}
+
+@media (max-width: 640px) {
+  .viewport {
+    height: min(44svh, 350px);
+  }
+
+  .item {
+    padding: 7px 13px;
+  }
+
+  .note {
+    min-height: 144px;
+    padding: 18px 19px 20px;
+    border-radius: 21px;
+  }
+
+  .viewportFrame::before,
+  .viewportFrame::after {
+    height: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note,
+  .control {
+    transition: none;
+  }
+}

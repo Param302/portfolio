@@ -1,35 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowDown, ArrowLeft } from "lucide-react";
+import FeedbackWheel from "./FeedbackWheel";
 
 const NODE_LAYOUTS = [
-  { left: "7%", top: "43%" },
-  { left: "92%", top: "39%" },
-  { left: "11%", top: "76%" },
-  { left: "88%", top: "78%" },
-  { left: "50%", top: "89%" },
-  { left: "24%", top: "32%" },
-  { left: "76%", top: "31%" },
-  { left: "33%", top: "84%" },
-  { left: "67%", top: "88%" },
-  { left: "3%", top: "61%" },
-  { left: "97%", top: "60%" },
-  { left: "20%", top: "91%" },
-  { left: "81%", top: "92%" },
-  { left: "40%", top: "36%" },
-  { left: "61%", top: "35%" },
-  { left: "50%", top: "27%" },
+  { left: "7%", top: "43%" }, { left: "92%", top: "39%" }, { left: "11%", top: "76%" }, { left: "88%", top: "78%" },
+  { left: "50%", top: "89%" }, { left: "24%", top: "32%" }, { left: "76%", top: "31%" }, { left: "33%", top: "84%" },
+  { left: "67%", top: "88%" }, { left: "3%", top: "61%" }, { left: "97%", top: "60%" }, { left: "20%", top: "91%" },
+  { left: "81%", top: "92%" }, { left: "40%", top: "36%" }, { left: "61%", top: "35%" }, { left: "50%", top: "27%" },
 ];
 
 function movementFor(index) {
   const x = 10 + (index % 5) * 5;
   const y = 8 + (index % 4) * 4;
   const direction = index % 2 === 0 ? 1 : -1;
-
   return {
     x: [0, direction * x, -direction * (x * 0.7), 0],
     y: [0, -y, y * 0.8, 0],
@@ -68,86 +56,6 @@ function FeedbackNode({ quote, index, hovered, onHover, reduceMotion }) {
   );
 }
 
-function FeedbackWheel({ feedbacks, reduceMotion }) {
-  const viewportRef = useRef(null);
-  const itemRefs = useRef([]);
-  const [focusedRaw, setFocusedRaw] = useState(feedbacks.length);
-  const repeatedFeedbacks = [...feedbacks, ...feedbacks, ...feedbacks];
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport || feedbacks.length === 0) return undefined;
-
-    const placeInMiddle = () => itemRefs.current[feedbacks.length]?.scrollIntoView({ block: "center" });
-
-    const frame = window.requestAnimationFrame(placeInMiddle);
-    window.addEventListener("resize", placeInMiddle);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener("resize", placeInMiddle);
-    };
-  }, [feedbacks.length]);
-
-  function syncFocusedItem() {
-    const viewport = viewportRef.current;
-    if (!viewport || feedbacks.length === 0) return;
-    const viewportCenter = viewport.getBoundingClientRect().top + viewport.clientHeight / 2;
-    let nearest = focusedRaw;
-    let nearestDistance = Number.POSITIVE_INFINITY;
-    itemRefs.current.forEach((item, index) => {
-      if (!item) return;
-      const rect = item.getBoundingClientRect();
-      const distance = Math.abs(rect.top + rect.height / 2 - viewportCenter);
-      if (distance < nearestDistance) { nearestDistance = distance; nearest = index; }
-    });
-    setFocusedRaw(nearest);
-
-    const third = viewport.scrollHeight / 3;
-    if (viewport.scrollTop < third * 0.35) viewport.scrollTop += third;
-    else if (viewport.scrollTop > third * 1.65) viewport.scrollTop -= third;
-  }
-
-  function nudge(direction) {
-    const next = Math.max(0, Math.min(repeatedFeedbacks.length - 1, focusedRaw + direction));
-    itemRefs.current[next]?.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
-  }
-
-  return (
-    <div
-      ref={viewportRef}
-      className="feedback-wheel mx-auto w-full max-w-3xl outline-none"
-      onScroll={syncFocusedItem}
-      onKeyDown={(event) => {
-        if (event.key === "ArrowDown") { event.preventDefault(); nudge(1); }
-        if (event.key === "ArrowUp") { event.preventDefault(); nudge(-1); }
-      }}
-      role="region"
-      aria-label="All learner feedback. Scroll or use the arrow keys."
-      tabIndex={0}
-    >
-      <div className="feedback-wheel-track">
-        {repeatedFeedbacks.map((feedback, index) => {
-          const distance = Math.min(Math.abs(index - focusedRaw), 4);
-          const visualStyles = [
-            "scale-100 border-sky-surge bg-prussian-blue text-bright-snow opacity-100 blur-0",
-            "scale-[0.92] border-prussian-blue/10 bg-bright-snow text-prussian-blue opacity-70 blur-[0.7px]",
-            "scale-[0.84] border-prussian-blue/8 bg-bright-snow text-prussian-blue opacity-42 blur-[1.4px]",
-            "scale-[0.77] border-transparent bg-bright-snow text-prussian-blue opacity-25 blur-[2px]",
-            "scale-[0.72] border-transparent bg-bright-snow text-prussian-blue opacity-15 blur-[3px]",
-          ];
-          return (
-            <article ref={(element) => { itemRefs.current[index] = element; }} key={`${index}-${feedback}`} className="feedback-wheel-item flex snap-center items-center justify-center px-3 sm:px-8">
-              <button type="button" onClick={() => itemRefs.current[index]?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" })} className={`flex min-h-24 w-full max-w-2xl items-center justify-center rounded-[1.6rem] border px-6 py-5 text-center font-description text-sm leading-6 transition duration-300 [overflow-wrap:anywhere] sm:min-h-28 sm:px-10 sm:py-6 sm:text-base sm:leading-7 ${visualStyles[distance]}`}>
-                “{feedback}”
-              </button>
-            </article>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 export default function WallOfFameClient({ feedbacks }) {
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
@@ -158,9 +66,7 @@ export default function WallOfFameClient({ feedbacks }) {
 
   useEffect(() => {
     if (reduceMotion || feedbacks.length < 2 || hovered !== null) return undefined;
-    const timer = window.setInterval(() => {
-      setActive((current) => (current + 1 + Math.floor(Math.random() * (feedbacks.length - 1))) % feedbacks.length);
-    }, 4200);
+    const timer = window.setInterval(() => setActive((current) => (current + 1 + Math.floor(Math.random() * (feedbacks.length - 1))) % feedbacks.length), 4200);
     return () => window.clearInterval(timer);
   }, [feedbacks.length, hovered, reduceMotion]);
 
