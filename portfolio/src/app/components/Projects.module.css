@@ -1,0 +1,43 @@
+.section .card {
+  top: auto;
+}
+
+@media (min-width: 1024px) and (orientation: landscape) and (min-height: 821px) {
+  .section .card[data-desktop-sticky="true"] {
+    position: sticky;
+    top: var(--desktop-stack-top);
+    min-height: calc(100vh - 11.5rem);
+  }
+}
+
+@media (orientation: portrait) {
+  .section .heading {
+    position: relative;
+    top: auto;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    padding-top: 24px;
+    padding-bottom: 20px;
+  }
+
+  .section .card {
+    grid-template-columns: minmax(0, 1fr);
+    border-radius: 24px 24px 0 0;
+    padding: 20px;
+    gap: 24px;
+  }
+
+  .section .image {
+    order: 1;
+  }
+
+  .section .content {
+    order: 2;
+  }
+
+  .section .stack[data-stack-enabled="true"] > .card {
+    position: sticky;
+    top: var(--portrait-stack-top, 88px);
+  }
+}

@@ -30,13 +30,14 @@ function Metrics() {
     { icon: HeartHandshake, value: "500+", label: "Contributions", detail: "Updates shared by the sangat." },
   ];
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div data-gurmat-metrics className="grid gap-2 sm:grid-cols-3 sm:gap-3">
       {metrics.map(({ icon: Icon, value, label, detail }) => (
-        <article key={label} className="rounded-[1.6rem] bg-bright-snow p-6">
-          <Icon className="h-5 w-5 text-sky-surge" />
-          <p className="mt-5 font-heading text-4xl font-extrabold">{value}</p>
-          <p className="font-heading text-sm font-semibold uppercase tracking-[0.14em]">{label}</p>
-          <p className="mt-2 font-description text-sm leading-6 text-prussian-blue/65">{detail}</p>
+        <article key={label} className="flex min-w-0 items-start gap-3 rounded-2xl bg-bright-snow p-3 sm:block sm:p-4">
+          <Icon className="mt-1 h-4 w-4 shrink-0 text-sky-surge sm:mt-0" />
+          <div className="min-w-0">
+            <p className="flex flex-wrap items-baseline gap-x-2 font-heading text-2xl font-extrabold sm:mt-3 sm:block sm:text-3xl">{value}<span className="font-heading text-xs font-semibold sm:block sm:pt-1">{label}</span></p>
+            <p className="mt-1 font-description text-xs leading-5 text-prussian-blue/65">{detail}</p>
+          </div>
         </article>
       ))}
     </div>
@@ -45,12 +46,12 @@ function Metrics() {
 
 function PosterIntelligence() {
   return (
-    <article className="rounded-[1.6rem] bg-prussian-blue p-6 text-bright-snow sm:p-7">
-      <div className="flex items-start gap-4">
-        <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-surge text-ink-black"><Bot className="h-6 w-6" /></span>
+    <article data-gurmat-ai className="rounded-2xl bg-prussian-blue p-4 text-bright-snow sm:p-5">
+      <div className="flex items-start gap-3">
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-surge text-ink-black"><Bot className="h-5 w-5" /></span>
         <div>
-          <h3 className="font-heading text-xl font-bold">AI Poster Intelligence</h3>
-          <p className="mt-2 font-description text-sm leading-7 text-bright-snow/78">A multilingual, Multi-RAG workflow that understands uploaded posters, extracts event information, and automatically fills structured details so listings are ready to publish.</p>
+          <h3 className="font-heading text-base font-bold sm:text-lg">AI Poster Intelligence</h3>
+          <p className="mt-1.5 font-description text-xs leading-5 text-bright-snow/78 sm:text-sm sm:leading-6">A multilingual, Multi-RAG workflow that understands uploaded posters, extracts event information, and automatically fills structured details so listings are ready to publish.</p>
         </div>
       </div>
     </article>
@@ -59,13 +60,13 @@ function PosterIntelligence() {
 
 function SocialLinks() {
   return (
-    <div className="flex flex-wrap items-center gap-4" aria-label="Gurmat Darbar social links">
+    <div className="flex flex-wrap items-center gap-2" aria-label="Gurmat Darbar social links">
       {socials.map((social) => (
-        <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={`Gurmat Darbar on ${social.label}`} className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-1 hover:border-sky-surge hover:shadow-soft sm:h-16 sm:w-16">
-          <Image src={social.icon} alt="" width={30} height={30} className="h-7 w-7 object-contain sm:h-8 sm:w-8" />
+        <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={`Gurmat Darbar on ${social.label}`} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-1 hover:border-sky-surge hover:shadow-soft">
+          <Image src={social.icon} alt="" width={22} height={22} className="h-5 w-5 object-contain" />
         </a>
       ))}
-      <span className="font-accent text-xl italic text-prussian-blue/65">@gurmatdarbar</span>
+      <span className="font-accent text-base italic text-prussian-blue/65">@gurmatdarbar</span>
     </div>
   );
 }
@@ -92,7 +93,7 @@ export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-da
   }, [paused, reduceMotion, screenshots.length]);
 
   return (
-    <section className="section-anchor overflow-hidden bg-bright-snow text-prussian-blue dark:bg-ink-black dark:text-bright-snow">
+    <section id="gurmat-darbar" className="section-anchor overflow-hidden bg-bright-snow text-prussian-blue dark:bg-ink-black dark:text-bright-snow">
       <div className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="rounded-[2.5rem] bg-papaya-whip p-6 text-prussian-blue sm:p-9 lg:p-12">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">

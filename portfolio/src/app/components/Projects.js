@@ -5,6 +5,9 @@ import { ArrowUpRight, Zap } from "lucide-react";
 import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
 import { useTheme } from "@/app/ThemeContext";
+import usePortraitStack from "./usePortraitStack";
+import stackStyles from "./PortraitStack.module.css";
+import styles from "./Projects.module.css";
 
 const projects = [
   {
@@ -90,16 +93,18 @@ function ProjectBlock({ project, index, sticky, isDarkTheme }) {
 
   return (
     <article
-      style={sticky ? { top, zIndex: 20 + index } : undefined}
-      className={`project-stack-card relative grid w-full grid-cols-1 items-center gap-7 overflow-hidden border-t border-black/10 p-7 sm:p-10 lg:grid-cols-2 lg:gap-12 lg:rounded-t-[2rem] lg:p-12 xl:px-16 ${sticky ? "lg:sticky lg:min-h-[calc(100vh-11.5rem)]" : ""} ${theme.wrapper}`}
+      data-stack-card
+      data-desktop-sticky={sticky}
+      style={{ "--desktop-stack-top": top, "--stack-index": index, zIndex: 20 + index }}
+      className={`${styles.card} project-stack-card relative grid w-full grid-cols-1 items-center gap-7 overflow-hidden border-t border-black/10 p-7 sm:p-10 lg:grid-cols-2 lg:gap-12 lg:rounded-t-[2rem] lg:p-12 xl:px-16 ${theme.wrapper}`}
     >
-      <div className={imageOrderClass}>
+      <div className={`${styles.image} ${imageOrderClass}`}>
         <div className={`aspect-video overflow-hidden rounded-[1.5rem] border-2 shadow-lg ${isDarkTheme ? "border-bright-snow" : "border-ink-black"}`}>
           <Image src={project.image} alt={`${project.name} preview`} width={1200} height={675} className="h-full w-full rounded-[1.1rem] object-cover" />
         </div>
       </div>
 
-      <div className={`${contentOrderClass} flex flex-col`}>
+      <div className={`${styles.content} ${contentOrderClass} flex flex-col`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <h3 className={`font-heading text-3xl font-bold tracking-tight sm:text-4xl ${theme.title}`}>{project.name}</h3>
           {project.live ? (
@@ -134,6 +139,7 @@ function ProjectBlock({ project, index, sticky, isDarkTheme }) {
 }
 
 export default function Projects() {
+  const stackRef = usePortraitStack();
   const reduceMotion = useReducedMotion();
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
@@ -141,18 +147,18 @@ export default function Projects() {
 
   useEffect(() => {
     const contact = document.getElementById("contact");
-    if (!contact) return undefined;
+    if (!contact || typeof IntersectionObserver === "undefined") return undefined;
     const observer = new IntersectionObserver(([entry]) => setContactApproaching(entry.isIntersecting), { threshold: 0.01 });
     observer.observe(contact);
     return () => observer.disconnect();
   }, []);
 
   return (
-    <section id="projects" className="section-anchor relative isolate w-full bg-bright-snow dark:bg-ink-black">
-      <div className={`relative z-40 bg-bright-snow px-4 py-6 transition-opacity duration-200 dark:bg-ink-black lg:sticky lg:top-[5.25rem] ${contactApproaching ? "pointer-events-none invisible opacity-0" : "visible opacity-100"}`}>
+    <section id="projects" className={`${styles.section} section-anchor relative isolate w-full bg-bright-snow dark:bg-ink-black`}>
+      <div className={`${styles.heading} relative z-40 bg-bright-snow px-4 py-6 transition-opacity duration-200 dark:bg-ink-black lg:sticky lg:top-[5.25rem] ${contactApproaching ? "pointer-events-none invisible opacity-0" : "visible opacity-100"}`}>
         <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">Projects</h2>
       </div>
-      <div className="w-full">
+      <div ref={stackRef} className={`${styles.stack} ${stackStyles.stack} w-full`}>
         {projects.map((project, index) => (
           <ProjectBlock key={project.name} project={project} index={index} sticky={!reduceMotion} isDarkTheme={isDarkTheme} />
         ))}

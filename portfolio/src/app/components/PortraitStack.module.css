@@ -1,0 +1,27 @@
+@media (orientation: portrait) {
+  .stack {
+    display: block;
+  }
+
+  .stack > [data-stack-card] {
+    min-width: 0;
+    margin-bottom: 16px;
+  }
+
+  .stack > [data-stack-card]:last-child {
+    margin-bottom: 0;
+  }
+
+  .stack[data-stack-enabled="true"] > [data-stack-card] {
+    position: sticky;
+    top: var(--portrait-stack-top, 88px);
+    z-index: calc(20 + var(--stack-index, 0));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack[data-stack-enabled="true"] > [data-stack-card] {
+    position: relative;
+    top: auto;
+  }
+}

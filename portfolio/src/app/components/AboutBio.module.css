@@ -1,0 +1,22 @@
+@media (max-width: 639px) {
+  .bio {
+    cursor: pointer;
+  }
+
+  .bio:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 6px;
+    border-radius: 4px;
+  }
+
+  .bio[data-expanded="false"] > p:first-child {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    overflow: hidden;
+  }
+
+  .bio[data-expanded="false"] > p + p {
+    display: none;
+  }
+}
