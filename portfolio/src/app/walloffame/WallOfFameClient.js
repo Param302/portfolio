@@ -270,7 +270,7 @@ export default function WallOfFameClient({ feedbacks }) {
           <Home aria-hidden="true" />
         </Link>
         <div className={styles.nameChip}>
-          <Image src="/parampreet.png" alt="" width={30} height={30} priority />
+          <Image src="/optimized/parampreet.webp" alt="" width={30} height={30} priority />
           <span>Parampreet Singh</span>
         </div>
         <button

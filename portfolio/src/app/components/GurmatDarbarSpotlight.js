@@ -6,10 +6,10 @@ import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
 
 const socials = [
-  { label: "Facebook", icon: "/socials/facebook.png", href: "https://www.facebook.com/gurmatdarbar" },
-  { label: "Instagram", icon: "/socials/instagram.png", href: "https://www.instagram.com/gurmatdarbar" },
-  { label: "YouTube", icon: "/socials/youtube.png", href: "https://www.youtube.com/@gurmatdarbar" },
-  { label: "LinkedIn", icon: "/socials/linkedin.png", href: "https://www.linkedin.com/company/gurmatdarbar" },
+  { label: "Facebook", icon: "/optimized/socials/facebook.webp", href: "https://www.facebook.com/gurmatdarbar" },
+  { label: "Instagram", icon: "/optimized/socials/instagram.webp", href: "https://www.instagram.com/gurmatdarbar" },
+  { label: "YouTube", icon: "/optimized/socials/youtube.webp", href: "https://www.youtube.com/@gurmatdarbar" },
+  { label: "LinkedIn", icon: "/optimized/socials/linkedin.webp", href: "https://www.linkedin.com/company/gurmatdarbar" },
   { label: "WhatsApp", icon: "/socials/whatsapp.svg", href: "https://gurmatdarbar.com" },
 ];
 
@@ -81,7 +81,7 @@ function ScreenshotCarousel({ screenshots, index, setPaused }) {
   );
 }
 
-export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-darbar/gd-original.png"] }) {
+export default function GurmatDarbarSpotlight({ screenshots = ["/optimized/media/gurmat-darbar/gd-original.webp"] }) {
   const reduceMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -101,10 +101,10 @@ export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-da
               <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight sm:text-6xl lg:text-7xl xl:text-left">Gurmat Darbar</h2>
               <div className="mt-4 flex items-center justify-between gap-4 xl:block">
                 <span className="inline-flex min-w-28 justify-center rounded-full bg-prussian-blue px-5 py-1.5 font-accent text-base italic text-bright-snow sm:min-w-44 sm:px-8 sm:py-2.5 sm:text-lg">Founder</span>
-                <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={184} height={83} className="h-auto w-32 shrink-0 object-contain sm:w-40 xl:hidden" />
+                <Image src="/optimized/gurmatdarbar_logo.webp" alt="Gurmat Darbar" width={184} height={83} className="h-auto w-32 shrink-0 object-contain sm:w-40 xl:hidden" />
               </div>
             </div>
-            <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={230} height={104} className="hidden h-auto w-56 shrink-0 object-contain xl:block" />
+            <Image src="/optimized/gurmatdarbar_logo.webp" alt="Gurmat Darbar" width={230} height={104} className="hidden h-auto w-56 shrink-0 object-contain xl:block" />
           </div>
 
           <div className="mt-8 space-y-7 xl:hidden">

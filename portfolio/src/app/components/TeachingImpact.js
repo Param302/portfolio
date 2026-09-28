@@ -54,14 +54,14 @@ export default function TeachingImpact({ subscriberLabel = "4K" }) {
 
         <div className="group relative mt-8 overflow-hidden rounded-[2rem] border border-prussian-blue/10 shadow-[0_18px_55px_rgba(26,34,53,0.14)] sm:mt-10 sm:min-h-[355px]">
           <div className="absolute -inset-[12%] -rotate-[5deg] scale-[1.18] transition duration-700 ease-out group-hover:-rotate-[7deg] group-hover:scale-[1.24]">
-            <Image src="/yt-channel.png" alt="" fill sizes="100vw" className="object-cover dark:hidden" />
-            <Image src="/yt-channel-dark.png" alt="" fill sizes="100vw" className="hidden object-cover dark:block" />
+            <Image src="/optimized/yt-channel.webp" alt="" fill sizes="100vw" className="object-cover dark:hidden" />
+            <Image src="/optimized/yt-channel-dark.webp" alt="" fill sizes="100vw" className="hidden object-cover dark:block" />
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-bright-snow/95 via-bright-snow/95 to-bright-snow/80 dark:from-ink-black/95 dark:via-ink-black/95 dark:to-ink-black/80 sm:bg-gradient-to-r sm:from-bright-snow/95 sm:via-bright-snow/90 sm:to-bright-snow/30 sm:dark:from-ink-black/95 sm:dark:via-ink-black/90 sm:dark:to-ink-black/40" />
           <div className="relative z-10 flex flex-col justify-between gap-5 p-5 sm:min-h-[355px] sm:gap-7 sm:p-9 lg:flex-row lg:items-center lg:p-12">
             <div className="flex max-w-3xl items-start gap-4 sm:gap-7">
               <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center sm:h-28 sm:w-28">
-                <Image src="/socials/youtube.png" alt="YouTube" width={76} height={76} className="h-11 w-11 object-contain sm:h-20 sm:w-20" />
+                <Image src="/optimized/socials/youtube.webp" alt="YouTube" width={76} height={76} className="h-11 w-11 object-contain sm:h-20 sm:w-20" />
               </div>
               <div>
                 <h3 className="font-heading text-2xl font-bold text-ink-black dark:text-bright-snow sm:text-4xl">Parampreet Singh</h3>

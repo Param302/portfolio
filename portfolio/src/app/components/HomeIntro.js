@@ -53,7 +53,8 @@ export default function HomeIntro({ children }) {
   useLayoutEffect(() => {
     const navigationEntry = window.performance?.getEntriesByType?.("navigation")?.[0];
     const isReload = navigationEntry?.type === "reload" || window.performance?.navigation?.type === 1;
-    if (!isReload) return undefined;
+    // Preserve shared/search section links, including when the visitor reloads.
+    if (!isReload || window.location.hash) return undefined;
 
     resettingReloadScroll.current = true;
     const previousRestoration = window.history.scrollRestoration;

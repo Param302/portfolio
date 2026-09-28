@@ -3,15 +3,7 @@ import { Geist, Inter, Instrument_Serif } from "next/font/google";
 import Script from "next/script";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/ThemeContext";
-import {
-  allKeywords,
-  faqSchema,
-  organizationSchema,
-  personSchema,
-  profilePageSchema,
-  siteConfig,
-  websiteSchema,
-} from "@/app/data/seoData";
+import { allKeywords, siteConfig } from "@/app/data/seoData";
 
 const headingFont = Geist({
   display: "swap",
@@ -87,9 +79,6 @@ export const metadata = {
       url: siteConfig.url,
     },
   ],
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
@@ -161,28 +150,10 @@ export default function RootLayout({ children }) {
             gtag('config', 'G-DK123XJTT0');
           `}
         </Script>
+        <link rel="help" href="/agents.md" type="text/markdown" title="Parampreet Singh: public profile and resume for AI agents" />
+        <link rel="help" href="/llms.txt" type="text/plain" title="Public site reference index" />
         <meta name="theme-color" content="#0B0F19" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
       </head>
       <body
         className={`${headingFont.variable} ${descriptionFont.variable} ${accentFont.variable} antialiased`}

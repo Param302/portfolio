@@ -166,7 +166,7 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
         {fallback !== "none" && <div className={`${styles.fallback} ${ready ? styles.hidden : ""}`} aria-hidden={ready} style={{ backgroundImage: portraitLoaded ? undefined : `url("${useChipFallback ? chipPlaceholderDataUrl : avatarPlaceholderDataUrl}")` }}>
           {useChipFallback ? (
             <Image
-              src="/parampreet.png"
+              src="/optimized/parampreet.webp"
               alt="Parampreet Singh's cartoon avatar"
               fill
               sizes={compact ? "150px" : "(max-width: 899px) 266px, 326px"}

@@ -37,7 +37,7 @@ export default function Footer() {
                         <div className="inline-flex items-center gap-3 rounded-full border border-prussian-blue/20 bg-bright-snow/60 px-3 py-2 dark:border-alice-blue/10 dark:bg-papaya-whip">
                             <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-prussian-blue/20 dark:border-alice-blue/10">
                                 <Image
-                                    src="/parampreet.png"
+                                    src="/optimized/parampreet.webp"
                                     alt="Parampreet Singh"
                                     width={40}
                                     height={40}

@@ -21,7 +21,7 @@ export default function MLPlayground() {
   return (
     <main className={styles.page}>
       <header className={styles.topbar}>
-        <Link href="/" className={styles.identity}><Image src="/parampreet_singh.png" alt="" width={32} height={38} /><span>Parampreet Singh</span></Link>
+        <Link href="/" className={styles.identity}><Image src="/optimized/parampreet_singh.webp" alt="" width={32} height={38} /><span>Parampreet Singh</span></Link>
         <div className={styles.topActions}>
           <Link href="/"><ArrowLeft size={16} /><span>Back home</span></Link>
           <button onClick={toggleTheme} aria-label={mounted ? `Switch to ${theme === "dark" ? "light" : "dark"} theme` : "Toggle theme"}>{mounted && theme === "dark" ? <SunMedium size={19} /> : <MoonStar size={19} />}</button>

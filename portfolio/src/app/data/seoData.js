@@ -1,410 +1,130 @@
+import { projects } from "./projects.js";
+
 export const siteConfig = {
-    name: "Parampreet Singh",
-    siteName: "itsparam.in",
-    domain: "itsparam.in",
-    url: "https://itsparam.in",
-    logo: "https://itsparam.in/icon-512.png",
-    image: "https://itsparam.in/og-image.png",
-    email: "hey@itsparam.in",
-    title: "Parampreet Singh | AI Engineer",
-    shortBio:
-        "AI Engineer building production-grade AI systems, fine-tuning Small Language Models, scaling Gurmat Darbar, and teaching Python and machine learning through 70+ live sessions.",
-    location: "India",
-    locale: "en_US",
-    creator: "@Param3021",
-    sameAs: [
-        "https://github.com/Param302",
-        "https://www.linkedin.com/in/param302",
-        "https://www.youtube.com/@Param3021",
-        "https://x.com/Param3021",
-        "https://www.kaggle.com/param302",
-    ],
+  name: "Parampreet Singh",
+  siteName: "itsparam.in",
+  url: "https://itsparam.in",
+  image: "https://itsparam.in/og-image.png",
+  email: "hey@itsparam.in",
+  title: "Parampreet Singh Portfolio | AI Engineer | Community Builder - itsparam.in",
+  shortBio: "Parampreet Singh (Param), AI Engineer, community builder and Codex Ambassador for New Delhi. Explore AI projects, Python and ML sessions, Gurmat Darbar and his resume.",
+  locale: "en_IN",
+  creator: "@Param3021",
+  sameAs: [
+    "https://github.com/Param302",
+    "https://www.linkedin.com/in/param302",
+    "https://www.youtube.com/@Param3021",
+    "https://x.com/Param3021",
+    "https://www.kaggle.com/param302",
+    "https://www.instagram.com/param_3021/",
+  ],
 };
 
-export const keywordLibrary = {
-    brand: [
-        "Parampreet Singh",
-        "Parampreet",
-        "Param Singh",
-        "Param3021",
-        "@Param302",
-        "@Param3021",
-        "Param302",
-        "itsparam",
-        "itsparam.in",
-        "Parampreet Singh AI engineer",
-        "Parampreet Singh portfolio",
-        "AI engineer portfolio",
-        "IIT Madras student",
-    ],
-    aiMl: [
-        "machine learning",
-        "artificial intelligence",
-        "genai engineer",
-        "LLM engineering",
-        "SLM fine tuning",
-        "model context protocol",
-        "LangGraph",
-        "PyTorch",
-        "FastAPI",
-        "agentic workflows",
-        "multi agent systems",
-        "deep learning",
-        "neural networks",
-        "liquid neural networks",
-        "LSTM",
-        "time series modeling",
-        "SFT",
-        "PEFT",
-        "LoRA",
-        "Ollama",
-        "AI product engineering",
-        "production AI systems",
-    ],
-    fullStack: [
-        "full stack developer",
-        "Next.js developer",
-        "React portfolio",
-        "Tailwind CSS",
-        "PostgreSQL",
-        "Redis",
-        "Celery",
-        "Flask",
-        "Vue.js",
-        "cloud run",
-        "GCP",
-        "developer portfolio India",
-    ],
-    projects: [
-        "Pocket-Coder",
-        "GRWM",
-        "Get README With Me",
-        "Hand Gesture LNN",
-        "Quizzo V2",
-        "Gurmat Darbar",
-        "Code Track",
-        "Heart Disease Predictor",
-        "E-Pustakalya",
-    ],
-    teaching: [
-        "python educator",
-        "machine learning educator",
-        "python sessions hindi",
-        "machine learning sessions hindi",
-        "python playlist",
-        "ml playlist",
-        "iit bs degree guidance",
-        "diploma course selection",
-        "revision sessions",
-        "live coding sessions",
-        "175k learners",
-        "teaching impact",
-    ],
-    multilingual: [
-        "machine learning in hindi",
-        "python in hindi",
-        "machine learning in punjabi",
-        "python in punjabi",
-        "ai engineer india",
-    ],
-    discovery: [
-        "Parampreet Singh github",
-        "Parampreet Singh linkedin",
-        "Parampreet Singh youtube",
-        "Param302 portfolio",
-        "Param3021 portfolio",
-        "itsparam portfolio",
-        "AI ML engineer portfolio India",
-        "SLM fine tuning engineer",
-        "LLM engineer portfolio",
-        "Parampreet Singh resume",
-        "itsparam contact",
-        "Parampreet Singh projects",
-    ],
-    searchIntent: [
-        "hire AI engineer India",
-        "AI consultant portfolio",
-        "ML engineer for collaboration",
-        "GenAI product builder",
-        "portfolio with AI projects and resume",
-    ],
-};
+export const identityAliases = ["Param", "Parampreet", "Param302", "Param3021", "@Param302", "@Param3021", "itsparam"];
 
-export const allKeywords = Object.values(keywordLibrary)
-    .flat()
-    .filter((value, index, arr) => arr.indexOf(value) === index);
-
-export const questionLibrary = [
-    {
-        lang: "en",
-        question: "Who is Parampreet Singh?",
-        answer:
-            "Parampreet Singh is an AI engineer and educator building machine learning products, GenAI workflows, and full-stack applications.",
-    },
-    {
-        lang: "en",
-        question: "What does itsparam.in showcase?",
-        answer:
-            "itsparam.in showcases Parampreet Singh's portfolio, projects, work experience, teaching impact, and ways to connect for collaboration.",
-    },
-    {
-        lang: "en",
-        question: "What machine learning projects has Parampreet built?",
-        answer:
-            "Key projects include Pocket-Coder, Hand Gesture LNN, GRWM, Quizzo V2, and Gurmat Darbar with AI-assisted workflows.",
-    },
-    {
-        lang: "en",
-        question: "How can I contact Parampreet Singh?",
-        answer: "You can contact Parampreet Singh at hey@itsparam.in.",
-    },
-    {
-        lang: "en",
-        question: "Is Param302 or @Param3021 the same person as Parampreet Singh?",
-        answer:
-            "Yes. Param302 and @Param3021 are handles used by Parampreet Singh across portfolio and social platforms.",
-    },
-    {
-        lang: "en",
-        question: "Does Parampreet Singh teach Python and machine learning?",
-        answer:
-            "Yes. Parampreet teaches Python and machine learning with live sessions, revision marathons, and practical project-focused learning.",
-    },
-    {
-        lang: "hi",
-        question: "Parampreet Singh kaun hai?",
-        answer:
-            "Parampreet Singh ek AI engineer aur educator hain jo machine learning aur GenAI products banate hain.",
-    },
-    {
-        lang: "hi",
-        question: "Machine learning seekhne ke liye is website par kya milega?",
-        answer:
-            "Aapko projects, practical implementations, learning resources, aur teaching impact insights milenge.",
-    },
-    {
-        lang: "hi",
-        question: "Python aur ML sessions kaha milenge?",
-        answer:
-            "Python aur ML learning content ke liye portfolio ke teaching aur playlist sections ko visit karein.",
-    },
-    {
-        lang: "pa",
-        question: "Parampreet Singh ki karde ne?",
-        answer:
-            "Parampreet Singh AI te machine learning products build karde ne ate students nu Python te ML sikhaunde ne.",
-    },
-    {
-        lang: "pa",
-        question: "Machine learning bare resources kithe milange?",
-        answer:
-            "Portfolio te tusi projects, tutorials, te practical ML workflows de examples vekh sakde ho.",
-    },
+// Descriptive terms, not a mechanism to promise rankings for generic searches.
+export const allKeywords = [
+  "Parampreet Singh", "Param", "Param Python", "Param IITM", "Param IITMBS",
+  "AI Engineer", "Community Builder", "Codex Ambassador New Delhi", "IIT Madras",
+  "Python sessions", "machine learning sessions", "Gurmat Darbar", "Pocket Coder",
+  "Parampreet Singh resume", "Param302", "Param3021",
 ];
 
-export const projectEntities = [
-    {
-        name: "Pocket-Coder",
-        description:
-            "A 1.2B parameter local AI coding assistant focused on practical coding help and local inference workflows.",
-        url: "https://github.com/param302/pocket-coder",
-        keywords: ["SFT", "PEFT", "LoRA", "Ollama", "MCP"],
-    },
-    {
-        name: "GRWM - Get README With Me",
-        description:
-            "A multi-agent GenAI platform that generates project-tailored GitHub README files.",
-        url: "https://github.com/param302/grwm",
-        keywords: ["LangGraph", "FastAPI", "Next.js", "GCP"],
-    },
-    {
-        name: "Hand Gesture LNN",
-        description:
-            "A gesture segmentation and recognition project comparing LNN models against traditional baselines.",
-        url: "https://github.com/param302/hand-gesture-lnn",
-        keywords: ["Liquid Neural Networks", "LSTM", "PyTorch", "Computer Vision"],
-    },
-    {
-        name: "Quizzo V2",
-        description:
-            "A full-stack quiz management platform with robust backend task orchestration and data pipelines.",
-        url: "https://github.com/param302/quizzo-v2",
-        keywords: ["Flask", "Vue.js", "PostgreSQL", "Redis", "Celery"],
-    },
+export const publicPages = [
+  { path: "/", name: siteConfig.title },
+  { path: "/resume", name: "Resume of Parampreet Singh" },
+  { path: "/walloffame", name: "Feedbacks of sessions by Parampreet Singh" },
 ];
 
-export const personSchema = {
+export const homeSections = [
+  { id: "about", name: "About Parampreet Singh", description: "AI engineering, Python, machine learning and community building by Parampreet Singh." },
+  { id: "projects", name: "Projects by Parampreet Singh", description: "Pocket Coder, GRWM, Hand Gesture LNN and Quizzo V2: AI and full-stack projects by Parampreet Singh." },
+  { id: "community", name: "Codex Ambassador of New Delhi | Parampreet Singh", description: "Community building, PyDelhi meetups and Codex events and hackathons in New Delhi, alongside Python and AI/ML teaching." },
+  { id: "teaching", name: "Python, AI/ML sessions, tutorials & practice sessions by Parampreet Singh", description: "Python and machine learning live sessions, revision marathons and project guidance on @Param3021." },
+  { id: "work", name: "Work experience of Parampreet Singh", description: "AI engineering, research, teaching and founding Gurmat Darbar." },
+  { id: "gurmat-darbar", name: "Gurmat Darbar - an initiative by Parampreet Singh", description: "A Sikh community event platform founded by Parampreet Singh, with AI poster intelligence and community contributions." },
+  { id: "contact", name: "Connect with Param / Parampreet Singh", description: "Want to build an AI product? Connect with Parampreet Singh for AI products, community events, workshops and collaborations." },
+];
+
+export const socialResources = [
+  { path: "/yt", name: "@Param3021 YouTube channel of Parampreet Singh", url: siteConfig.sameAs[2] },
+  { path: "/linkedin", name: "LinkedIn profile of Parampreet Singh (@param302)", url: "https://www.linkedin.com/in/param302/" },
+  { path: "/x", name: "X profile of Parampreet Singh (@Param3021)", url: "https://twitter.com/Param3021" },
+  { path: "/github", name: "GitHub projects by Parampreet Singh (@Param302)", url: siteConfig.sameAs[0] },
+];
+
+export const learningResources = [
+  { path: "/mlsessions", name: "Machine learning sessions by Parampreet Singh", description: "Machine learning tutorials, practice and revision sessions on the @Param3021 YouTube channel.", url: "https://www.youtube.com/playlist?list=PLClULgPbRPsA1twUfMlWkI4yJeqjsSi23", topic: "Machine learning", type: "Collection" },
+  { path: "/pythonsessions", name: "Python sessions by Parampreet Singh", description: "Python tutorials, practice and revision sessions on the @Param3021 YouTube channel.", url: "https://www.youtube.com/playlist?list=PLClULgPbRPsD-t0AYG8hR5iLIt2ZaNTkv", topic: "Python programming", type: "Collection" },
+  { path: "/python1liners", name: "Python One-Liners - first talk by Parampreet Singh", description: "Parampreet Singh's first talk, exploring Python one-liners.", url: "https://www.youtube.com/watch?v=08owIqXQebs", topic: "Python programming", type: "CreativeWork" },
+];
+
+const personId = `${siteConfig.url}/#person`;
+const websiteId = `${siteConfig.url}/#website`;
+const pageId = `${siteConfig.url}/#webpage`;
+
+export function pageMetadata(title, description, path) {
+  const fullTitle = path === "/" ? title : `${title} | itsparam.in`;
+  return {
+    title: { absolute: fullTitle },
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: "website", locale: siteConfig.locale, siteName: siteConfig.siteName, title: fullTitle, description, url: `${siteConfig.url}${path}`, images: [{ url: siteConfig.image, width: 1200, height: 630, alt: "Parampreet Singh - AI Engineer and Community Builder" }] },
+    twitter: { card: "summary_large_image", creator: siteConfig.creator, title: fullTitle, description, images: [siteConfig.image] },
+  };
+}
+
+export function personSchema(content) {
+  return {
+    "@type": "Person", "@id": personId,
+    name: content.profile.name, alternateName: identityAliases,
+    url: `${siteConfig.url}/`, image: `${siteConfig.url}/optimized/parampreet_singh.webp`,
+    description: content.summary, email: content.profile.email,
+    jobTitle: content.profile.headline,
+    sameAs: [...new Set([...siteConfig.sameAs, ...content.profile.socials.map((social) => social.href)])],
+    knowsAbout: content.skills.flatMap((group) => group.items),
+    // The published resume describes an ongoing degree; do not claim graduation.
+    memberOf: content.education.map((item) => ({ "@type": "CollegeOrUniversity", name: item.school })),
+    subjectOf: [{ "@id": pageId }, { "@id": `${siteConfig.url}/resume#webpage` }],
+  };
+}
+
+export function homeStructuredData(content) {
+  const sectionNodes = homeSections.map((section) => ({
+    "@type": "WebPageElement", "@id": `${siteConfig.url}/#${section.id}`,
+    url: `${siteConfig.url}/#${section.id}`, name: section.name, description: section.description,
+    isPartOf: { "@id": pageId }, about: { "@id": personId },
+  }));
+  return {
     "@context": "https://schema.org",
-    "@type": "Person",
-    name: "Parampreet Singh",
-    alternateName: [
-        "Param",
-        "Parampreet",
-        "Param302",
-        "Param3021",
-        "@Param302",
-        "@Param3021",
-        "itsparam",
+    "@graph": [
+      personSchema(content),
+      { "@type": "WebSite", "@id": websiteId, name: siteConfig.siteName, alternateName: "Parampreet Singh Portfolio", url: `${siteConfig.url}/`, inLanguage: "en", publisher: { "@id": personId } },
+      { "@type": "ProfilePage", "@id": pageId, name: siteConfig.title, url: `${siteConfig.url}/`, description: siteConfig.shortBio, inLanguage: "en", isPartOf: { "@id": websiteId }, mainEntity: { "@id": personId }, primaryImageOfPage: { "@type": "ImageObject", url: siteConfig.image }, hasPart: sectionNodes.map((section) => ({ "@id": section["@id"] })), relatedLink: [...publicPages.slice(1).map((page) => `${siteConfig.url}${page.path}`), ...socialResources.map((resource) => `${siteConfig.url}${resource.path}`), ...learningResources.map((resource) => `${siteConfig.url}${resource.path}`)] },
+      ...sectionNodes,
+      { "@type": "ItemList", "@id": `${siteConfig.url}/#project-list`, name: "Projects by Parampreet Singh", itemListElement: projects.map((project, index) => ({
+        "@type": "ListItem", position: index + 1,
+        item: { "@type": "SoftwareSourceCode", "@id": `${siteConfig.url}/#${project.id}`, name: project.name, description: project.description, url: `${siteConfig.url}/#${project.id}`, codeRepository: project.repo, image: `${siteConfig.url}${project.image}`, keywords: project.skills, author: { "@id": personId }, isPartOf: { "@id": `${siteConfig.url}/#projects` } },
+      })) },
+      { "@type": "Organization", "@id": "https://gurmatdarbar.com/#organization", name: "Gurmat Darbar", url: "https://gurmatdarbar.com", founder: { "@id": personId }, subjectOf: { "@id": `${siteConfig.url}/#gurmat-darbar` } },
     ],
-    description: siteConfig.shortBio,
-    url: siteConfig.url,
-    email: siteConfig.email,
-    image: `${siteConfig.url}/parampreet_singh.png`,
-    nationality: "Indian",
-    knowsLanguage: ["English", "Hindi", "Punjabi"],
-    jobTitle: ["AI Engineer", "Machine Learning Engineer", "Educator"],
-    alumniOf: {
-        "@type": "CollegeOrUniversity",
-        name: "Indian Institute of Technology Madras",
-        sameAs: "https://study.iitm.ac.in/ds",
-    },
-    worksFor: [
-        {
-            "@type": "Organization",
-            name: "Gurmat Darbar",
-            url: "https://gurmatdarbar.com",
-        },
+  };
+}
+
+export function publicPageStructuredData(content, path, name, description, type = "WebPage") {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      personSchema(content),
+      { "@type": type, "@id": `${siteConfig.url}${path}#webpage`, name, description, url: `${siteConfig.url}${path}`, inLanguage: "en", about: { "@id": personId }, ...(type === "ProfilePage" ? { mainEntity: { "@id": personId } } : {}), isPartOf: { "@id": websiteId }, breadcrumb: { "@id": `${siteConfig.url}${path}#breadcrumb` } },
+      { "@type": "BreadcrumbList", "@id": `${siteConfig.url}${path}#breadcrumb`, itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${siteConfig.url}/` },
+        { "@type": "ListItem", position: 2, name, item: `${siteConfig.url}${path}` },
+      ] },
     ],
-    sameAs: siteConfig.sameAs,
-    mainEntityOfPage: siteConfig.url,
-    knowsAbout: allKeywords,
-    inLanguage: ["en", "hi", "pa"],
-};
+  };
+}
 
-export const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: siteConfig.siteName,
-    url: siteConfig.url,
-    logo: siteConfig.logo,
-    email: siteConfig.email,
-    founder: {
-        "@type": "Person",
-        name: siteConfig.name,
-        url: siteConfig.url,
-    },
-    sameAs: siteConfig.sameAs,
-};
-
-export const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: `${siteConfig.name} Portfolio`,
-    alternateName: [siteConfig.siteName, "itsparam", "Param302 Portfolio"],
-    url: siteConfig.url,
-    description: siteConfig.shortBio,
-    keywords: allKeywords.join(", "),
-    inLanguage: ["en", "hi", "pa"],
-    publisher: {
-        "@type": "Organization",
-        name: siteConfig.siteName,
-        url: siteConfig.url,
-    },
-    about: {
-        "@type": "Person",
-        name: siteConfig.name,
-        url: siteConfig.url,
-    },
-    potentialAction: {
-        "@type": "SearchAction",
-        target: `${siteConfig.url}/?q={search_term_string}`,
-        "query-input": "required name=search_term_string",
-    },
-};
-
-export const profilePageSchema = {
-    "@context": "https://schema.org",
-    "@type": "ProfilePage",
-    name: `${siteConfig.name} | AI Engineer Portfolio`,
-    description: siteConfig.shortBio,
-    url: siteConfig.url,
-    mainEntity: {
-        "@type": "Person",
-        name: siteConfig.name,
-        alternateName: personSchema.alternateName,
-        url: siteConfig.url,
-        sameAs: personSchema.sameAs,
-    },
-    inLanguage: ["en", "hi", "pa"],
-};
-
-export const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: questionLibrary.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-            "@type": "Answer",
-            text: item.answer,
-        },
-    })),
-};
-
-export const projectItemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: projectEntities.map((project, index) => ({
-        "@type": "SoftwareSourceCode",
-        position: index + 1,
-        name: project.name,
-        description: project.description,
-        codeRepository: project.url,
-        programmingLanguage: ["Python", "JavaScript"],
-        keywords: project.keywords.join(", "),
-        author: {
-            "@type": "Person",
-            name: "Parampreet Singh",
-        },
-    })),
-};
-
-export const homePageSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: "Parampreet Singh | AI Engineer Portfolio",
-    url: siteConfig.url,
-    description: siteConfig.shortBio,
-    isPartOf: {
-        "@type": "WebSite",
-        name: `${siteConfig.name} Portfolio`,
-        url: siteConfig.url,
-    },
-    primaryImageOfPage: siteConfig.image,
-    about: {
-        "@type": "Person",
-        name: siteConfig.name,
-        url: siteConfig.url,
-    },
-    mainEntity: {
-        "@type": "Person",
-        name: siteConfig.name,
-        url: siteConfig.url,
-    },
-    inLanguage: ["en", "hi", "pa"],
-};
-
-export const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-        {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: `${siteConfig.url}/`,
-        },
-        {
-            "@type": "ListItem",
-            position: 2,
-            name: "Resume",
-            item: `${siteConfig.url}/resume`,
-        },
-        {
-            "@type": "ListItem",
-            position: 3,
-            name: "Wall of Fame",
-            item: `${siteConfig.url}/walloffame`,
-        },
-    ],
-};
+export function serializeJsonLd(value) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}

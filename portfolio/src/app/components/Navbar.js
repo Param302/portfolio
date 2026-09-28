@@ -225,7 +225,7 @@ export default function Navbar() {
         <div ref={intro?.chipRef} data-intro-chip className="flex min-h-12 items-center">
           <p className="hidden h-14 items-center gap-3 whitespace-nowrap rounded-full border border-alice-blue/60 bg-bright-snow/65 px-4 font-heading text-base font-semibold text-prussian-blue shadow-soft dark:border-alice-blue/10 dark:bg-prussian-blue/45 dark:text-bright-snow sm:inline-flex">
             <Image
-              src="/parampreet.png"
+              src="/optimized/parampreet.webp"
               data-intro-avatar-target
               alt="Parampreet Singh"
               width={30}
@@ -237,7 +237,7 @@ export default function Navbar() {
           </p>
           <p className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap px-2 font-heading text-base font-semibold text-prussian-blue dark:text-bright-snow sm:hidden">
             <Image
-              src="/parampreet.png"
+              src="/optimized/parampreet.webp"
               data-intro-avatar-target
               alt="Parampreet Singh"
               width={28}

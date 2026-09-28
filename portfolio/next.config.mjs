@@ -4,6 +4,18 @@ const nextConfig = {
     async headers() {
         return [
             {
+                source: "/admin/:path*",
+                headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, nosnippet, noimageindex" }]
+            },
+            {
+                source: "/api/:path*",
+                headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }]
+            },
+            {
+                source: "/resume-static.pdf",
+                headers: [{ key: "Link", value: '<https://itsparam.in/resume>; rel="canonical"' }]
+            },
+            {
                 source: "/vendor/swiftlatex/:path*",
                 headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }]
             },

@@ -6,49 +6,7 @@ import Image from "next/image";
 import { useTheme } from "@/app/ThemeContext";
 import styles from "./Projects.module.css";
 
-const projects = [
-  {
-    name: "Pocket-Coder",
-    theme: "surface",
-    description:
-      "A lightning-fast, 1.2B parameter local AI coding assistant designed to run flawlessly on CPUs and GPUs. Fine-tuned on a custom code-instruction dataset, it acts as a fully offline, zero-latency copilot inside Jupyter Notebooks and VS Code, completely bypassing cloud APIs.",
-    pointers: ["Jupyter %%code Magic Command", "VS Code MCP Server Integration"],
-    skills: ["Finetuning", "SFT", "PEFT LoRA", "LFM 2.5", "Ollama", "MCP"],
-    image: "/projects/pocket-coder.png",
-    repo: "https://github.com/param302/pocket-coder",
-  },
-  {
-    name: "GRWM - Get README With Me",
-    theme: "brand",
-    description:
-      "A production-grade, multi-agent GenAI platform that autonomously generates highly personalized GitHub READMEs. Orchestrated using LangGraph, it features three specialized AI agents working in tandem. The system utilizes real-time Server-Sent Events (SSE) for fluid streaming and is deployed securely on GCP Cloud Run.",
-    pointers: ["LangGraph Agent Orchestration", "100+ Unique Users in 16 Hours"],
-    skills: ["LangGraph", "FastAPI", "Next.js", "GCP", "SSE"],
-    image: "/projects/grwm.png",
-    repo: "https://github.com/param302/grwm",
-    live: "https://getreadmewithme.vercel.app/",
-  },
-  {
-    name: "Hand Gesture LNN",
-    theme: "surface",
-    description:
-      "An exploratory deep learning research project implementing Liquid Neural Networks (LNNs) to handle 32-dimensional continuous-time motion data. By building custom Liquid Time-Constant (LTC) cells from scratch, the architecture improved temporal adaptability and significantly outperformed standard LSTMs.",
-    pointers: ["Custom Liquid Time-Constant Cells", "+9.6% Accuracy vs standard LSTM"],
-    skills: ["RNNs", "LSTM", "Liquid Neural Networks (LNN)", "Time-Series Data"],
-    image: "/projects/hand-gesture.png",
-    repo: "https://github.com/param302/hand-gesture-lnn",
-  },
-  {
-    name: "Quizzo-V2",
-    theme: "accent",
-    description:
-      "A highly scalable, full-stack quiz management platform engineered with a robust asynchronous backend. It utilizes Redis and Celery for distributed background task queues to handle concurrent user loads, automating complex workflows like API rate limiting and dynamic certificate generation.",
-    pointers: ["Redis & Celery Task Queues", "Automated Email & Certificates"],
-    skills: ["Flask", "Vue.js", "Redis", "Celery", "PostgreSQL"],
-    image: "/projects/quizzo-v2.png",
-    repo: "https://github.com/param302/quizzo-v2",
-  },
-];
+import { projects } from "@/app/data/projects";
 
 function projectTheme(theme) {
   if (theme === "brand") {
@@ -89,13 +47,14 @@ function ProjectBlock({ project, index, isDarkTheme }) {
 
   return (
     <article
+      id={project.id}
       data-stack-card
       style={{ "--stack-index": index }}
       className={`${styles.card} relative grid w-full grid-cols-1 overflow-hidden border border-black/10 ${theme.wrapper}`}
     >
       <div className={`${styles.image} ${imageOrderClass}`}>
         <div className={`${styles.imageFrame} overflow-hidden border-2 shadow-lg ${isDarkTheme ? "border-bright-snow" : "border-ink-black"}`}>
-          <Image src={project.image} alt={`${project.name} preview`} width={1200} height={675} className="h-full w-full rounded-[1.1rem] object-cover" />
+          <Image src={project.image} alt={`${project.name} preview`} width={1200} height={675} sizes="(min-width: 1024px) 50vw, 100vw" className="h-full w-full rounded-[1.1rem] object-cover" />
         </div>
       </div>
 
@@ -124,7 +83,7 @@ function ProjectBlock({ project, index, isDarkTheme }) {
         </div>
         <div className={styles.actions}>
           <a href={project.repo} target="_blank" rel="noopener noreferrer" className={`inline-flex items-center gap-3 rounded-full px-3 py-3 pr-6 font-heading text-base font-semibold transition ${theme.button}`}>
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-bright-snow"><Image src="/socials/github.png" alt="GitHub" width={20} height={20} className="h-5 w-5" /></span>
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-bright-snow"><Image src="/optimized/socials/github.webp" alt="GitHub" width={20} height={20} className="h-5 w-5" /></span>
             Github
           </a>
         </div>

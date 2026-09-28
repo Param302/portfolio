@@ -2,9 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Download, ExternalLink, Home, Mail } from "lucide-react";
 
+import { pageMetadata, publicPageStructuredData, serializeJsonLd } from "@/app/data/seoData";
 import { getPublishedResume } from "@/lib/resume-content";
 
-export const metadata = { title: "Parampreet Singh Resume", description: "Resume of Parampreet Singh, an AI Engineer building production AI systems.", alternates: { canonical: "/resume" } };
+const title = "Resume of Parampreet Singh";
+const description = "Resume of Parampreet Singh (Param), AI Engineer and community builder: experience, IIT Madras education, AI projects, technical skills and achievements.";
+export const metadata = pageMetadata(title, description, "/resume");
 
 function Section({ title, children }) {
   return <section className="rounded-3xl border border-prussian-blue/10 bg-bright-snow/70 p-5 dark:border-alice-blue/10 dark:bg-prussian-blue/35 sm:p-7"><h2 className="font-heading text-xl font-semibold sm:text-2xl">{title}</h2><div className="mt-4 space-y-5 font-description text-sm leading-7 sm:text-base">{children}</div></section>;
@@ -27,11 +30,12 @@ export default async function ResumePage() {
   const displayedHeadline = profile.headline === "AI / ML Engineer" ? "AI Engineer" : profile.headline;
   return (
     <main className="min-h-screen bg-background px-4 pb-12 pt-24 text-prussian-blue dark:text-bright-snow sm:px-6 lg:px-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(publicPageStructuredData(content, "/resume", title, description, "ProfilePage")) }} />
       <div className="fixed inset-x-0 top-4 z-50 flex justify-center"><Link href="/" className="glass-card inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-heading text-sm font-semibold"><Home className="h-4 w-4" />Home</Link></div>
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[minmax(285px,0.24fr)_minmax(0,0.76fr)] lg:items-start">
         <aside className="glass-card rounded-[2rem] p-4 sm:p-5 lg:sticky lg:top-24">
           <div className="overflow-hidden rounded-[1.4rem] border border-alice-blue/70 bg-bright-snow dark:border-alice-blue/10 dark:bg-prussian-blue">
-            <Image src="/parampreet_singh.png" alt={`Portrait of ${profile.name}`} width={720} height={920} className="aspect-[4/4.1] h-auto w-full object-cover object-top" priority />
+            <Image src="/optimized/parampreet_singh.webp" alt={`Portrait of ${profile.name}`} width={720} height={920} sizes="(min-width: 1024px) 300px, (min-width: 640px) 90vw, 100vw" className="aspect-[4/4.1] h-auto w-full object-cover object-top" priority />
           </div>
           <div className="mt-5">
             <h1 className="font-heading text-3xl font-bold tracking-tight">{profile.name}</h1>

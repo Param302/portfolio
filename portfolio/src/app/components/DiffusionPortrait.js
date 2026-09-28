@@ -139,7 +139,7 @@ export default function DiffusionPortrait({ backgroundColor = "#f8fafc", enabled
 
   return (
     <div ref={containerRef} className={styles.portrait}>
-      <Image ref={imageRef} src="/parampreet_singh.png" alt="Portrait of Parampreet Singh" width={720} height={880} sizes="(max-width: 640px) 85vw, (max-width: 1024px) 448px, 38vw" className="h-full w-full object-cover" />
+      <Image ref={imageRef} src="/optimized/parampreet_singh.webp" alt="Portrait of Parampreet Singh" width={720} height={880} sizes="(max-width: 640px) 85vw, (max-width: 1024px) 448px, 38vw" className="h-full w-full object-cover" />
       <canvas ref={canvasRef} aria-hidden="true" className={styles.noise} />
     </div>
   );

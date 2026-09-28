@@ -7,10 +7,10 @@ import { Loader2, SendHorizontal } from "lucide-react";
 import styles from "./Contact.module.css";
 
 const socials = [
-  { label: "GitHub", href: "https://github.com/Param302", icon: "/socials/github.png", handle: "@Param302" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/param302", icon: "/socials/linkedin.png", handle: "/in/param302" },
-  { label: "YouTube", href: "https://www.youtube.com/@Param3021", icon: "/socials/youtube.png", handle: "@Param3021" },
-  { label: "X", href: "https://x.com/Param3021", icon: "/socials/twitter.png", handle: "@Param3021" },
+  { label: "GitHub", href: "https://github.com/Param302", icon: "/optimized/socials/github.webp", handle: "@Param302" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/param302", icon: "/optimized/socials/linkedin.webp", handle: "/in/param302" },
+  { label: "YouTube", href: "https://www.youtube.com/@Param3021", icon: "/optimized/socials/youtube.webp", handle: "@Param3021" },
+  { label: "X", href: "https://x.com/Param3021", icon: "/optimized/socials/twitter.webp", handle: "@Param3021" },
 ];
 
 const collaborationIdeas = [

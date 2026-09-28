@@ -10,7 +10,10 @@
     "test:ml": "node --test scripts/gradient-math.test.mjs scripts/more-ml-demos.test.mjs scripts/token-demos.test.mjs",
     "db:migrate": "node scripts/migrate.mjs",
     "admin:set-password": "node scripts/set-admin-password.mjs",
-    "feedback:import": "python scripts/import_feedback.py"
+    "feedback:import": "python scripts/import_feedback.py",
+    "images:optimize": "node scripts/optimize-images.mjs",
+    "test:seo": "node --test scripts/seo.test.mjs",
+    "test:seo:http": "node scripts/seo-smoke.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
@@ -30,6 +33,7 @@
     "eslint": "9.39.4",
     "eslint-config-next": "^15.5.26",
     "postcss": "^8.5.1",
+    "sharp": "0.34.5",
     "tailwindcss": "^3.4.17"
   }
 }

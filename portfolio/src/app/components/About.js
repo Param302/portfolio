@@ -11,9 +11,9 @@ import AboutBio from "./AboutBio";
 const skills = ["PyTorch", "LangGraph", "FastAPI", "Snowflake", "GCP", "Full-Stack Dev"];
 
 const socialLinks = [
-  { href: "https://www.linkedin.com/in/param302", icon: "/socials/linkedin.png", label: "LinkedIn" },
-  { href: "https://github.com/Param302", icon: "/socials/github.png", label: "GitHub" },
-  { href: "https://www.youtube.com/@Param3021", icon: "/socials/youtube.png", label: "YouTube" },
+  { href: "https://www.linkedin.com/in/param302", icon: "/optimized/socials/linkedin.webp", label: "LinkedIn" },
+  { href: "https://github.com/Param302", icon: "/optimized/socials/github.webp", label: "GitHub" },
+  { href: "https://www.youtube.com/@Param3021", icon: "/optimized/socials/youtube.webp", label: "YouTube" },
 ];
 
 const palette = [
