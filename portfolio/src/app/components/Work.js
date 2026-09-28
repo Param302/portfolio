@@ -24,12 +24,12 @@ export default function Work({ experiences }) {
               >
                 <span className="absolute left-2 top-10 z-10 hidden h-4 w-4 rounded-full border-2 border-sky-surge bg-bright-snow dark:bg-ink-black sm:block" />
                 <article className="group rounded-[1.75rem] border border-prussian-blue/12 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-sky-surge dark:border-alice-blue/10 dark:bg-prussian-blue dark:hover:border-sky-surge sm:p-7">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h3 className="font-heading text-2xl font-bold tracking-tight text-prussian-blue dark:text-bright-snow">{experience.role}</h3>
-                      {experience.link ? <a href={experience.link} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 font-description text-base font-medium text-prussian-blue/72 transition group-hover:text-sky-surge dark:text-bright-snow/72">{experience.company}<ArrowUpRight className="h-4 w-4" /></a> : <p className="mt-1 font-description text-base font-medium text-prussian-blue/72 dark:text-bright-snow/72">{experience.company}</p>}
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2 gap-y-1">
+                    <h3 className="col-span-2 font-heading text-2xl font-bold tracking-tight text-prussian-blue dark:text-bright-snow sm:col-span-1">{experience.role}</h3>
+                    <div className="col-start-1 row-start-2 min-w-0 font-description text-sm font-medium text-prussian-blue/72 dark:text-bright-snow/72 sm:text-base">
+                      {experience.link ? <a href={experience.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 transition group-hover:text-sky-surge">{experience.company}<ArrowUpRight className="h-3.5 w-3.5 shrink-0" /></a> : <p>{experience.company}</p>}
                     </div>
-                    <p className="shrink-0 font-accent text-xl italic text-[#b56e38] dark:text-papaya-whip">{experience.dates}</p>
+                    <p className="col-start-2 row-start-2 whitespace-nowrap text-right font-accent text-sm italic text-[#945429] dark:text-papaya-whip sm:row-start-1 sm:text-xl">{experience.dates}</p>
                   </div>
                   <div className="mt-5 space-y-3">
                     {experience.bullets.map((point) => <div key={point} className="flex gap-3"><span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-surge/12 text-sky-surge transition group-hover:bg-sky-surge group-hover:text-ink-black"><Plus className="h-3.5 w-3.5" /></span><p className="font-description text-sm leading-7 text-prussian-blue/78 dark:text-bright-snow/78 sm:text-[0.96rem]">{point}</p></div>)}

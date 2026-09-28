@@ -16,8 +16,8 @@ const socials = [
 function Description() {
   return (
     <div>
-      <p className="font-accent text-xl italic text-prussian-blue/66">Discover samagams happening near you!</p>
-      <p className="mt-4 max-w-3xl font-description text-base leading-8 text-prussian-blue/78 sm:text-lg">A digital ecosystem for Sikh community events, bringing trusted discovery, community contributions, and thoughtful technology into one useful home.</p>
+      <p className="font-accent text-lg italic text-prussian-blue/66 sm:text-xl">Discover samagams happening near you!</p>
+      <p className="mt-3 max-w-3xl font-description text-sm leading-6 text-prussian-blue/78 sm:text-base sm:leading-7">A digital ecosystem for Sikh community events, bringing trusted discovery, community contributions, and thoughtful technology into one useful home.</p>
       <a href="https://gurmatdarbar.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-full bg-sky-surge px-5 py-3 font-heading text-sm font-semibold text-ink-black transition hover:-translate-y-0.5 hover:bg-[#36c3e8]">Visit gurmatdarbar.com <ArrowUpRight className="h-4 w-4" /></a>
     </div>
   );
@@ -30,13 +30,14 @@ function Metrics() {
     { icon: HeartHandshake, value: "500+", label: "Contributions", detail: "Updates shared by the sangat." },
   ];
   return (
-    <div data-gurmat-metrics className="grid gap-2 sm:grid-cols-3 sm:gap-3">
+    <div data-gurmat-metrics className="grid grid-cols-3 gap-0 overflow-hidden rounded-2xl border border-prussian-blue/10 bg-bright-snow/75 shadow-sm sm:gap-3 sm:overflow-visible sm:border-0 sm:bg-transparent sm:shadow-none">
       {metrics.map(({ icon: Icon, value, label, detail }) => (
-        <article key={label} className="flex min-w-0 items-start gap-3 rounded-2xl bg-bright-snow p-3 sm:block sm:p-4">
-          <Icon className="mt-1 h-4 w-4 shrink-0 text-sky-surge sm:mt-0" />
+        <article key={label} className="min-w-0 border-r border-prussian-blue/10 px-1.5 py-4 text-center last:border-r-0 sm:rounded-2xl sm:border-0 sm:bg-bright-snow sm:p-4 sm:text-left">
+          <span className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-sky-surge/15 text-prussian-blue sm:mx-0"><Icon className="h-4 w-4" /></span>
           <div className="min-w-0">
-            <p className="flex flex-wrap items-baseline gap-x-2 font-heading text-2xl font-extrabold sm:mt-3 sm:block sm:text-3xl">{value}<span className="font-heading text-xs font-semibold sm:block sm:pt-1">{label}</span></p>
-            <p className="mt-1 font-description text-xs leading-5 text-prussian-blue/65">{detail}</p>
+            <p className="font-heading text-xl font-extrabold tracking-tight sm:text-3xl">{value}</p>
+            <p className="mt-1 font-heading text-[10px] font-semibold text-prussian-blue/75 sm:text-xs">{label}</p>
+            <p className="mt-1 hidden font-description text-xs leading-5 text-prussian-blue/65 sm:block">{detail}</p>
           </div>
         </article>
       ))}

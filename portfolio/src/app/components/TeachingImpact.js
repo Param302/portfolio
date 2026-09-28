@@ -49,7 +49,7 @@ export default function TeachingImpact({ subscriberLabel = "4K" }) {
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="font-accent text-5xl font-bold italic tracking-tight text-prussian-blue dark:text-bright-snow sm:text-6xl lg:text-7xl">Teaching</h2>
-          <p className="mt-4 font-description text-base leading-7 text-prussian-blue/70 dark:text-bright-snow/70 sm:text-lg">Python, machine learning, revision marathons, and the kind of teaching that turns exam fear into momentum.</p>
+          <p className="mt-3 font-description text-sm leading-6 text-prussian-blue/70 dark:text-bright-snow/70 sm:text-base sm:leading-7">Python, machine learning, revision marathons, and the kind of teaching that turns exam fear into momentum.</p>
         </div>
 
         <div className="group relative mt-8 overflow-hidden rounded-[2rem] border border-prussian-blue/10 shadow-[0_18px_55px_rgba(26,34,53,0.14)] sm:mt-10 sm:min-h-[355px]">
