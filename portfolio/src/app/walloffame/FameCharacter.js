@@ -6,7 +6,7 @@ import { AVATAR_BACKGROUND_BUDGET_MS, beginAvatarEnhancement, probeAvatarSupport
 import { avatarPlaceholderDataUrl, chipPlaceholderDataUrl } from "./avatar-placeholder";
 import styles from "./FameCharacter.module.css";
 
-export default function FameCharacter({ reaction = "idle", reactionKey = 0, compact = false, reduceMotion = false, paused = false, eager = false, background = false, fallback = "portrait", className = "", onReadyChange }) {
+export default function FameCharacter({ reaction = "idle", reactionKey = 0, compact = false, reduceMotion = false, paused = false, eager = false, background = false, blinkInterval, fallback = "portrait", className = "", onReadyChange }) {
   const host = useRef(null);
   const scene = useRef(null);
   const currentReaction = useRef({ reaction, reactionKey });
@@ -66,6 +66,7 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
             context: probe.context,
             reaction: currentReaction.current.reaction,
             reduceMotion: motionPreference.current,
+            blinkInterval,
             onReadyChange: (isReady) => {
               // Initialization is promoted only after the deadline gate accepts
               // its first frame. Later context changes can toggle fallback.
@@ -138,7 +139,7 @@ export default function FameCharacter({ reaction = "idle", reactionKey = 0, comp
       probe?.release?.();
       scene.current = null;
     };
-  }, [eager, background, reduceMotion]);
+  }, [eager, background, reduceMotion, blinkInterval]);
 
   useEffect(() => {
     motionPreference.current = reduceMotion;

@@ -98,11 +98,14 @@ export default function GurmatDarbarSpotlight({ screenshots = ["/media/gurmat-da
       <div className="mx-auto max-w-[1600px] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="rounded-[2.5rem] bg-papaya-whip p-6 text-prussian-blue sm:p-9 lg:p-12">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
-            <div className="min-w-0">
-              <h2 className="font-accent text-5xl font-bold italic tracking-tight sm:text-6xl lg:text-7xl">Gurmat Darbar</h2>
-              <span className="mt-4 inline-flex min-w-44 justify-center rounded-full bg-prussian-blue px-8 py-2.5 font-accent text-lg italic text-bright-snow">Founder</span>
+            <div className="w-full min-w-0 xl:w-auto">
+              <h2 className="text-center font-accent text-5xl font-bold italic tracking-tight sm:text-6xl lg:text-7xl xl:text-left">Gurmat Darbar</h2>
+              <div className="mt-4 flex items-center justify-between gap-4 xl:block">
+                <span className="inline-flex min-w-28 justify-center rounded-full bg-prussian-blue px-5 py-1.5 font-accent text-base italic text-bright-snow sm:min-w-44 sm:px-8 sm:py-2.5 sm:text-lg">Founder</span>
+                <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={184} height={83} className="h-auto w-32 shrink-0 object-contain sm:w-40 xl:hidden" />
+              </div>
             </div>
-            <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={230} height={104} className="mx-auto h-auto w-36 shrink-0 object-contain sm:w-40 xl:mx-0 xl:w-56" />
+            <Image src="/gurmatdarbar_logo.png" alt="Gurmat Darbar" width={230} height={104} className="hidden h-auto w-56 shrink-0 object-contain xl:block" />
           </div>
 
           <div className="mt-8 space-y-7 xl:hidden">

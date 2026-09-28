@@ -6,6 +6,8 @@ import FameCharacter from "@/app/walloffame/FameCharacter";
 import DiffusionPortrait from "./DiffusionPortrait";
 import styles from "./AboutPortrait.module.css";
 
+const ABOUT_BLINK_INTERVAL = [1.55, 2.95];
+
 export default function AboutPortrait({ backgroundColor, frameColor }) {
   const [canEnhance, setCanEnhance] = useState(false);
   const [ready, setReady] = useState(false);
@@ -46,7 +48,7 @@ export default function AboutPortrait({ backgroundColor, frameColor }) {
       <div className={styles.rotor}>
         <div className={`${styles.face} ${styles.front}`} aria-hidden={!ready || showPhoto}>
           <div className={styles.surface}>
-            {canEnhance && <FameCharacter background fallback="none" paused={showPhoto} onReadyChange={handleReady} />}
+            {canEnhance && <FameCharacter background fallback="none" paused={showPhoto} blinkInterval={ABOUT_BLINK_INTERVAL} onReadyChange={handleReady} />}
           </div>
         </div>
         <div className={`${styles.face} ${styles.back}`} aria-hidden={ready && !showPhoto}>

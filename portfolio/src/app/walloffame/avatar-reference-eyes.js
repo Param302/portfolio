@@ -179,8 +179,9 @@ function makeStarGeometry() {
  * Neutral gaze is an exact source crop. Moving gaze first clears the original
  * iris/glint footprint, then paints its translated crop on the same surface.
  */
-export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = false, random = Math.random } = {}) {
+export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = false, random = Math.random, blinkInterval = [3.1, 5.9] } = {}) {
   if (!parent?.isObject3D || !texture?.isTexture || typeof depthAt !== "function") throw new TypeError("Reference eyes require a parent, reference texture and pixel-space depthAt function.");
+  if (!Array.isArray(blinkInterval) || blinkInterval.length !== 2 || !blinkInterval.every(Number.isFinite) || blinkInterval[0] < 0.4 || blinkInterval[1] < blinkInterval[0]) throw new RangeError("blinkInterval must contain ordered positive seconds.");
   const group = new THREE.Group();
   group.name = "Reference matched animated eyes";
   const ownedGeometries = new Set();
@@ -228,7 +229,7 @@ export function createReferenceEyes(parent, { texture, depthAt, reduceMotion = f
   let elapsed = 0;
   let blinkAge = Infinity;
   let squint = 0;
-  const scheduleBlink = () => 3.1 + clamp(Number(random()) || 0, 0, 1) * 2.8;
+  const scheduleBlink = () => lerp(blinkInterval[0], blinkInterval[1], clamp(Number(random()) || 0, 0, 1));
   let nextBlink = scheduleBlink();
 
   function paint(delta = 0, snap = false) {

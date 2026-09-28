@@ -19,6 +19,7 @@ function disposeObject(root, extraMaterials) {
 
 export async function createFameCharacter(host, {
   reduceMotion = false, reaction = "idle", onReadyChange, signal,
+  blinkInterval,
   checkpoint = () => {}, yieldTask = () => Promise.resolve(),
   canvas: suppliedCanvas, context,
 } = {}) {
@@ -108,7 +109,7 @@ export async function createFameCharacter(host, {
     headGroup.add(wardrobe.turban);
     portrait.add(wardrobe.body);
     await stage();
-    faceRig = createReferenceEyes(headGroup, { texture, depthAt: head.depthAt, reduceMotion });
+    faceRig = createReferenceEyes(headGroup, { texture, depthAt: head.depthAt, reduceMotion, blinkInterval });
     check();
 
     const sparkles = new THREE.Group();
