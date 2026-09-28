@@ -20,16 +20,20 @@
 
 Captured in the Codex in-app browser against the local implementation:
 
-- `http://127.0.0.1:3000/#about` — 1440 × 900
-- `http://127.0.0.1:3000/#community` — 1440 × 900
-- `http://127.0.0.1:3000/#work` — 1440 × 900
-- `http://127.0.0.1:3000/#contact` — 1440 × 900, 1024 × 768, and 390 × 844
-- `http://127.0.0.1:3000/walloffame` — 1440 × 900, 390 × 844, and 844 × 390
-- `http://127.0.0.1:3000/admin` — 1440 × 900 and 390 × 844
-- `http://localhost:3001/definitely-not-a-page` — 1440 × 1000 and 390 × 844
-- `http://localhost:3001/admin` — 1440 × 1000 and 390 × 844
-- `http://localhost:3001/walloffame#all-feedback` — 390 × 844, including a long focused response
-- `http://localhost:3001/#work` — 1440 × 1000, scrolled through the Gurmat Darbar surface
+- `http://127.0.0.1:3000/#about` - 1440 × 900
+- `http://127.0.0.1:3000/#community` - 1440 × 900
+- `http://127.0.0.1:3000/#work` - 1440 × 900
+- `http://127.0.0.1:3000/#contact` - 1440 × 900, 1024 × 768, and 390 × 844
+- `http://127.0.0.1:3000/walloffame` - 1440 × 900, 390 × 844, and 844 × 390
+- `http://127.0.0.1:3000/admin` - 1440 × 900 and 390 × 844
+- `http://localhost:3001/definitely-not-a-page` - 1440 × 1000 and 390 × 844
+- `http://localhost:3001/admin` - 1440 × 1000 and 390 × 844
+- `http://localhost:3001/walloffame#all-feedback` - 390 × 844, including a long focused response
+- `http://localhost:3001/#work` - 1440 × 1000, scrolled through the Gurmat Darbar surface
+- `http://localhost:3001/` - 1265 × 710, including Community, Teaching, Gurmat Darbar, and Contact
+- `http://localhost:3001/not-a-real-page` - 1265 × 710 and 390 × 844, including direct surface rotation
+- `http://localhost:3001/admin` - 1265 × 710 and 390 × 844
+- `http://localhost:3001/walloffame#all-feedback` - 390 × 844, including variable-height learner notes
 
 ## Responsive and interaction checks
 
@@ -45,19 +49,26 @@ Captured in the Codex in-app browser against the local implementation:
 - Admin login was visually verified. The authenticated editor was verified through component review and production compilation without using or changing the owner's credentials.
 - The 404 now reveals only three concepts in sequence. Gradient descent exposes readable x, y, and z axes; self-attention uses the floating semantic word field; next-token prediction uses one aligned visual surface at desktop and mobile sizes.
 - The resume workspace now has a mobile drawer and Edit/Preview switch so the PDF no longer sits below an endless editor column on smaller screens.
+- Gurmat Darbar uses the mobile and tablet sequence: title, centered logo, description, carousel, metrics, poster intelligence, and social links.
+- Contact uses a single compact row of icon-only social links and reduced-height collaboration choices in both themes.
+- The 404 landing state centers recovery links and the scroll cue; the loss surface rotates on two axes through direct pointer dragging and exposes Reset view only after interaction.
+- Admin login uses equal feedback, login, and feedback columns on desktop. On mobile, the feedback rails become horizontal rows above and below the login card.
+- The Wall of Fame wheel measures each note, so long feedback grows to its natural height without clipping or overlap.
 
 ## Iterations made during QA
 
 - The first desktop Contact capture still showed the sticky Projects title. Added a Contact intersection boundary so the title releases before Contact content appears.
 - The first mobile Admin capture showed inconsistent translucent input rendering. Replaced it with explicit dark input surfaces and re-captured the screen.
-- Reworked Admin login into a light-only, centered form with inset feedback rails; mobile hides the rails and retains a clean single-column form.
+- Reworked Admin login into a light-only, centered form with equal desktop rails and horizontal mobile rails.
 - Replaced fixed feedback card heights with content-driven sizing. A long feedback entry was brought into focus at 390 × 844 and displayed without clipping or text overflow.
 - Unified the next-token diagram and probability list into one dark surface, eliminating the mismatched two-card composition.
+- Restored the diffusion-inspired About portrait reveal with lower-amplitude, spatially softened noise and a short resolving blur.
 
 ## Automated verification
 
-- `npm run lint` — passed with zero warnings.
-- `npm run build` — passed; all 17 static/dynamic routes completed.
-- `npm run test:ml` — passed all 13 math and interaction tests.
+- `npm run lint` - passed with zero warnings.
+- `npm run build` - passed; all 17 static/dynamic routes completed.
+- `npm run test:ml` - passed all 13 math and interaction tests.
+- Repository scan for em dash and en dash characters - passed with no matches.
 
 final result: passed
