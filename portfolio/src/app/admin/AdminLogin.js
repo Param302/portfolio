@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, LockKeyhole } from "lucide-react";
@@ -9,10 +8,10 @@ import { allFeedbacks } from "@/app/data/teachingImpactData";
 
 function FeedbackRail({ items, reverse = false }) {
   return (
-    <div className="admin-feedback-rail-wrap hidden h-[620px] overflow-hidden xl:block">
-      <div className={`admin-feedback-rail flex flex-col gap-3 py-3 ${reverse ? "admin-feedback-rail-reverse" : ""}`}>
+    <div className="admin-feedback-rail-wrap h-28 min-w-0 overflow-hidden xl:h-[calc(100vh-64px)]">
+      <div className={`admin-feedback-rail flex w-max flex-row gap-3 px-2 xl:w-auto xl:flex-col xl:px-0 xl:py-3 ${reverse ? "admin-feedback-rail-reverse" : ""}`}>
         {[...items, ...items].map((quote, index) => (
-          <Link key={index} href="/walloffame" className="rounded-[1.15rem] border border-prussian-blue/10 bg-white p-4 font-description text-xs leading-6 text-prussian-blue/58 shadow-[0_12px_36px_rgba(20,38,68,0.04)] transition hover:-translate-y-0.5 hover:border-sky-surge hover:text-prussian-blue focus-visible:border-sky-surge focus-visible:outline-none">
+          <Link key={index} href="/walloffame" className="flex w-64 shrink-0 items-center rounded-[1.15rem] border border-prussian-blue/10 bg-white p-4 font-description text-xs leading-6 text-prussian-blue/58 shadow-[0_12px_36px_rgba(20,38,68,0.04)] transition hover:border-sky-surge hover:text-prussian-blue focus-visible:border-sky-surge focus-visible:outline-none xl:w-full xl:min-h-24">
             “{quote}”
           </Link>
         ))}
@@ -45,16 +44,11 @@ export default function AdminLogin() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#f4f8fa] px-5 py-6 text-prussian-blue sm:px-8">
-      <Link href="/" className="mx-auto flex w-fit items-center gap-3 rounded-full border border-prussian-blue/10 bg-white px-3 py-2 font-heading text-sm font-semibold shadow-[0_10px_34px_rgba(20,38,68,0.06)] transition hover:border-sky-surge">
-        <Image src="/parampreet.png" alt="Parampreet Singh" width={34} height={34} className="h-8 w-8 rounded-full object-cover" />
-        Parampreet Singh
-      </Link>
-
-      <div className="mx-auto grid min-h-[calc(100vh-100px)] w-full max-w-[1120px] items-center gap-10 py-8 xl:grid-cols-[230px_minmax(380px,420px)_230px]">
+    <main className="min-h-screen overflow-hidden bg-[#f4f8fa] px-4 text-prussian-blue sm:px-6 xl:px-8">
+      <div className="grid min-h-screen w-full grid-rows-[112px_minmax(520px,1fr)_112px] items-center gap-5 py-4 xl:grid-cols-3 xl:grid-rows-1 xl:gap-10 xl:py-8">
         <FeedbackRail items={allFeedbacks.slice(0, 8)} />
 
-        <form onSubmit={submit} className="mx-auto w-full rounded-[1.5rem] border border-prussian-blue/10 bg-white p-6 shadow-[0_28px_80px_rgba(20,38,68,0.08)] sm:p-8">
+        <form onSubmit={submit} className="mx-auto w-full max-w-[420px] rounded-[1.5rem] border border-prussian-blue/10 bg-white p-6 shadow-[0_28px_80px_rgba(20,38,68,0.08)] sm:p-8">
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-surge/12 text-sky-surge"><LockKeyhole className="h-5 w-5" /></span>
           <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight">Admin</h1>
           <p className="mt-1 font-description text-sm text-prussian-blue/48">Sign in to continue.</p>

@@ -137,12 +137,16 @@ html.dark {
   }
 }
 
-@keyframes admin-feedback-scroll {
-  to { transform: translateY(-50%); }
+@keyframes admin-feedback-scroll-x {
+  to { transform: translateX(calc(-50% - 0.375rem)); }
+}
+
+@keyframes admin-feedback-scroll-y {
+  to { transform: translateY(calc(-50% - 0.375rem)); }
 }
 
 .admin-feedback-rail {
-  animation: admin-feedback-scroll 48s linear infinite;
+  animation: admin-feedback-scroll-x 48s linear infinite;
 }
 
 .admin-feedback-rail-reverse {
@@ -152,6 +156,12 @@ html.dark {
 .admin-feedback-rail-wrap:hover .admin-feedback-rail,
 .admin-feedback-rail-wrap:focus-within .admin-feedback-rail {
   animation-play-state: paused;
+}
+
+@media (min-width: 1280px) {
+  .admin-feedback-rail {
+    animation-name: admin-feedback-scroll-y;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
