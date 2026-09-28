@@ -23,15 +23,17 @@ const writeSchema = z.object({
 
 async function loadAdminContent() {
   const sql = getSql();
-  const stateRows = await sql`
-    SELECT s.draft_revision_id, s.published_revision_id,
-      d.content AS draft_content, p.content AS published_content
-    FROM resume_state s
-    LEFT JOIN resume_revisions d ON d.id = s.draft_revision_id
-    LEFT JOIN resume_revisions p ON p.id = s.published_revision_id
-    WHERE s.id = 1
-  `;
-  const history = await sql`SELECT id, status, page_count, created_at, published_at, audit FROM resume_revisions ORDER BY created_at DESC LIMIT 30`;
+  const [stateRows, history] = await Promise.all([
+    sql`
+      SELECT s.draft_revision_id, s.published_revision_id,
+        d.content AS draft_content, p.content AS published_content
+      FROM resume_state s
+      LEFT JOIN resume_revisions d ON d.id = s.draft_revision_id
+      LEFT JOIN resume_revisions p ON p.id = s.published_revision_id
+      WHERE s.id = 1
+    `,
+    sql`SELECT id, status, page_count, created_at, published_at, audit FROM resume_revisions ORDER BY created_at DESC LIMIT 30`,
+  ]);
   const state = stateRows[0] || {};
   return { document: state.draft_content || state.published_content || defaultResumeDocument, draftRevisionId: state.draft_revision_id || null, publishedRevisionId: state.published_revision_id || null, history };
 }

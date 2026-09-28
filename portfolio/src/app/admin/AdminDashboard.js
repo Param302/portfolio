@@ -17,6 +17,8 @@ export default function AdminDashboard({ session }) {
   const router = useRouter();
   const worker = useRef(null);
   const compileRequest = useRef(0);
+  const pendingTabs = useRef(new Set());
+  const loadedTabs = useRef(new Set());
   const [document, setDocument] = useState(null);
   const [revisionState, setRevisionState] = useState({ draftRevisionId: null, publishedRevisionId: null });
   const [history, setHistory] = useState([]);
@@ -33,18 +35,38 @@ export default function AdminDashboard({ session }) {
   const [notice, setNotice] = useState("");
   const [cacheNeedsRetry, setCacheNeedsRetry] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [tabStatus, setTabStatus] = useState({ resume: "idle", logs: "idle", inbox: "idle" });
 
-  const refresh = useCallback(async () => {
-    const [contentResponse, inboxResponse, logsResponse] = await Promise.all([fetch("/api/admin/content"), fetch("/api/admin/inbox"), fetch("/api/admin/logs")]);
-    if (contentResponse.status === 401) return router.refresh();
-    const content = await contentResponse.json(); const inbox = await inboxResponse.json(); const audit = await logsResponse.json();
-    if (!contentResponse.ok) throw new Error(content.error);
-    setDocument(content.document); setHistory(content.history || []); setMessages(inbox.messages || []);
-    if (logsResponse.ok) setLogs({ events: audit.events || [], sessions: audit.sessions || [], users: audit.users || [] });
-    setRevisionState({ draftRevisionId: content.draftRevisionId ?? null, publishedRevisionId: content.publishedRevisionId ?? null });
+  const loadTab = useCallback(async (tab, { force = false } = {}) => {
+    if (pendingTabs.current.has(tab) || (!force && loadedTabs.current.has(tab))) return;
+    const endpoints = { resume: "/api/admin/content", logs: "/api/admin/logs", inbox: "/api/admin/inbox" };
+    pendingTabs.current.add(tab);
+    setTabStatus((current) => ({ ...current, [tab]: "loading" }));
+    try {
+      const response = await fetch(endpoints[tab]);
+      if (response.status === 401) { router.refresh(); return; }
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || `Unable to load ${tab}.`);
+      if (tab === "resume") {
+        setDocument(result.document);
+        setHistory(result.history || []);
+        setRevisionState({ draftRevisionId: result.draftRevisionId ?? null, publishedRevisionId: result.publishedRevisionId ?? null });
+      } else if (tab === "logs") {
+        setLogs({ events: result.events || [], sessions: result.sessions || [], users: result.users || [] });
+      } else {
+        setMessages(result.messages || []);
+      }
+      loadedTabs.current.add(tab);
+      setTabStatus((current) => ({ ...current, [tab]: "ready" }));
+    } catch (error) {
+      setNotice(error.message || `Unable to load ${tab}.`);
+      setTabStatus((current) => ({ ...current, [tab]: "error" }));
+    } finally {
+      pendingTabs.current.delete(tab);
+    }
   }, [router]);
 
-  useEffect(() => { refresh().catch((error) => setNotice(error.message)); }, [refresh]);
+  useEffect(() => { loadTab(activeTab); }, [activeTab, loadTab]);
   useEffect(() => {
     setSidebarCollapsed(window.localStorage.getItem("portfolio-admin-sidebar") === "collapsed");
     setNow(new Date());
@@ -73,16 +95,16 @@ export default function AdminDashboard({ session }) {
     catch (error) { setNotice(error.message || "Save failed."); }
     finally { setSaving(false); }
   }
-  async function restore(revisionId) { if (!window.confirm("Restore and publish this revision?")) return; setSaving(true); try { const response = await fetch("/api/admin/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "restore", revisionId, basePublishedRevisionId: revisionState.publishedRevisionId }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); await refresh(); setCacheNeedsRetry(Boolean(result.cacheWarning)); setNotice(result.cacheWarning || "Revision restored and published."); } catch (error) { setNotice(error.message); } finally { setSaving(false); } }
+  async function restore(revisionId) { if (!window.confirm("Restore and publish this revision?")) return; setSaving(true); try { const response = await fetch("/api/admin/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "restore", revisionId, basePublishedRevisionId: revisionState.publishedRevisionId }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); await loadTab("resume", { force: true }); setCacheNeedsRetry(Boolean(result.cacheWarning)); setNotice(result.cacheWarning || "Revision restored and published."); } catch (error) { setNotice(error.message); } finally { setSaving(false); } }
   async function retryCache() { setSaving(true); try { const response = await fetch("/api/admin/content", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "refresh" }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error); setCacheNeedsRetry(false); setNotice("Public cache refreshed."); } catch (error) { setNotice(error.message); } finally { setSaving(false); } }
-  async function updateMessage(id, action) { const response = await fetch("/api/admin/inbox", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, action }) }); const result = await response.json(); if (!response.ok) setNotice(result.error); await refresh(); }
+  async function updateMessage(id, action) { const response = await fetch("/api/admin/inbox", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, action }) }); const result = await response.json(); if (!response.ok) { setNotice(result.error); return; } await loadTab("inbox", { force: true }); }
   async function logout() { await fetch("/api/admin/logout", { method: "POST" }); router.refresh(); }
 
   const selectedMessage = useMemo(() => messages.find((message) => message.id === selectedMessageId) || messages[0] || null, [messages, selectedMessageId]);
   const toggleSidebar = () => setSidebarCollapsed((current) => { const next = !current; window.localStorage.setItem("portfolio-admin-sidebar", next ? "collapsed" : "expanded"); return next; });
   const chooseTab = (tab) => { setActiveTab(tab); setMobileMenuOpen(false); };
 
-  if (!document) return <main className="flex min-h-screen items-center justify-center bg-ink-black text-bright-snow"><Loader2 className="h-8 w-8 animate-spin" /></main>;
+  if (!document) return <main className="flex min-h-screen items-center justify-center bg-ink-black px-5 text-bright-snow">{tabStatus.resume === "error" ? <div className="text-center"><p className="font-heading text-xl font-semibold">The Resume panel could not load.</p><button type="button" onClick={() => loadTab("resume", { force: true })} className="mt-4 rounded-full bg-sky-surge px-5 py-2 text-sm font-semibold text-ink-black">Try again</button></div> : <Loader2 className="h-8 w-8 animate-spin" />}</main>;
   return <main className="min-h-screen bg-[#eef3f7] text-prussian-blue">
     <div className={`grid min-h-screen transition-[grid-template-columns] duration-300 ${sidebarCollapsed ? "md:grid-cols-[82px_minmax(0,1fr)]" : "md:grid-cols-[250px_minmax(0,1fr)]"}`}>
       {mobileMenuOpen ? <button type="button" aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 z-40 bg-ink-black/35 backdrop-blur-[2px] md:hidden" /> : null}
@@ -128,8 +150,8 @@ export default function AdminDashboard({ session }) {
           <PdfPreview preview={preview} className={resumeView === "preview" ? "block" : "hidden xl:block"} />
         </div></> : null}
 
-        {activeTab === "logs" ? <LogsWorkspace logs={logs} /> : null}
-        {activeTab === "inbox" ? <InboxWorkspace messages={messages} selected={selectedMessage} onSelect={setSelectedMessageId} onUpdate={updateMessage} /> : null}
+        {activeTab === "logs" ? tabStatus.logs === "ready" ? <LogsWorkspace logs={logs} /> : <WorkspaceState label="activity logs" status={tabStatus.logs} onRetry={() => loadTab("logs", { force: true })} /> : null}
+        {activeTab === "inbox" ? tabStatus.inbox === "ready" ? <InboxWorkspace messages={messages} selected={selectedMessage} onSelect={setSelectedMessageId} onUpdate={updateMessage} /> : <WorkspaceState label="inbox" status={tabStatus.inbox} onRetry={() => loadTab("inbox", { force: true })} /> : null}
       </div>
     </div>
   </main>;
@@ -159,6 +181,10 @@ function RevisionHistory({ history, onRestore }) {
 
 function PdfPreview({ preview, className = "" }) {
   return <aside className={`${className} border-t border-prussian-blue/10 p-4 sm:p-6 xl:sticky xl:top-[77px] xl:h-[calc(100vh-77px)] xl:border-l xl:border-t-0`}><div className="h-[calc(100svh-190px)] min-h-[520px] overflow-hidden rounded-[1.5rem] border border-prussian-blue/10 bg-white xl:h-full">{preview.url ? <iframe title="Compiled resume PDF" src={`${preview.url}#toolbar=0&navpanes=0&scrollbar=1`} className="h-full w-full bg-white" /> : <div className="flex h-full items-center justify-center bg-white"><Loader2 className="h-7 w-7 animate-spin text-sky-surge" /></div>}</div></aside>;
+}
+
+function WorkspaceState({ label, status, onRetry }) {
+  return <div className="flex min-h-[55vh] items-center justify-center p-6">{status === "error" ? <div className="text-center"><p className="font-heading text-xl font-semibold">Unable to load {label}.</p><button type="button" onClick={onRetry} className="mt-4 rounded-full bg-prussian-blue px-5 py-2 text-sm font-semibold text-bright-snow">Try again</button></div> : <div className="flex items-center gap-3 text-sm text-prussian-blue/60"><Loader2 className="h-5 w-5 animate-spin text-sky-surge" />Loading {label}…</div>}</div>;
 }
 
 function LogsWorkspace({ logs }) {
