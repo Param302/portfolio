@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import FameCharacter from "@/app/walloffame/FameCharacter";
 import HeroAccent from "./HeroAccent";
 import styles from "./HomeIntro.module.css";
@@ -42,10 +42,53 @@ export default function HomeIntro({ children }) {
   const portraitRef = useRef(null);
   const nameRef = useRef(null);
   const finished = useRef(false);
+  const resettingReloadScroll = useRef(false);
+  const releaseReloadReset = useRef(() => {});
   const finish = useCallback(() => {
     if (finished.current) return;
     finished.current = true;
     setPhase("complete");
+  }, []);
+
+  useLayoutEffect(() => {
+    const navigationEntry = window.performance?.getEntriesByType?.("navigation")?.[0];
+    const isReload = navigationEntry?.type === "reload" || window.performance?.navigation?.type === 1;
+    if (!isReload) return undefined;
+
+    resettingReloadScroll.current = true;
+    const previousRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    const reset = () => {
+      if (window.location.hash) {
+        window.history.replaceState(window.history.state, "", `${window.location.pathname}${window.location.search}`);
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    };
+    reset();
+    let settleFrame;
+    const resetFrame = window.requestAnimationFrame(() => {
+      reset();
+      settleFrame = window.requestAnimationFrame(() => {
+        reset();
+      });
+    });
+    const settleDelays = [250, 600, 900, 1300, 1800, 2400];
+    const settleTimers = settleDelays.map((delay, index) => window.setTimeout(() => {
+      reset();
+      if (index === settleDelays.length - 1) resettingReloadScroll.current = false;
+    }, delay));
+    const release = () => {
+      window.cancelAnimationFrame(resetFrame);
+      window.cancelAnimationFrame(settleFrame);
+      settleTimers.forEach(window.clearTimeout);
+      resettingReloadScroll.current = false;
+    };
+    releaseReloadReset.current = release;
+
+    return () => {
+      release();
+      window.history.scrollRestoration = previousRestoration;
+    };
   }, []);
 
   useEffect(() => {
@@ -53,7 +96,7 @@ export default function HomeIntro({ children }) {
     // The CSS fallback may already have revealed the page before hydration.
     // Never reintroduce the greeting once that fallback has hidden it.
     const greetingExpired = () => !overlayRef.current || window.getComputedStyle(overlayRef.current).visibility === "hidden";
-    if (greetingExpired() || motionPreference.matches || document.hidden || window.scrollY > 48 || (window.location.hash && window.location.hash !== "#home")) {
+    if (greetingExpired() || motionPreference.matches || document.hidden || (!resettingReloadScroll.current && window.scrollY > 48) || (!resettingReloadScroll.current && window.location.hash && window.location.hash !== "#home")) {
       finish();
       return;
     }
@@ -78,14 +121,19 @@ export default function HomeIntro({ children }) {
     }, greetingRemaining);
     // Never leave the actual page hidden if an animation or layout target fails.
     const fallbackTimer = window.setTimeout(finish, greetingRemaining + FLIGHT_MS + 500);
-    const onScroll = () => { if (window.scrollY > 48) finish(); };
+    const onScroll = () => { if (!resettingReloadScroll.current && window.scrollY > 48) finish(); };
     const onVisibility = () => { if (document.hidden) finish(); };
     const onKeyDown = (event) => { if (event.key === "Escape" || event.key === "Tab") finish(); };
-    const onNavigate = (event) => { if (event.target.closest?.("a, button")) finish(); };
+    const onNavigate = (event) => {
+      if (!event.target.closest?.("a, button")) return;
+      releaseReloadReset.current();
+      finish();
+    };
+    const onHashChange = () => { if (!resettingReloadScroll.current) finish(); };
     const onMotionChange = (event) => { if (event.matches) finish(); };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", finish, { passive: true });
-    window.addEventListener("hashchange", finish);
+    window.addEventListener("hashchange", onHashChange);
     window.addEventListener("keydown", onKeyDown);
     document.addEventListener("visibilitychange", onVisibility);
     document.addEventListener("click", onNavigate, true);
@@ -97,7 +145,7 @@ export default function HomeIntro({ children }) {
       window.clearTimeout(fallbackTimer);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", finish);
-      window.removeEventListener("hashchange", finish);
+      window.removeEventListener("hashchange", onHashChange);
       window.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("visibilitychange", onVisibility);
       document.removeEventListener("click", onNavigate, true);
