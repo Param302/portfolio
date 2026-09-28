@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Loader2, SendHorizontal } from "lucide-react";
+import { ArrowLeft, Loader2, SendHorizontal } from "lucide-react";
 
 const socials = [
   { label: "GitHub", href: "https://github.com/Param302", icon: "/socials/github.png", handle: "@Param302" },
@@ -16,25 +16,21 @@ const collaborationIdeas = [
   {
     title: "Wanna build an AI-native product",
     shortTitle: "AI-native product",
-    description: "Production-ready agents, voice systems, and intelligent products that solve a real problem.",
     message: "I’d like to discuss an AI-native product.",
   },
   {
     title: "Research on Applied AI",
     shortTitle: "Applied AI research",
-    description: "Experiments, evaluations, fine-tuning, and research that can move beyond a notebook.",
     message: "I’d like to discuss an Applied AI research collaboration.",
   },
   {
     title: "Co-host a meetup or hackathon",
     shortTitle: "Meetup or hackathon",
-    description: "A community event, technical workshop, meetup, or hackathon worth bringing to life.",
     message: "I’d like to discuss co-hosting a meetup or hackathon.",
   },
   {
     title: "Something else",
     shortTitle: "Something else",
-    description: "A role, talk, collaboration, or idea that does not fit neatly into a box.",
     message: "I have another idea I’d like to discuss.",
   },
 ];
@@ -88,38 +84,28 @@ export default function Contact() {
           <a href="mailto:hey@itsparam.in" className="mt-3 inline-block font-description text-sky-surge transition hover:text-prussian-blue dark:hover:text-papaya-whip">hey@itsparam.in</a>
         </header>
 
-        <div className="mt-12 rounded-[2.25rem] bg-papaya-whip p-4 text-prussian-blue dark:bg-prussian-blue dark:text-bright-snow sm:p-6 lg:grid lg:grid-cols-[minmax(240px,0.7fr)_minmax(0,2.3fr)] lg:gap-6 lg:p-7">
-          <aside className="rounded-[1.75rem] border border-prussian-blue/12 bg-bright-snow/55 p-5 dark:border-bright-snow/12 dark:bg-ink-black/25 sm:p-6" aria-label="Social profiles">
+        <div className="mt-12 rounded-[2.25rem] bg-papaya-whip p-4 text-prussian-blue dark:bg-transparent dark:text-bright-snow sm:p-6 lg:grid lg:grid-cols-[minmax(240px,0.7fr)_minmax(0,2.3fr)] lg:gap-6 lg:p-7">
+          <aside className="self-start rounded-[1.75rem] border border-prussian-blue/12 bg-bright-snow/55 p-4 dark:border-transparent dark:bg-transparent sm:p-5" aria-label="Social profiles">
             <p className="font-accent text-2xl italic">Find me online</p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="mt-4 flex flex-wrap gap-3">
               {socials.map((social) => (
-                <a key={social.label} href={social.href} target="_blank" rel="noreferrer" className="group flex items-center gap-3 rounded-2xl border border-prussian-blue/12 bg-bright-snow/70 p-3 transition hover:-translate-y-0.5 hover:border-sky-surge dark:border-bright-snow/12 dark:bg-ink-black/55">
-                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-bright-snow"><Image src={social.icon} alt="" width={23} height={23} className="h-5 w-5 object-contain" /></span>
-                  <span className="min-w-0">
-                    <span className="block font-heading text-sm font-semibold">{social.label}</span>
-                    <span className="block truncate font-description text-xs opacity-60">{social.handle}</span>
-                  </span>
-                  <ArrowUpRight className="ml-auto h-4 w-4 opacity-45 transition group-hover:text-sky-surge group-hover:opacity-100" />
+                <a key={social.label} href={social.href} target="_blank" rel="noreferrer" aria-label={social.label} title={social.label} className="group inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-prussian-blue/12 bg-bright-snow transition hover:-translate-y-0.5 hover:border-sky-surge dark:border-papaya-whip/70 dark:bg-papaya-whip">
+                  <Image src={social.icon} alt="" width={24} height={24} className="h-6 w-6 object-contain" />
                 </a>
               ))}
             </div>
           </aside>
 
-          <div className="mt-4 min-h-[520px] rounded-[1.75rem] border border-prussian-blue/12 bg-bright-snow/55 p-4 dark:border-bright-snow/12 dark:bg-ink-black/25 sm:p-6 lg:mt-0">
+          <div className="mt-4 rounded-[1.75rem] border border-prussian-blue/12 bg-bright-snow/55 p-4 dark:border-transparent dark:bg-transparent sm:p-6 lg:mt-0">
             <AnimatePresence mode="wait" initial={false}>
               {selectedIdea === null ? (
                 <motion.div key="choices" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -24 }} transition={motionTransition}>
-                  <div className="max-w-2xl">
-                    <p className="font-accent text-3xl italic sm:text-4xl">How should we collaborate?</p>
-                    <p className="mt-3 font-description text-sm leading-7 opacity-65 sm:text-base">Choose a direction. I&apos;ll set up the message so you only need to add the useful details.</p>
-                  </div>
-                  <div className="mt-8 grid gap-4 md:grid-cols-2">
+                  <p className="font-accent text-3xl italic sm:text-4xl">How should we collaborate?</p>
+                  <div className="mt-6 grid gap-3 md:grid-cols-2">
                     {collaborationIdeas.map((idea, index) => (
-                      <button key={idea.title} type="button" onClick={() => chooseIdea(index)} className="group min-h-48 rounded-[1.6rem] border border-prussian-blue/13 bg-bright-snow/80 p-6 text-left transition duration-300 hover:-translate-y-1 hover:border-sky-surge focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-surge/20 dark:border-bright-snow/13 dark:bg-ink-black/60 dark:hover:border-sky-surge">
+                      <button key={idea.title} type="button" onClick={() => chooseIdea(index)} className="group min-h-28 rounded-[1.4rem] border border-prussian-blue/13 bg-bright-snow/80 p-5 text-left transition duration-300 hover:-translate-y-1 hover:border-sky-surge focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-surge/20 dark:border-bright-snow/13 dark:bg-ink-black/60 dark:hover:border-sky-surge">
                         <span className="font-heading text-xs font-bold tracking-[0.18em] text-sky-surge">0{index + 1}</span>
-                        <h3 className="mt-4 max-w-sm font-heading text-xl font-semibold leading-snug sm:text-2xl">{idea.title}</h3>
-                        <p className="mt-3 font-description text-sm leading-6 opacity-62">{idea.description}</p>
-                        <span className="mt-5 inline-flex items-center gap-2 font-heading text-sm font-semibold text-sky-surge">Start here <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+                        <h3 className="mt-3 max-w-sm font-heading text-lg font-semibold leading-snug dark:text-papaya-whip sm:text-xl">{idea.title}</h3>
                       </button>
                     ))}
                   </div>
