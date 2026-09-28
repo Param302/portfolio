@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useTheme } from "@/app/ThemeContext";
+import { useHomeIntro } from "./HomeIntro";
 import {
   BriefcaseBusiness,
   CodeXml,
@@ -92,7 +93,7 @@ function MobileNav({ activeSection, indicator, navRef, onNavigate }) {
           className="absolute inset-y-2 left-0 rounded-full bg-sky-surge/15"
         />
       ) : null}
-      {NAV_ITEMS.map((item) => {
+      {NAV_ITEMS.filter((item) => item.id !== "home").map((item) => {
         const Icon = item.icon;
 
         return (
@@ -117,6 +118,7 @@ function MobileNav({ activeSection, indicator, navRef, onNavigate }) {
 
 export default function Navbar() {
   const { theme, mounted, toggleTheme } = useTheme();
+  const intro = useHomeIntro();
   const [activeSection, setActiveSection] = useState("home");
   const [desktopIndicator, setDesktopIndicator] = useState(null);
   const [mobileIndicator, setMobileIndicator] = useState(null);
@@ -219,28 +221,30 @@ export default function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-[100]">
       <div className="relative mx-auto flex max-w-7xl items-start justify-between px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="flex min-h-12 items-center">
-          <p className="hidden h-14 items-center gap-3 rounded-full border border-alice-blue/60 bg-bright-snow/65 px-4 font-heading text-base font-semibold text-prussian-blue shadow-soft dark:border-alice-blue/10 dark:bg-prussian-blue/45 dark:text-bright-snow sm:inline-flex">
+        <div ref={intro?.chipRef} data-intro-chip className="flex min-h-12 items-center">
+          <p className="hidden h-14 items-center gap-3 whitespace-nowrap rounded-full border border-alice-blue/60 bg-bright-snow/65 px-4 font-heading text-base font-semibold text-prussian-blue shadow-soft dark:border-alice-blue/10 dark:bg-prussian-blue/45 dark:text-bright-snow sm:inline-flex">
             <Image
               src="/parampreet.png"
+              data-intro-avatar-target
               alt="Parampreet Singh"
               width={30}
               height={30}
               className="h-[30px] w-[30px] rounded-full object-cover"
               priority
             />
-            Parampreet Singh
+            <span data-intro-name-target>Parampreet Singh</span>
           </p>
-          <p className="inline-flex items-center gap-2 px-2 font-heading text-xl font-bold text-prussian-blue dark:text-bright-snow sm:hidden">
+          <p className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap px-2 font-heading text-base font-semibold text-prussian-blue dark:text-bright-snow sm:hidden">
             <Image
               src="/parampreet.png"
+              data-intro-avatar-target
               alt="Parampreet Singh"
               width={28}
               height={28}
-              className="h-7 w-7 rounded-full object-cover"
+              className="h-7 w-7 shrink-0 rounded-full object-cover"
               priority
             />
-            Parampreet Singh
+            <span data-intro-name-target>Parampreet Singh</span>
           </p>
         </div>
 
@@ -256,7 +260,7 @@ export default function Navbar() {
         <div className="flex flex-col items-end gap-2 md:flex-row md:items-center md:gap-4">
           <a
             href="mailto:hey@itsparam.in"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-sky-surge px-4 font-heading text-xs font-semibold text-ink-black transition hover:shadow-cta-glow sm:px-5 sm:text-sm"
+            className="hidden h-12 items-center justify-center rounded-full bg-sky-surge px-4 font-heading text-xs font-semibold text-ink-black transition hover:shadow-cta-glow sm:inline-flex sm:px-5 sm:text-sm"
           >
             hey@itsparam.in
           </a>

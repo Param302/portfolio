@@ -20,6 +20,9 @@
 # production
 /build
 
+# Local generation experiments and browser verification captures
+/output/
+
 # misc
 .DS_Store
 *.pem

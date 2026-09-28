@@ -1,0 +1,19 @@
+.card { position: relative; width: 100%; perspective: 1200px; }
+.card::before { content: ""; display: block; padding-top: 121.505376%; }
+.rotor { position: absolute; inset: 0; transform-style: preserve-3d; }
+.face { position: absolute; inset: 0; padding: 12px; border-radius: 2rem; background: var(--portrait-frame); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.surface { height: 100%; overflow: hidden; border-radius: 1.5rem; background: var(--portrait-background); }
+.front { visibility: hidden; }
+.back { transform: none; }
+.card[data-animated="true"] .rotor { transition: transform 600ms cubic-bezier(.4, 0, .2, 1); }
+.card[data-animated="true"] .front { visibility: visible; }
+.card[data-animated="true"] .back { transform: rotateY(180deg); }
+.card[data-animated="true"][data-side="photo"] .rotor { transform: rotateY(-180deg); }
+.flipTarget { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 2rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.flipTarget:focus-visible { outline: 3px solid #ffedd4; outline-offset: 5px; }
+.hint { position: absolute; right: 24px; bottom: 24px; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 7px 11px; background: #0b0f19cc; color: #f8fafc; font-size: 12px; line-height: 1.4; }
+@media (prefers-reduced-motion: reduce) {
+  .card .rotor { transform: none !important; transition: none !important; }
+  .card .front, .flipTarget { display: none; }
+  .card .back { transform: none !important; }
+}

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
-import DiffusionPortrait from "./DiffusionPortrait";
+import AboutPortrait from "./AboutPortrait";
 
 const skills = ["PyTorch", "LangGraph", "FastAPI", "Snowflake", "GCP", "Full-Stack Dev"];
 
@@ -54,7 +54,7 @@ export default function About() {
     }
 
     const context = canvas.getContext("2d");
-    if (!context) {
+    if (!context || typeof ResizeObserver === "undefined" || !window.requestAnimationFrame) {
       return undefined;
     }
 
@@ -175,11 +175,7 @@ export default function About() {
           <h2 className={`my-10 inline-block font-accent text-5xl font-bold italic tracking-tight sm:text-5xl lg:text-7xl ${isDarkTheme ? "text-ink-black" : "text-bright-snow"}`}>
             About
           </h2>
-          <div className={`relative overflow-hidden rounded-[2rem] p-3 ${isDarkTheme ? 'bg-bright-snow' : 'bg-prussian-blue'}`}>
-            <div className={`overflow-hidden rounded-[1.5rem] ${isDarkTheme ? 'bg-prussian-blue' : 'bg-bright-snow'}`}>
-              <DiffusionPortrait backgroundColor={isDarkTheme ? "#1a2235" : "#f8fafc"} />
-            </div>
-          </div>
+          <AboutPortrait backgroundColor={isDarkTheme ? "#1a2235" : "#f8fafc"} frameColor={isDarkTheme ? "#f8fafc" : "#1a2235"} />
 
           <div className="mt-7 flex items-center gap-8 sm:gap-12">
             {socialLinks.map((link) => (

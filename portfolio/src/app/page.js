@@ -4,6 +4,7 @@ import Contact from "@/app/components/Contact";
 import Footer from "@/app/components/Footer";
 import GurmatDarbarSpotlight from "@/app/components/GurmatDarbarSpotlight";
 import HeroSection from "@/app/components/HeroSection";
+import HomeIntro from "@/app/components/HomeIntro";
 import Navbar from "@/app/components/Navbar";
 import Projects from "@/app/components/Projects";
 import Work from "@/app/components/Work";
@@ -58,8 +59,10 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <Navbar />
-      <HeroSection />
+      <HomeIntro>
+        <Navbar />
+        <HeroSection />
+      </HomeIntro>
       <About />
       <CommunitySection codexImages={codexImages} pyDelhiImages={pyDelhiImages} extraImages={extraImages} subscriberLabel={formatCompactCount(youtubeStats?.subscriber_count)} />
       <GurmatDarbarSpotlight screenshots={gurmatScreenshots} />
