@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, SkipForward } from "lucide-react";
 import { gradientStep, hasEscaped, initialPoint, loss, projectPoint } from "./gradientMath.mjs";
 import styles from "./Lab.module.css";
 
+const DEFAULT_VIEW = { yaw: -0.55, pitch: 0.2 };
+
 export default function GradientDescent() {
   const [rate, setRate] = useState(0.18);
-  const [angle, setAngle] = useState(-0.55);
+  const [view, setView] = useState(DEFAULT_VIEW);
   const [points, setPoints] = useState([initialPoint]);
   const [running, setRunning] = useState(false);
+  const dragRef = useRef(null);
   const current = points[points.length - 1];
   const escaped = hasEscaped(current);
   const converged = loss(current) < 0.0001;
@@ -34,36 +37,57 @@ export default function GradientDescent() {
         const x = -3 + xi * 0.3;
         const y = -3 + yi * 0.3;
         const corners = [[x, y], [x + 0.3, y], [x + 0.3, y + 0.3], [x, y + 0.3]];
-        const projected = corners.map(([cx, cy]) => projectPoint(cx, cy, loss({ x: cx, y: cy }), angle));
-        const depth = x * Math.sin(angle) + y * Math.cos(angle);
+        const projected = corners.map(([cx, cy]) => projectPoint(cx, cy, loss({ x: cx, y: cy }), view));
+        const depth = x * Math.sin(view.yaw) + y * Math.cos(view.yaw);
         cells.push({ depth, key: `${x},${y}`, points: projected.map((p) => `${p.x},${p.y}`).join(" "), opacity: 0.12 + Math.min(0.35, loss({ x, y }) / 48) });
       }
     }
     return cells.sort((a, b) => a.depth - b.depth);
-  }, [angle]);
+  }, [view]);
 
   const visible = points.filter((p) => !hasEscaped(p));
-  const projectedPath = visible.map((p) => projectPoint(p.x, p.y, loss(p), angle));
+  const projectedPath = visible.map((p) => projectPoint(p.x, p.y, loss(p), view));
   const ball = projectedPath[projectedPath.length - 1];
-  const origin = projectPoint(0, 0, 0, angle);
+  const origin = projectPoint(0, 0, 0, view);
   const status = escaped ? "Overshot the surface" : converged ? "Minimum found" : points.length >= 101 ? "100 steps completed" : running ? "Descending" : "Ready to step";
-  const xStart = projectPoint(-3.5, 0, 0, angle);
-  const xEnd = projectPoint(3.5, 0, 0, angle);
-  const yStart = projectPoint(0, -3.5, 0, angle);
-  const yEnd = projectPoint(0, 3.5, 0, angle);
-  const zEnd = projectPoint(0, 0, 12, angle);
+  const xStart = projectPoint(-3.5, 0, 0, view);
+  const xEnd = projectPoint(3.5, 0, 0, view);
+  const yStart = projectPoint(0, -3.5, 0, view);
+  const yEnd = projectPoint(0, 3.5, 0, view);
+  const zEnd = projectPoint(0, 0, 12, view);
+  const viewChanged = Math.abs(view.yaw - DEFAULT_VIEW.yaw) > 0.01 || Math.abs(view.pitch - DEFAULT_VIEW.pitch) > 0.01;
 
-  function reset(nextRate = rate) {
+  function resetDescent(nextRate = rate) {
     setRate(nextRate);
     setRunning(false);
     setPoints([initialPoint]);
   }
 
+  function startDrag(event) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = { x: event.clientX, y: event.clientY, yaw: view.yaw, pitch: view.pitch };
+  }
+
+  function drag(event) {
+    if (!dragRef.current) return;
+    const dx = event.clientX - dragRef.current.x;
+    const dy = event.clientY - dragRef.current.y;
+    setView({
+      yaw: dragRef.current.yaw + dx * 0.008,
+      pitch: Math.max(-0.18, Math.min(0.72, dragRef.current.pitch + dy * 0.006)),
+    });
+  }
+
+  function stopDrag(event) {
+    dragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+
   return (
     <div className={styles.demoGrid}>
       <div className={styles.surface}>
-        <div className={styles.visualLabel}><span>LOSS LANDSCAPE</span><span>f(x, y) = ½(x² + 3y²)</span></div>
-        <svg viewBox="0 0 680 460" role="img" aria-label={`Three-dimensional loss surface. ${points.length - 1} gradient steps. Current loss ${loss(current).toFixed(4)}. ${status}.`} className={styles.surfaceSvg}>
+        <div className={styles.visualLabel}><span>LOSS LANDSCAPE</span>{viewChanged ? <button type="button" onClick={() => setView(DEFAULT_VIEW)}><RotateCcw size={14} /> Reset view</button> : null}</div>
+        <svg viewBox="0 0 680 460" role="img" aria-label={`Three-dimensional loss surface. ${points.length - 1} gradient steps. Current loss ${loss(current).toFixed(4)}. ${status}. Drag to rotate.`} className={styles.surfaceSvg} onPointerDown={startDrag} onPointerMove={drag} onPointerUp={stopDrag} onPointerCancel={stopDrag}>
           <defs>
             <radialGradient id="gd-glow"><stop stopColor="#1bb6e0" stopOpacity=".2" /><stop offset="1" stopColor="#1bb6e0" stopOpacity="0" /></radialGradient>
             <marker id="gd-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="currentColor" /></marker>
@@ -83,18 +107,15 @@ export default function GradientDescent() {
           {projectedPath.slice(0, -1).map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.8" fill="#e47724" />)}
           <circle cx={ball.x} cy={ball.y} r="9" fill="#ffedd4" stroke="#9b4914" strokeWidth="3" />
         </svg>
-        <label className={styles.rotation}>Rotate the surface<input aria-label="Surface rotation" type="range" min="-2.8" max="2.8" step="0.05" value={angle} onChange={(event) => setAngle(Number(event.target.value))} /></label>
       </div>
       <div className={styles.controls}>
         <label className={styles.sliderLabel} htmlFor="learning-rate">Learning rate <output>{rate.toFixed(2)}</output></label>
-        <input id="learning-rate" type="range" min="0.01" max="0.9" step="0.01" value={rate} onChange={(event) => reset(Number(event.target.value))} />
-        <div className={styles.rangeEnds}><span>Careful steps</span><span>Big jumps</span></div>
-        <div className={styles.presets}>{[[0.05, "Slow"], [0.3, "Steady"], [0.72, "Too far"]].map(([value, label]) => <button key={label} onClick={() => reset(value)} aria-pressed={rate === value}>{label}</button>)}</div>
+        <input id="learning-rate" type="range" min="0.01" max="0.9" step="0.01" value={rate} onChange={(event) => resetDescent(Number(event.target.value))} />
         <div className={styles.readouts}><div><span>Step</span><strong>{points.length - 1}</strong></div><div><span>Loss</span><strong>{loss(current).toFixed(4)}</strong></div></div>
         <div className={styles.transport}>
           <button className={styles.primaryButton} onClick={() => setRunning(!running)} disabled={done}>{running && !done ? <Pause size={16} /> : <Play size={16} />}{running && !done ? "Pause" : "Run"}</button>
           <button onClick={() => setPoints([...points, gradientStep(current, rate)])} disabled={done || running} aria-label="Take one gradient step"><SkipForward size={17} />Step</button>
-          <button onClick={() => reset()} aria-label="Reset gradient descent"><RotateCcw size={17} /></button>
+          <button onClick={() => resetDescent()} aria-label="Reset gradient descent"><RotateCcw size={17} /></button>
         </div>
       </div>
     </div>

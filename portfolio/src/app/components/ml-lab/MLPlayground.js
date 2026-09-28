@@ -10,9 +10,9 @@ import ForwardPassNetwork from "../ForwardPassNetwork";
 import styles from "./Lab.module.css";
 
 const experiments = [
-  { name: "Gradient descent", category: "OPTIMIZATION", description: "Guide a point down a three-dimensional loss surface and feel what the learning rate changes.", component: GradientDescent },
-  { name: "Self-attention", category: "TRANSFORMERS", description: "Move through a field of words. Focus one to reveal the concepts it attends to.", component: SelfAttentionPlayground },
-  { name: "Next-token prediction", category: "NEURAL NETWORKS", description: "Change the temperature, then trace how a tiny network ranks the next word.", component: ForwardPassNetwork },
+  { name: "Gradient descent", component: GradientDescent },
+  { name: "Self attention", component: SelfAttentionPlayground },
+  { name: "How Neural Network Works?", component: ForwardPassNetwork },
 ];
 
 export default function MLPlayground() {
@@ -29,8 +29,17 @@ export default function MLPlayground() {
       </header>
 
       <section className={styles.intro} aria-labelledby="not-found-title">
-        <div><p className={styles.eyebrow}>404 / PAGE NOT FOUND</p><h1 id="not-found-title">Lost page. <em>Found a playground.</em></h1><p>Three ideas, one scroll at a time.</p></div>
-        <a href="#experiment-1" className={styles.scrollCue}>Start exploring <ArrowDown size={17} /></a>
+        <div className={styles.introContent}>
+          <h1 id="not-found-title">404 not found</h1>
+          <p className={styles.rescue}>But, I&apos;ve got you</p>
+          <nav className={styles.routeChips} aria-label="Useful pages">
+            <Link href="/">Home</Link>
+            <Link href="/resume">Resume</Link>
+            <Link href="/walloffame">Wall of Fame</Link>
+            <Link href="/#contact">Contact</Link>
+          </nav>
+          <a href="#experiment-1" className={styles.scrollCue}><span>scroll to see something special</span><ArrowDown size={19} /></a>
+        </div>
       </section>
 
       <div className={styles.experimentFlow} aria-label="Machine learning playground">
@@ -39,9 +48,7 @@ export default function MLPlayground() {
           return (
             <section key={experiment.name} id={`experiment-${index + 1}`} className={styles.experimentSection}>
               <div className={styles.sectionHeading}>
-                <p className={styles.eyebrow}>{String(index + 1).padStart(2, "0")} / {experiment.category}</p>
                 <h2>{experiment.name}</h2>
-                <p>{experiment.description}</p>
               </div>
               <div className={styles.experimentCanvas}><Experiment /></div>
             </section>

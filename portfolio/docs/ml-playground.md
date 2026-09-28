@@ -24,7 +24,7 @@ Browser verification used the local production build: 1440px desktop, 1024px tab
 
 ## Mathematical references
 
-- [Dive into Deep Learning — Gradient Descent](https://d2l.ai/chapter_optimization/gd.html)
-- [Dive into Deep Learning — Attention Scoring Functions](https://d2l.ai/chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html)
+- [Dive into Deep Learning: Gradient Descent](https://d2l.ai/chapter_optimization/gd.html)
+- [Dive into Deep Learning: Attention Scoring Functions](https://d2l.ai/chapter_attention-mechanisms-and-transformers/attention-scoring-functions.html)
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
-- [MIT 6.390 — Reinforcement Learning](https://introml.mit.edu/notes/reinforcement_learning.html)
+- [MIT 6.390: Reinforcement Learning](https://introml.mit.edu/notes/reinforcement_learning.html)
