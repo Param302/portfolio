@@ -43,6 +43,7 @@
 .image, .content { min-width: 0; }
 .image { order: 1; }
 .content { display: flex; flex-direction: column; order: 2; }
+.card[data-content-backdrop] .content { padding: 18px; border-radius: 20px; background: var(--project-content); }
 .reversed .image { order: 2; }
 .reversed .content { order: 1; }
 .imageFrame {

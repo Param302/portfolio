@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { defaultPdfLayout } from "./resume-layout.js";
 import { defaultResumeSections, isProtectedResumeSection } from "./resume-sections.js";
-import { projectThemeIds } from "./project-themes.js";
+import { defaultProjectGradient, projectThemeIds } from "./project-themes.js";
 
 export { defaultPdfLayout } from "./resume-layout.js";
 
@@ -111,6 +111,21 @@ const experienceSchema = z.object({
   bullets: bulletList,
 });
 
+const projectGradientSchema = z.object({
+  type: z.enum(["linear", "radial", "conic"]).default(defaultProjectGradient.type),
+  angle: z.number().min(0).max(360).default(defaultProjectGradient.angle),
+  shape: z.enum(["circle", "ellipse"]).default(defaultProjectGradient.shape),
+  center: z.object({
+    x: z.number().min(0).max(100).default(50),
+    y: z.number().min(0).max(100).default(50),
+  }).prefault({}),
+  stops: z.array(z.object({
+    color: z.string().regex(/^#[0-9a-f]{6}$/i, "Use a six-digit hex color.").transform((value) => value.toUpperCase()),
+    position: z.number().min(0).max(100),
+  })).min(2).max(5).default(defaultProjectGradient.stops),
+  textMode: z.enum(["auto", "light", "dark"]).default("auto"),
+});
+
 const projectSchema = z.object({
   id: shortText,
   name: shortText,
@@ -122,6 +137,7 @@ const projectSchema = z.object({
   skills: z.array(shortText).max(16),
   image: shortText,
   theme: z.enum(projectThemeIds).default("surface"),
+  gradient: projectGradientSchema.prefault({}),
   links: linkList(4),
 });
 

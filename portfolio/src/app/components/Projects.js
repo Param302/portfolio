@@ -28,7 +28,7 @@ function ProjectImage({ project, preview }) {
 
 export function ProjectBlock({ project: source, index = 0, theme: mode = "light", preview = false }) {
   const project = projectForDisplay(source);
-  const { colors } = getProjectTheme(project.theme, mode);
+  const { colors } = getProjectTheme(project.theme, mode, project.gradient);
   const variables = Object.fromEntries(Object.entries(colors).map(([key, value]) => [`--project-${key}`, value]));
   const remainingLinks = project.links.filter((link) => link !== project.liveLink);
 
@@ -37,6 +37,7 @@ export function ProjectBlock({ project: source, index = 0, theme: mode = "light"
       id={preview ? undefined : project.id}
       data-stack-card={preview ? undefined : true}
       data-project-theme={project.theme}
+      data-content-backdrop={colors.content && colors.content !== "transparent" ? true : undefined}
       style={{ "--stack-index": index, ...variables }}
       className={`${styles.card} ${index % 2 === 1 ? styles.reversed : ""}`}
     >

@@ -1,0 +1,58 @@
+.root { container: project-theme / inline-size; min-width: 0; margin: 0; padding: 0; border: 0; }
+.root legend { margin-bottom: 10px; padding: 0; color: var(--admin-text); font-size: 14px; font-weight: 600; }
+.themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 8px; }
+.themes > button { display: grid; gap: 7px; min-width: 0; padding: 5px; border: 1px solid var(--admin-border); border-radius: 8px; color: var(--admin-text); background: var(--admin-field); font-size: 11px; text-align: center; }
+.themes > button:hover { border-color: var(--admin-accent); }
+.themes > button[aria-pressed="true"] { border-color: var(--admin-accent); box-shadow: 0 0 0 1px var(--admin-accent); }
+.swatch { display: grid; align-items: start; justify-items: end; height: 44px; padding: 4px; border: 1px solid rgb(128 128 128 / .25); border-radius: 4px; }
+.selectedMark { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--admin-text); color: var(--admin-panel); }
+.selectedMark svg { width: 12px; height: 12px; stroke-width: 3; }
+.custom { display: grid; gap: 16px; margin-top: 18px; padding: 16px; border: 1px solid var(--admin-border); border-radius: 9px; background: var(--admin-subtle); }
+.selects { display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 12px; }
+.selects label { display: grid; gap: 7px; min-width: 0; }
+.selects label > span, .numberControl > span, .stopHeading > span { color: var(--admin-text); font-size: 13px; font-weight: 550; }
+.selects select, .colorField, .numberValue { min-width: 0; min-height: 40px; border: 1px solid var(--admin-border); border-radius: 7px; background: var(--admin-field); color: var(--admin-text); font-size: 13px; }
+.selects select { width: 100%; padding: 8px; }
+.position { display: grid; gap: 14px; }
+.numberControl { display: grid; gap: 8px; min-width: 0; }
+.numberControl > div { display: grid; grid-template-columns: minmax(0,1fr) 96px; align-items: center; gap: 12px; }
+.numberControl input[type="range"] { width: 100%; height: 22px; accent-color: var(--admin-accent); }
+.numberValue { display: flex; align-items: center; padding-right: 8px; }
+.numberValue input { width: 100%; min-width: 0; padding: 8px; border: 0; border-radius: inherit; background: transparent; color: inherit; }
+.numberValue > span { color: var(--admin-muted); font-size: 12px; }
+.stopHeading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.stopHeading button { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 6px 8px; border: 1px solid var(--admin-border); border-radius: 7px; color: var(--admin-text); background: var(--admin-panel); font-size: 12px; }
+.stopHeading svg, .remove svg { width: 15px; height: 15px; }
+.stops { display: grid; gap: 8px; margin-top: -8px; }
+.stop, .stopLabels { display: grid; grid-template-columns: minmax(0,1fr) 96px 36px; gap: 8px; align-items: center; }
+.stopPositionLabel { display: none; }
+.stopLabels { color: var(--admin-muted); font-size: 11px; }
+.colorField { display: flex; align-items: center; overflow: hidden; padding: 5px; gap: 5px; }
+.colorField input[type="color"] { flex: 0 0 28px; width: 28px; height: 28px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.colorField input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.colorField input[type="color"]::-webkit-color-swatch { border: 1px solid rgb(128 128 128 / .3); border-radius: 4px; }
+.colorField input[type="text"] { width: 100%; min-width: 0; padding: 4px 0; border: 0; background: transparent; color: inherit; font-size: 12px; font-variant-numeric: tabular-nums; }
+.colorField input[aria-invalid="true"] { color: var(--admin-danger); }
+.remove { display: grid; place-items: center; width: 36px; height: 40px; border: 1px solid var(--admin-border); border-radius: 7px; color: var(--admin-muted); background: var(--admin-panel); }
+.remove:hover:not(:disabled) { color: var(--admin-danger); background: var(--admin-danger-soft); }
+.palette { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.palette > span { margin-right: 4px; color: var(--admin-muted); font-size: 11px; }
+.palette button { display: grid; place-items: center; width: 32px; height: 32px; padding: 3px; border: 1px solid var(--admin-border); border-radius: 6px; }
+.palette button:hover { border-color: var(--admin-accent); }
+.palette button span { width: 100%; height: 100%; border: 1px solid rgb(128 128 128 / .2); border-radius: 3px; background: var(--palette-color); }
+@media (max-width: 767px) {
+  .custom { padding: 12px; }
+  .themes { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .themes > button { font-size: 12px; }
+  .selects select, .numberValue input, .colorField input[type="text"] { font-size: 16px; }
+  .stop, .stopLabels { gap: 6px; }
+  .colorField { gap: 4px; padding: 4px; }
+  .colorField input[type="color"] { flex-basis: 24px; width: 24px; height: 28px; }
+}
+@container project-theme (max-width: 340px) {
+  .stopLabels { display: none; }
+  .stops { gap: 14px; }
+  .stop { grid-template-columns: minmax(0,1fr) 36px; gap: 8px; }
+  .stop .colorField { grid-column: 1 / -1; }
+  .stopPositionLabel { display: inline; flex-shrink: 0; padding-left: 8px; }
+}

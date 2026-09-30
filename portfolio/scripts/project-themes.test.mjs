@@ -8,7 +8,7 @@ import { transform } from "next/dist/build/swc/index.js";
 import * as themeModule from "../src/lib/project-themes.js";
 import { defaultResumeDocument, parseResumeDocument } from "../src/lib/resume-schema.js";
 
-const { getProjectTheme, projectForDisplay, projectLinkLabel, projectThemes } = themeModule;
+const { defaultProjectGradient, getProjectTheme, normalizeProjectGradient, projectForDisplay, projectGradientCss, projectLinkLabel, projectPalette, projectThemes } = themeModule;
 const require = createRequire(import.meta.url);
 
 async function loadJsx(path, modules) {
@@ -110,7 +110,7 @@ test("homepage and live preview render the same editable content and palettes", 
   for (const html of [publicHtml, previewHtml]) {
     for (const text of [project.name, "Final fifth point", "custom.example.com", "Read source", "Documentation"]) assert.ok(html.includes(text), text);
     assert.ok(html.includes('data-project-theme="aurora"'));
-    assert.ok(html.includes("linear-gradient(135deg, #18284B"));
+    assert.ok(html.includes("linear-gradient(135deg, #0B0F19"));
     assert.ok(!html.includes("getreadmewithme.vercel.app"));
   }
   assert.ok(publicHtml.includes("data-stack-card"));
@@ -147,4 +147,100 @@ test("stacking is allowed only when every card is readable below its own sticky 
   assert.equal(fits([512.5, 498.5, 484.5], 700, 166, 14), true);
   assert.equal(fits([512, 498, 486], 700, 166, 14), false);
   assert.equal(fits([712, 698, 684, 670], 900, 166, 14), true);
+});
+
+test("presets only use the portfolio palette and keep every stored theme ID", () => {
+  assert.deepEqual(projectThemes.map((theme) => theme.id), ["surface", "brand", "accent", "ocean", "aurora", "sunset", "custom"]);
+  const palette = new Set(projectPalette.map((item) => item.color));
+  for (const theme of projectThemes) {
+    for (const color of theme.swatch.match(/#[0-9a-f]{6}/gi)) assert.ok(palette.has(color), `${theme.id}: ${color}`);
+  }
+});
+
+test("custom gradient settings survive save, reload, and preset switches", () => {
+  const source = structuredClone(defaultResumeDocument);
+  const gradient = { type: "conic", angle: 280, shape: "circle", center: { x: 20, y: 75 }, stops: [{ color: "#1bb6e0", position: 80 }, { color: "#ffedd4", position: 20 }, { color: "#f8fafc", position: 100 }], textMode: "dark" };
+  source.projects[0].theme = "custom";
+  source.projects[0].gradient = gradient;
+  const saved = parseResumeDocument(JSON.parse(JSON.stringify(source)));
+  assert.deepEqual(saved.projects[0].gradient, { ...gradient, stops: gradient.stops.map((stop) => ({ ...stop, color: stop.color.toUpperCase() })) });
+  saved.projects[0].theme = "brand";
+  const reloaded = parseResumeDocument(JSON.parse(JSON.stringify(saved)));
+  reloaded.projects[0].theme = "custom";
+  assert.deepEqual(reloaded.projects[0].gradient, saved.projects[0].gradient);
+  delete source.projects[0].gradient;
+  assert.deepEqual(parseResumeDocument(source).projects[0].gradient, defaultProjectGradient);
+});
+
+test("custom gradient save rejects CSS injection and out-of-range values", () => {
+  const cases = [
+    { type: "url(https://example.com)" }, { angle: -1 }, { angle: 361 }, { angle: Infinity },
+    { shape: "polygon" }, { center: { x: -1, y: 50 } }, { center: { x: 50, y: 101 } },
+    { textMode: "red" }, { stops: [] }, { stops: [{ color: "#ffffff", position: 0 }] },
+    { stops: Array.from({ length: 6 }, () => ({ color: "#ffffff", position: 50 })) },
+    { stops: [{ color: "red; background:url(secret)", position: 0 }, { color: "#ffffff", position: 100 }] },
+    { stops: [{ color: "#000000", position: -1 }, { color: "#ffffff", position: 100 }] },
+    { stops: [{ color: "#000000", position: 0 }, { color: "#ffffff", position: 101 }] },
+  ];
+  for (const patch of cases) {
+    const document = structuredClone(defaultResumeDocument);
+    document.projects[0].gradient = { ...defaultProjectGradient, ...patch };
+    assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.join(".").startsWith("projects.0.gradient")), JSON.stringify(patch));
+  }
+});
+
+test("all gradient geometries render sorted stops without modifying draft order", () => {
+  const gradient = { ...structuredClone(defaultProjectGradient), angle: 270, shape: "circle", center: { x: 25, y: 75 }, stops: [{ color: "#FFEDD4", position: 100 }, { color: "#1BB6E0", position: 0 }] };
+  const snapshot = structuredClone(gradient);
+  assert.equal(projectGradientCss(gradient), "linear-gradient(270deg, #1BB6E0 0%, #FFEDD4 100%)");
+  assert.equal(projectGradientCss({ ...gradient, type: "radial" }), "radial-gradient(circle at 25% 75%, #1BB6E0 0%, #FFEDD4 100%)");
+  assert.equal(projectGradientCss({ ...gradient, type: "conic" }), "conic-gradient(from 270deg at 25% 75%, #1BB6E0 0%, #FFEDD4 100%)");
+  assert.deepEqual(gradient, snapshot);
+  const safe = projectGradientCss({ type: "url(secret)", angle: "var(--secret)", stops: [{ color: "red;url(secret)", position: -10 }, null] });
+  assert.ok(!safe.includes("secret"));
+  assert.ok(!safe.includes("undefined"));
+  assert.deepEqual(normalizeProjectGradient(null), defaultProjectGradient);
+});
+
+test("mixed gradients protect text, while safe presets and auto contrast remain unobscured", () => {
+  const mixed = { ...defaultProjectGradient, stops: [{ color: "#000000", position: 0 }, { color: "#FFFFFF", position: 100 }] };
+  for (const textMode of ["auto", "light", "dark"]) assert.notEqual(getProjectTheme("custom", "light", { ...mixed, textMode }).colors.content, "transparent");
+  const dark = { ...defaultProjectGradient, stops: [{ color: "#0B0F19", position: 0 }, { color: "#1A2235", position: 100 }] };
+  assert.equal(getProjectTheme("custom", "light", dark).colors.foreground, "#F8FAFC");
+  assert.equal(getProjectTheme("custom", "light", dark).colors.content, "transparent");
+  assert.equal(getProjectTheme("custom", "dark", defaultProjectGradient).colors.foreground, "#1A2235");
+  assert.equal(getProjectTheme("custom", "dark", defaultProjectGradient).colors.content, "transparent");
+});
+
+test("custom gradient card styles are identical in homepage and preview, in either mode", () => {
+  const project = structuredClone(defaultResumeDocument.projects[0]);
+  project.theme = "custom";
+  project.gradient = { ...defaultProjectGradient, type: "radial", shape: "circle", center: { x: 20, y: 30 }, stops: [{ color: "#000000", position: 0 }, { color: "#FFFFFF", position: 100 }] };
+  for (const mode of ["light", "dark"]) {
+    const publicHtml = renderToStaticMarkup(createElement(components.ProjectBlock, { project, theme: mode }));
+    const previewHtml = renderToStaticMarkup(createElement(components.ProjectsPreview, { projects: [project], theme: mode }));
+    for (const html of [publicHtml, previewHtml]) {
+      assert.ok(html.includes("radial-gradient(circle at 20% 30%, #000000 0%, #FFFFFF 100%)"));
+      assert.ok(html.includes('data-content-backdrop="true"'));
+      assert.ok(html.includes('data-project-theme="custom"'));
+    }
+    const cardStyle = (html) => html.match(/<article[^>]+style="([^"]+)"/)[1];
+    assert.equal(cardStyle(publicHtml), cardStyle(previewHtml));
+  }
+});
+
+test("theme editor exposes one visual selector and only distinct custom controls", async () => {
+  const { default: Picker } = await loadJsx("../src/app/admin/ProjectThemePicker.js", {
+    "@/app/ThemeContext": { useTheme: () => ({ theme: "light" }) },
+    "@/lib/project-themes": themeModule,
+    "./ProjectThemePicker.module.css": new Proxy({}, { get: (_, key) => key }),
+  });
+  const html = renderToStaticMarkup(createElement(Picker, { value: "custom", gradient: { ...defaultProjectGradient, type: "radial" }, onChange: () => {}, onGradientChange: () => {} }));
+  assert.equal((html.match(/aria-label="Use [^"]+ theme"/g) || []).length, projectThemes.length);
+  assert.ok(!html.includes("Card theme"));
+  assert.ok(!html.includes("Homepage appearance"));
+  assert.ok(html.includes(">Gradient</span>"));
+  assert.ok(html.includes(">Shape</span>"));
+  assert.ok(html.includes("Center X"));
+  assert.ok(html.includes("Add stop"));
 });
