@@ -37,7 +37,7 @@ export function LogsWorkspace({ logs }) {
   ];
 
   return <div className={styles.workspace}>
-    <header className={styles.pageHeader}><h1>Activity</h1><p>Sign-ins, publishing activity, and access to your workspace.</p></header>
+    <header className={styles.pageHeader}><h1>Activity</h1></header>
     <div className={styles.metrics}>{metrics.map(({ label, value, icon: Icon }) => <div key={label} className={styles.metric}>
       <div><p>{label}</p><strong>{value}</strong></div><Icon size={20} aria-hidden="true" />
     </div>)}</div>
@@ -62,7 +62,6 @@ export function LogsWorkspace({ logs }) {
         {event.metadata && Object.keys(event.metadata).length ? <details className={styles.metadata}><summary>Request details</summary><pre>{JSON.stringify(event.metadata, null, 2)}</pre></details> : null}
       </article>)}</div> : <EmptyState icon={Activity} title="No activity yet">Sign-ins and publishing activity will appear here.</EmptyState>}
     </Panel>
-    <p className={styles.footnote}>Passwords and message bodies are never included in activity logs.</p>
   </div>;
 }
 
@@ -97,7 +96,7 @@ export function InboxWorkspace({ messages, selected, onSelect, onUpdate }) {
   }
 
   return <div className={styles.workspace}>
-    <header className={styles.pageHeader}><div className={styles.pageTitle}><h1>Inbox</h1>{unreadCount ? <Status tone="positive">{unreadCount} unread</Status> : null}</div><p>Conversations from your portfolio.</p></header>
+    <header className={styles.pageHeader}><div className={styles.pageTitle}><h1>Inbox</h1>{unreadCount ? <Status tone="positive">{unreadCount} unread</Status> : null}</div></header>
     <div className={`${styles.inbox} ${detailOpen ? styles.detailOpen : ""}`}>
       <section className={styles.messageList} aria-label="Messages">
         <div className={styles.listTools}>

@@ -85,7 +85,6 @@ export function EducationRows({ items, onChange }) {
   function move(from, to) { const next = [...items]; const [item] = next.splice(from, 1); next.splice(to, 0, item); onChange(next); }
   return <div className="space-y-2">
     <div className="flex items-center justify-between gap-2"><h3 className={styles.groupTitle}>Education details</h3><button type="button" disabled={items.length >= 16} onClick={() => onChange([...items, { id: crypto.randomUUID(), label: "", text: "", includeInPdf: true }])} className={styles.addButton}><Plus className="h-3.5 w-3.5" />Add point</button></div>
-    <p className={styles.helper}>Add one or more points. The optional label appears in bold.</p>
     <RowsTable label="Education points" heading="Label (optional) / Detail">
       {items.map((value, index) => {
         const item = normalize(value);

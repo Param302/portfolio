@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, LockKeyhole, Moon, Sun } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 import styles from "./AdminLogin.module.css";
 
@@ -40,9 +40,7 @@ export default function AdminLogin() {
       <div className={styles.content}>
         <div className={styles.formWrap}>
           <div className={styles.intro}>
-            <span className={styles.eyebrow}>Portfolio studio</span>
             <h1>Sign in</h1>
-            <p>Your resume, projects, and messages. One workspace.</p>
           </div>
           <form onSubmit={submit} className={styles.form} aria-busy={loading}>
             <label className={styles.field}><span>Email</span><input required type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>
@@ -56,7 +54,6 @@ export default function AdminLogin() {
             {error ? <p role="alert" className={styles.error}>{error}</p> : null}
             <button disabled={loading} className={styles.submit}><span>{loading ? "Signing in…" : "Sign in"}</span>{loading ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />}</button>
           </form>
-          <p className={styles.privateNote}><LockKeyhole size={13} />Private workspace · authorized access only</p>
         </div>
       </div>
       <footer className={styles.footer}>itsparam.in</footer>

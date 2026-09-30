@@ -33,7 +33,6 @@ export function PdfLayoutControls({ value, onChange }) {
   const layout = { ...defaultPdfLayout, ...value };
   function update(key, next) { onChange({ ...layout, [key]: next }); }
   return <div className={styles.layoutControls}>
-    <p className={styles.helper}>Adjust the PDF without changing /resume. Content flows onto the next page when it needs more room.</p>
     <div className={styles.presets} role="group" aria-label="PDF spacing presets">
       {Object.entries(presets).map(([name, settings]) => {
         const selected = Object.entries(settings).every(([key, setting]) => layout[key] === setting);
@@ -54,7 +53,6 @@ export function PdfLayoutControls({ value, onChange }) {
         <BulletLimitControl label="Projects" value={layout.projectBulletLimit} onChange={(next) => update("projectBulletLimit", next)} />
         <BulletLimitControl label="Education" value={layout.educationBulletLimit} onChange={(next) => update("educationBulletLimit", next)} />
       </div>
-      <p className={styles.helper}>Override these for any entry. All points stay on /resume.</p>
     </div>
     <label className={styles.toolsControl}>Project tools
       <select aria-label="Project tools placement" className={selectClass} value={layout.projectToolsPlacement} onChange={(event) => update("projectToolsPlacement", event.target.value)}>

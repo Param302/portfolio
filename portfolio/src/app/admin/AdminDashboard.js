@@ -272,7 +272,6 @@ export default function AdminDashboard({ session }) {
           <div className={styles.workspace}>
             <div ref={editorRef} className={`${styles.editor} ${resumeView !== "edit" ? styles.hideOnSmall : ""}`}>
               {sectionSelect}
-              <div className={styles.editorIntro}><span className={styles.eyebrow}>{activeSection === "layout" ? "Typography & spacing" : activeSection === "history" ? "Saved versions" : activeSection === "projects" ? "Resume & homepage" : "Your content"}</span><h1>{activeSection === "profile" ? "Make it yours." : activeSection === "layout" ? "A little breathing room." : activeSection === "history" ? "Revision history" : selectedSection?.title}</h1><p>{sectionDescriptions[activeSection] || "Edit your content and choose what appears in the PDF."}</p></div>
               {activeSection === "profile" ? <EditorSection title="Profile & contact"><div className={styles.fields}><Field label="Name" value={document.profile.name} onChange={(value) => set(["profile", "name"], value)} /><Field label="Email" type="email" value={document.profile.email} onChange={(value) => set(["profile", "email"], value)} /><Field label="Phone" value={document.profile.phone} onChange={(value) => set(["profile", "phone"], value)} /><Field label="Website" value={document.profile.website} onChange={(value) => set(["profile", "website"], value)} /><Field label="Location" value={document.profile.location} onChange={(value) => set(["profile", "location"], value)} /></div><LinkRows title="Social links" items={document.profile.socials} onChange={(links) => set(["profile", "socials"], links)} /></EditorSection> : null}
               {selectedSection ? renderResumeSection(selectedSection, sections.findIndex((section) => section.id === activeSection)) : null}
               {activeSection === "layout" ? <EditorSection title="PDF layout"><PdfLayoutControls value={document.pdfLayout} onChange={(value) => set(["pdfLayout"], value)} /></EditorSection> : null}
@@ -280,7 +279,7 @@ export default function AdminDashboard({ session }) {
             </div>
             <aside className={`${styles.preview} ${resumeView !== "preview" ? styles.hideOnSmall : ""}`} aria-label="Live preview">
               <div className={styles.previewBar}><div className={styles.segments} role="group" aria-label="Preview content"><button type="button" aria-pressed={previewKind === "pdf"} onClick={() => setPreviewKind("pdf")}><FileText />Resume PDF</button><button type="button" aria-pressed={previewKind === "homepage"} onClick={() => setPreviewKind("homepage")}><Monitor />Homepage</button></div><span className={styles.previewStatus}>{previewKind === "homepage" ? "Live preview" : preview.status === "ready" ? `${preview.pageCount} ${preview.pageCount === 1 ? "page" : "pages"}` : preview.status === "error" ? "Compile error" : preview.status === "oversize" ? "Over 20 pages" : <><Loader2 className="animate-spin" />Updating</>}</span></div>
-              {previewKind === "pdf" ? <PdfPreview preview={preview} /> : <><div className={styles.webPreviewToolbar}><span>Homepage / Projects</span><div className={styles.segments} role="group" aria-label="Project preview width"><button type="button" aria-label="Fill preview width" title="Fill preview width" aria-pressed={previewSize === "fluid"} onClick={() => setPreviewSize("fluid")}><Monitor /></button><button type="button" aria-label="Mobile preview width" title="Mobile preview width" aria-pressed={previewSize === "mobile"} onClick={() => setPreviewSize("mobile")}><Smartphone /></button></div></div><div className={styles.webPreviewScroll}><div className={`${styles.webPreviewCanvas} ${previewSize === "mobile" ? styles.mobileCanvas : ""}`}><ProjectsPreview projects={document.projects} theme={theme} /></div></div><p className={styles.previewFoot}>Your draft, rendered with the homepage cards. Publish to make it live.</p></>}
+              {previewKind === "pdf" ? <PdfPreview preview={preview} /> : <><div className={styles.webPreviewToolbar}><span>Homepage / Projects</span><div className={styles.segments} role="group" aria-label="Project preview width"><button type="button" aria-label="Fill preview width" title="Fill preview width" aria-pressed={previewSize === "fluid"} onClick={() => setPreviewSize("fluid")}><Monitor /></button><button type="button" aria-label="Mobile preview width" title="Mobile preview width" aria-pressed={previewSize === "mobile"} onClick={() => setPreviewSize("mobile")}><Smartphone /></button></div></div><div className={styles.webPreviewScroll}><div className={`${styles.webPreviewCanvas} ${previewSize === "mobile" ? styles.mobileCanvas : ""}`}><ProjectsPreview projects={document.projects} theme={theme} /></div></div></>}
             </aside>
           </div>
           <div className={styles.mobileSave}>{saveStatus}<button type="button" disabled={saving} onClick={() => save("save")} className={styles.button}><Save />Save draft</button></div>
@@ -292,17 +291,6 @@ export default function AdminDashboard({ session }) {
   </main>;
 }
 
-const sectionDescriptions = {
-  profile: "The details at the top of your resume. Keep your links and contact information together.",
-  summary: "A brief introduction to your work, strengths, and what comes next.",
-  experience: "Tell the story of your work. PDF point limits keep the document focused; every point stays on /resume.",
-  education: "Add qualifications, optional scores, and as many supporting points as you need.",
-  projects: "Shape your project stories and their homepage appearance. See each change in the live preview.",
-  skills: "Organize your skills into clear, relevant groups.",
-  achievements: "Keep your community contributions and achievements in one place.",
-  layout: "Fine-tune the PDF. Content flows naturally onto another page when it needs more room.",
-  history: "Return to a saved version. Restoring a revision also publishes it.",
-};
 
 function AdminSidebar({ activeTab, onChange, collapsed, onToggle, onLogout, mobileOpen, isMobile, onMobileClose, activeSection, onSection, sections, document, session, unreadCount }) {
   const sidebarRef = useRef(null);
@@ -334,7 +322,7 @@ function AdminSidebar({ activeTab, onChange, collapsed, onToggle, onLogout, mobi
 }
 
 function RevisionHistory({ history, onRestore, status, onRetry }) {
-  return <EditorSection title="Saved revisions">
+  return <EditorSection title="Revision history">
     {status === "error" && !history.length ? <div><p className={styles.hint}>Revision history could not load.</p><button type="button" onClick={onRetry} className={styles.button}>Try again</button></div> : null}
     {["idle", "loading"].includes(status) && !history.length ? <p className={styles.hint}>Loading revision history…</p> : null}
     {history.map((revision) => <div key={revision.id} className={styles.revision}><div><strong>{revision.status === "published" ? "Published" : "Draft"}</strong><span>{new Date(revision.created_at).toLocaleString()}</span></div>{revision.page_count >= 1 && revision.page_count <= 20 ? <button type="button" onClick={() => onRestore(revision.id)} className={styles.button}><RotateCcw />Restore</button> : null}</div>)}
@@ -344,7 +332,7 @@ function RevisionHistory({ history, onRestore, status, onRetry }) {
 
 function PdfPreview({ preview }) {
   const updating = ["idle", "stale", "compiling"].includes(preview.status);
-  return <>{preview.status === "error" ? <details className={styles.previewError}><summary>View compilation details</summary><pre>{preview.log}</pre></details> : null}{preview.url ? <iframe title="Compiled resume PDF" src={`${preview.url}#toolbar=0&navpanes=0&scrollbar=1`} className={styles.pdfFrame} /> : <div className={styles.previewEmpty}>{updating ? <><Loader2 className="animate-spin" /><p>Preparing your resume…</p></> : <><FileText /><p>Update your resume to try the preview again.</p></>}</div>}<p className={styles.previewFoot}>PDF visibility and point limits apply here. All content stays on /resume.</p></>;
+  return <>{preview.status === "error" ? <details className={styles.previewError}><summary>View compilation details</summary><pre>{preview.log}</pre></details> : null}{preview.url ? <iframe title="Compiled resume PDF" src={`${preview.url}#toolbar=0&navpanes=0&scrollbar=1`} className={styles.pdfFrame} /> : <div className={styles.previewEmpty}>{updating ? <><Loader2 className="animate-spin" /><p>Preparing your resume…</p></> : <><FileText /><p>Update your resume to try the preview again.</p></>}</div>}</>;
 }
 
 function WorkspaceState({ label, status, onRetry }) {
@@ -357,7 +345,7 @@ function EditorSection({ title, onAdd, children, pdfIncluded, onPdfChange, secti
   const titleId = useId();
   function finishRename() { const next = titleDraft.trim(); if (!next) return; onRename(next); setRenaming(false); }
   return <section data-resume-section={sectionId} aria-label={`${title} editor`} className={styles.section}>
-    <div className={styles.sectionHead}><div className={styles.sectionTitle}><h2>{title}</h2>{onRename ? <button type="button" onClick={() => { setTitleDraft(title); setRenaming((current) => !current); }} aria-label={`Rename ${title} section`} aria-expanded={renaming} title="Rename section" className={styles.iconButton}><Pencil /></button> : null}</div>{orderControls || onPdfChange || onAdd ? <div className={styles.sectionControls}>{orderControls}{onPdfChange ? <PdfToggle checked={pdfIncluded} onChange={onPdfChange} ariaLabel={`Include ${title} section in PDF`} /> : null}{onAdd ? <button type="button" onClick={onAdd} className={styles.button} aria-label={`Add ${title.toLowerCase()} entry`}><Plus />Add</button> : null}</div> : null}</div>
+    <div className={styles.sectionHead}><div className={styles.sectionTitle}><h1>{title}</h1>{onRename ? <button type="button" onClick={() => { setTitleDraft(title); setRenaming((current) => !current); }} aria-label={`Rename ${title} section`} aria-expanded={renaming} title="Rename section" className={styles.iconButton}><Pencil /></button> : null}</div>{orderControls || onPdfChange || onAdd ? <div className={styles.sectionControls}>{orderControls}{onPdfChange ? <PdfToggle checked={pdfIncluded} onChange={onPdfChange} ariaLabel={`Include ${title} section in PDF`} /> : null}{onAdd ? <button type="button" onClick={onAdd} className={styles.button} aria-label={`Add ${title.toLowerCase()} entry`}><Plus />Add</button> : null}</div> : null}</div>
     {renaming ? <div className={styles.rename}><label className="sr-only" htmlFor={titleId}>Section title</label><input id={titleId} autoFocus maxLength={80} value={titleDraft} onChange={(event) => setTitleDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); finishRename(); } if (event.key === "Escape") setRenaming(false); }} className={inputClass} /><button type="button" disabled={!titleDraft.trim()} onClick={finishRename} className={styles.primaryButton}>Done</button><button type="button" aria-label="Cancel rename" onClick={() => setRenaming(false)} className={styles.iconButton}><X /></button></div> : null}
     <div className={styles.sectionBody}>{children}</div>
   </section>;
