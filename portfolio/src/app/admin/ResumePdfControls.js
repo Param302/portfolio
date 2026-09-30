@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { Minus, Plus } from "lucide-react";
 import { defaultPdfLayout } from "@/lib/resume-layout";
 import styles from "./ResumeRows.module.css";
 
@@ -12,14 +14,42 @@ const presets = {
 
 export function BulletLimitControl({ value, onChange, defaultLimit, label = "PDF points" }) {
   const canInherit = defaultLimit !== undefined;
-  return <label className={styles.limitControl}>
-    <span>{label}</span>
-    <select aria-label={label} value={value ?? (canInherit ? "default" : 0)} onChange={(event) => onChange(event.target.value === "default" ? null : Number(event.target.value))} className={selectClass}>
-      {canInherit && <option value="default">Default · {defaultLimit === 0 ? "all" : defaultLimit}</option>}
-      <option value={0}>All</option>
-      {Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>First {index + 1}</option>)}
-    </select>
-  </label>;
+  const mode = value == null && canInherit ? "default" : value > 0 ? "custom" : "all";
+  const lastCustomCount = useRef(value > 0 ? value : null);
+  const customCount = value > 0 ? value : lastCustomCount.current ?? (defaultLimit > 0 ? defaultLimit : 3);
+  const [draft, setDraft] = useState(String(customCount));
+  useEffect(() => {
+    if (value > 0) {
+      lastCustomCount.current = value;
+      setDraft(String(value));
+    }
+  }, [value]);
+  function commitCount(count) {
+    const next = Math.min(12, Math.max(1, Math.round(count)));
+    setDraft(String(next));
+    if (next !== value) onChange(next);
+  }
+  return <div className={styles.limitControl} role="group" aria-label={label}>
+    <span className={styles.limitLabel}>{label}</span>
+      <div className={styles.limitModes}>
+        {canInherit ? <button type="button" aria-pressed={mode === "default"} onClick={() => { if (mode !== "default") onChange(null); }} title="Follow the PDF layout setting">Default <span>{defaultLimit === 0 ? "all" : defaultLimit}</span></button> : null}
+        <button type="button" aria-pressed={mode === "all"} onClick={() => { if (mode !== "all") onChange(0); }}>All</button>
+        <button type="button" aria-pressed={mode === "custom"} onClick={() => { setDraft(String(customCount)); if (mode !== "custom") onChange(customCount); }}>Custom</button>
+      </div>
+      {mode === "custom" ? <div className={styles.limitStepper}>
+        <button type="button" aria-label={`Decrease ${label.toLowerCase()} count`} disabled={value <= 1} onClick={() => commitCount(value - 1)}><Minus aria-hidden="true" /></button>
+        <input type="number" inputMode="numeric" min="1" max="12" step="1" aria-label={`${label} custom count`} value={draft} onChange={(event) => {
+          const next = event.target.value;
+          setDraft(next);
+          const count = Number(next);
+          if (next && Number.isInteger(count) && count >= 1 && count <= 12) onChange(count);
+        }} onBlur={() => { if (draft && Number.isFinite(Number(draft))) commitCount(Number(draft)); else setDraft(String(value)); }} onKeyDown={(event) => {
+          if (event.key === "Enter") event.currentTarget.blur();
+          if (event.key === "Escape") setDraft(String(value));
+        }} />
+        <button type="button" aria-label={`Increase ${label.toLowerCase()} count`} disabled={value >= 12} onClick={() => commitCount(value + 1)}><Plus aria-hidden="true" /></button>
+      </div> : null}
+  </div>;
 }
 
 function LayoutSlider({ label, value, onChange, min, max, step = 1, unit = "pt" }) {

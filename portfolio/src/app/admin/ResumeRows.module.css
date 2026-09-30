@@ -62,7 +62,19 @@
 .helper { color: var(--admin-muted); font-size: 12px; line-height: 20px; }
 .emptyState { padding: 24px 16px; color: var(--admin-muted); font-size: 13px; line-height: 20px; }
 .limitControl { display: inline-flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--admin-muted); font-size: 12px; }
-.limitControl .select { min-height: 36px; }
+.limitLabel { white-space: nowrap; }
+.limitModes { display: inline-flex; flex-shrink: 0; gap: 2px; padding: 3px; border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-subtle); }
+.limitModes button { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 4px 9px; border-radius: 5px; color: var(--admin-muted); font-size: 11px; font-weight: 550; white-space: nowrap; }
+.limitModes button:hover { color: var(--admin-text); }
+.limitModes button[aria-pressed="true"] { background: var(--admin-panel); color: var(--admin-accent); box-shadow: 0 1px 3px #00000015; }
+.limitModes button > span { font-variant-numeric: tabular-nums; }
+.limitStepper { display: inline-flex; flex-shrink: 0; align-items: center; overflow: hidden; border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-field); color: var(--admin-text); }
+.limitStepper button { display: grid; place-items: center; width: 32px; min-height: 34px; }
+.limitStepper button:hover:not(:disabled) { background: var(--admin-accent-soft); color: var(--admin-accent); }
+.limitStepper svg { width: 14px; height: 14px; }
+.limitStepper input { width: 36px; min-width: 0; padding: 5px 0; border: 0; background: transparent; color: inherit; text-align: center; font-size: 13px; font-variant-numeric: tabular-nums; appearance: textfield; -moz-appearance: textfield; }
+.limitStepper input::-webkit-inner-spin-button, .limitStepper input::-webkit-outer-spin-button { margin: 0; -webkit-appearance: none; }
+.limitModes button:focus-visible, .limitStepper :is(button,input):focus-visible { outline: 2px solid var(--admin-accent); outline-offset: -2px; }
 .layoutControls { display: grid; gap: 24px; }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; }
 .preset { min-height: 36px; padding: 7px 14px; border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-field); color: var(--admin-muted); font-size: 12px; font-weight: 600; }
@@ -92,8 +104,10 @@
   .iconButton { width: 40px; height: 40px; }
   .actions { padding-top: 0; }
   .addButton,
-  .preset,
-  .limitControl .select { min-height: 40px; }
+  .preset { min-height: 40px; }
+  .limitModes button { min-height: 34px; }
+  .limitStepper button { width: 40px; min-height: 40px; }
+  .limitStepper input { font-size: 16px; }
   .input,
   .select { font-size: 16px; }
   .slider { min-height: 32px; }
