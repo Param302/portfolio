@@ -67,7 +67,7 @@ export const resumeDocumentSchema = z.object({
     includeInPdf: z.boolean().default(true),
     items: z.array(shortText).max(30),
   })).min(1).max(8),
-  achievements: z.array(text).max(16),
+  achievements: z.array(text).transform((items) => items.filter(Boolean)).pipe(z.array(text).max(16)),
 });
 
 export const defaultResumeDocument = resumeDocumentSchema.parse({

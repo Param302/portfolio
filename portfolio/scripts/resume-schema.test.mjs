@@ -52,3 +52,11 @@ for (const section of ["experience", "projects"]) {
       error.issues.some((issue) => issue.path.join(".") === `${section}.0.bullets`));
   });
 }
+
+test("empty co-curricular draft fields do not create blank website bullets", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.achievements = ["  First achievement  ", "", "  ", "Second achievement"];
+  assert.deepEqual(parseResumeDocument(document).achievements, ["First achievement", "Second achievement"]);
+  document.achievements = ["", "  "];
+  assert.deepEqual(parseResumeDocument(document).achievements, []);
+});
