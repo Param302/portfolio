@@ -65,19 +65,20 @@ function header(profile) {
 }
 
 export function generateResumeLatex(document) {
-  const experiences = list(document.experience.map((item) => {
+  const included = (items) => items.filter((item) => item.includeInPdf !== false);
+  const experiences = list(included(document.experience).map((item) => {
     const title = `${escapeLatex(item.role)} \\textbar{} ${escapeLatex(item.company)}${item.link ? ` - ${href(item.link, item.link.replace(/^https?:\/\//, "").replace(/\/$/, ""))}` : ""}`;
     return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.bullets)}`;
   }));
-  const education = list(document.education.map((item) => `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.details)}`));
-  const projects = list(document.projects.map((item) => `\\item
+  const education = list(included(document.education).map((item) => `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.details)}`));
+  const projects = list(included(document.projects).map((item) => `\\item
 \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
 \\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}} & ${item.links.filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} \\\\
 \\end{tabular*}
 ${item.skills.length ? `{\\small \\textit{Tools: ${escapeLatex(item.skills.join(", "))}}}\n` : ""}\\vspace{-5pt}
 ${bullets(item.bullets)}
 \\vspace{2pt}`));
-  const skills = list(document.skills.map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`));
+  const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`));
   const achievements = list(cleanLines(document.achievements).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`));
   const blocks = {
     header: header(document.profile),
@@ -88,5 +89,6 @@ ${bullets(item.bullets)}
     skills: section("Skills", skills),
     achievements: section("Co-Curricular & Achievements", achievements ? `\\vspace{5pt}\n${achievements}` : ""),
   };
-  return resumeTemplate.replace(/% resume:(\w+):start\r?\n[\s\S]*?% resume:\1:end/g, (_, key) => blocks[key]);
+  return resumeTemplate.replace(/% resume:(\w+):start\r?\n[\s\S]*?% resume:\1:end/g,
+    (_, key) => document.pdfSections?.[key] === false ? "" : blocks[key]);
 }

@@ -15,6 +15,7 @@ const experienceSchema = z.object({
   company: shortText,
   dates: shortText,
   link: url.default(""),
+  includeInPdf: z.boolean().default(true),
   bullets: z.array(text).min(1).max(6),
 });
 
@@ -23,6 +24,7 @@ const projectSchema = z.object({
   name: shortText,
   subtitle: shortText.default(""),
   description: text,
+  includeInPdf: z.boolean().default(true),
   bullets: z.array(text).min(1).max(6),
   skills: z.array(shortText).max(16),
   image: shortText,
@@ -32,6 +34,14 @@ const projectSchema = z.object({
 
 export const resumeDocumentSchema = z.object({
   version: z.literal(1),
+  pdfSections: z.object({
+    summary: z.boolean().default(true),
+    experience: z.boolean().default(true),
+    education: z.boolean().default(true),
+    projects: z.boolean().default(true),
+    skills: z.boolean().default(true),
+    achievements: z.boolean().default(true),
+  }).prefault({}),
   profile: z.object({
     name: shortText,
     email: z.string().email(),
@@ -44,6 +54,7 @@ export const resumeDocumentSchema = z.object({
   experience: z.array(experienceSchema).min(1).max(12),
   education: z.array(z.object({
     id: shortText,
+    includeInPdf: z.boolean().default(true),
     school: shortText,
     program: shortText,
     dates: shortText,
@@ -52,12 +63,13 @@ export const resumeDocumentSchema = z.object({
   projects: z.array(projectSchema).min(1).max(12),
   skills: z.array(z.object({
     label: shortText,
+    includeInPdf: z.boolean().default(true),
     items: z.array(shortText).max(30),
   })).min(1).max(8),
   achievements: z.array(text).max(16),
 });
 
-export const defaultResumeDocument = {
+export const defaultResumeDocument = resumeDocumentSchema.parse({
   version: 1,
   profile: {
     name: "Parampreet Singh",
@@ -208,7 +220,7 @@ export const defaultResumeDocument = {
     "Presented Real-Time DEM for Autonomous Space Exploration at GLEX 2025.",
     "Delivered a Python One-Liners talk and published ML notes with 120+ GitHub stars.",
   ],
-};
+});
 
 export function parseResumeDocument(value) {
   return resumeDocumentSchema.parse(value);

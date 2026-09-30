@@ -44,3 +44,28 @@ test("literal separators and special characters cannot become TeX commands", () 
   assert.ok(source.includes(String.raw`C:\textbackslash{}work \textbar{} \#1 \$2 20\% \& \_ \{x\} \textasciitilde{} \textasciicircum{}`));
   assert.doesNotMatch(source, /textbackslash\\\{/);
 });
+
+test("PDF exclusions omit whole sections and entries without mutating website content", () => {
+  const document = fixture();
+  document.pdfSections = { summary: false, achievements: false };
+  document.experience[0].includeInPdf = false;
+  document.education[0].includeInPdf = false;
+  document.projects[0].includeInPdf = false;
+  document.skills[0].includeInPdf = false;
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  for (const omitted of ["\\section{\\textbf{Summary}}", "Co-Curricular", "Gurmat Darbar", "\\section{\\textbf{Education}}", "Pocket Coder", "Languages:"]) assert.ok(!source.includes(omitted), omitted);
+  for (const retained of ["Freelance AI Engineer", "GRWM", "ML / GenAI"]) assert.ok(source.includes(retained), retained);
+  assert.deepEqual(document, before);
+});
+
+test("every section can be independently excluded and legacy documents include all sections", () => {
+  const titles = { summary: "Summary", experience: "Experience", education: "Education", projects: "Projects", skills: "Skills", achievements: "Co-Curricular \\& Achievements" };
+  for (const [key, title] of Object.entries(titles)) {
+    const document = fixture();
+    delete document.pdfSections;
+    assert.ok(generateResumeLatex(document).includes(`\\section{\\textbf{${title}}}`));
+    document.pdfSections = { [key]: false };
+    assert.ok(!generateResumeLatex(document).includes(`\\section{\\textbf{${title}}}`));
+  }
+});

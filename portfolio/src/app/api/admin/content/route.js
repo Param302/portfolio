@@ -33,7 +33,7 @@ async function loadAdminResume() {
   `;
   const state = stateRows[0] || {};
   return {
-    document: state.draft_content || state.published_content || defaultResumeDocument,
+    document: resumeDocumentSchema.parse(state.draft_content || state.published_content || defaultResumeDocument),
     draftRevisionId: state.draft_revision_id || null,
     publishedRevisionId: state.published_revision_id || null,
   };
