@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { defaultResumeDocument, parseResumeDocument } from "../src/lib/resume-schema.js";
+import { renderPublicProfile } from "../src/lib/public-profile.js";
 
 const sections = ["summary", "experience", "education", "projects", "skills", "achievements"];
 const itemSections = ["experience", "education", "projects", "skills"];
@@ -59,4 +60,38 @@ test("empty co-curricular draft fields do not create blank website bullets", () 
   assert.deepEqual(parseResumeDocument(document).achievements, ["First achievement", "Second achievement"]);
   document.achievements = ["", "  "];
   assert.deepEqual(parseResumeDocument(document).achievements, []);
+});
+
+test("legacy links default to PDF inclusion", () => {
+  const legacy = structuredClone(defaultResumeDocument);
+  legacy.profile.socials = [{ label: "GitHub", href: "https://github.com/example" }];
+  legacy.projects[0].links = [{ label: "Demo", href: "https://example.com/demo" }];
+  const normalized = parseResumeDocument(legacy);
+  assert.equal(normalized.profile.socials[0].includeInPdf, true);
+  assert.equal(normalized.projects[0].links[0].includeInPdf, true);
+});
+
+test("blank social and project link drafts are removed while partial links require a name and URL", () => {
+  for (const section of ["socials", "links"]) {
+    const document = structuredClone(defaultResumeDocument);
+    const owner = section === "socials" ? document.profile : document.projects[0];
+    owner[section] = [{ label: "  ", href: "\t" }, { id: "new-link", label: " Reference ", href: " https://example.com/reference ", includeInPdf: false }];
+    const normalized = parseResumeDocument(document);
+    assert.deepEqual((section === "socials" ? normalized.profile : normalized.projects[0])[section], [{ id: "new-link", label: "Reference", href: "https://example.com/reference", includeInPdf: false }]);
+    for (const partial of [{ label: "GitHub", href: "" }, { label: "", href: "https://github.com/example" }]) {
+      owner[section] = [partial];
+      assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.includes(section)));
+    }
+  }
+});
+
+test("individual PDF exclusions retain links in public content", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.profile.socials = [{ id: "social", label: "Community", href: "https://example.com/community", includeInPdf: false }];
+  document.projects[0].links = [{ id: "project-link", label: "Project reference", href: "https://example.com/reference", includeInPdf: false }];
+  const normalized = parseResumeDocument(document);
+  assert.deepEqual(normalized.profile.socials, document.profile.socials);
+  assert.deepEqual(normalized.projects[0].links, document.projects[0].links);
+  const publicText = renderPublicProfile(normalized);
+  for (const retained of ["https://example.com/community", "https://example.com/reference"]) assert.ok(publicText.includes(retained), retained);
 });

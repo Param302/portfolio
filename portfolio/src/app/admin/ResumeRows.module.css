@@ -1,0 +1,18 @@
+.table {
+  container-type: inline-size;
+  container-name: resume-rows;
+}
+.rowActions { flex-direction: column; }
+.actionColumn { width: 2rem; }
+.linkFields { display: grid; gap: 0.5rem; }
+.urlHeading { display: none; }
+.combinedLabel { display: inline; }
+@container resume-rows (min-width: 380px) {
+  .linkFields { grid-template-columns: minmax(90px, 0.65fr) minmax(0, 1.35fr); }
+  .urlHeading { display: block; }
+  .combinedLabel { display: none; }
+}
+@container resume-rows (min-width: 440px) {
+  .rowActions { flex-direction: row; }
+  .actionColumn { width: 100px; }
+}

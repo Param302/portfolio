@@ -54,6 +54,8 @@ This section uses the same published content source as ${siteConfig.url}/resume 
 - Website: ${profile.website}
 - Email: ${profile.email}
 
+${bullets(profile.socials.map((item) => link(item.label, item.href)))}
+
 ### Summary
 
 ${content.summary}

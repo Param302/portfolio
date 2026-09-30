@@ -95,3 +95,43 @@ test("education and achievements retain more than three points in the PDF", () =
   assert.ok(source.includes("Education four"));
   assert.ok(source.includes("Achievement four"));
 });
+
+test("individual social and project links can be excluded only from the PDF", () => {
+  const document = fixture();
+  document.profile.socials = [
+    { label: "Visible", href: "https://example.com/visible-social" },
+    { label: "Hidden", href: "https://example.com/hidden-social", includeInPdf: false },
+  ];
+  document.projects[0].links = [
+    { label: "Visible project", href: "https://example.com/visible-project", includeInPdf: true },
+    { label: "Hidden project", href: "https://example.com/hidden-project", includeInPdf: false },
+  ];
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  for (const retained of ["https://example.com/visible-social", "https://example.com/visible-project"]) assert.ok(source.includes(retained), retained);
+  for (const omitted of ["https://example.com/hidden-social", "https://example.com/hidden-project"]) assert.ok(!source.includes(omitted), omitted);
+  assert.deepEqual(document, before);
+});
+
+test("header social rows preserve editor order and never duplicate a lone link", () => {
+  const document = fixture();
+  document.profile.socials = [
+    { label: "GitHub", href: "https://github.com/lone-social", includeInPdf: true },
+    { label: "LinkedIn", href: "https://linkedin.com/in/hidden-social", includeInPdf: false },
+  ];
+  const single = generateResumeLatex(document);
+  assert.equal(single.split("\\href{https://github.com/lone-social}").length - 1, 1);
+  assert.ok(!single.includes("hidden-social"));
+  document.profile.socials = [
+    { label: "Third", href: "https://example.com/third" },
+    { label: "First", href: "https://example.com/first" },
+    { label: "Second", href: "https://example.com/second" },
+  ];
+  const ordered = generateResumeLatex(document);
+  assert.ok(ordered.indexOf("example.com/third") < ordered.indexOf("example.com/first"));
+  assert.ok(ordered.indexOf("example.com/first") < ordered.indexOf("example.com/second"));
+  document.profile.socials = [{ label: "Hidden", href: "https://example.com/hidden", includeInPdf: false }, { label: "Empty", href: "" }];
+  const empty = generateResumeLatex(document);
+  assert.ok(!empty.includes("Hidden:"));
+  assert.ok(!empty.includes("Empty:"));
+});

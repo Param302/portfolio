@@ -47,19 +47,15 @@ function socialLabel(link) {
 }
 
 function header(profile) {
-  const socials = profile.socials.filter((link) => link.href);
-  const linkedIn = socials.find((link) => /linkedin/i.test(link.label + link.href));
-  const github = socials.find((link) => /github/i.test(link.label + link.href));
-  const left = linkedIn || socials.find((link) => link !== github);
-  const right = github || socials.find((link) => link !== left);
+  const socials = profile.socials.filter((link) => link.includeInPdf !== false && link.href);
   const websiteLabel = profile.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
   const rows = [
     `\\textbf{{\\LARGE ${escapeLatex(profile.name)}}} & ${href(`mailto:${profile.email}`, profile.email, false)}`,
     `${profile.website ? `\\href{${escapeLatex(profile.website)}}{Portfolio: \\underline{${escapeLatex(websiteLabel)}}}` : ""} & ${escapeLatex(profile.phone)}`,
   ];
-  if (left || right) rows.push(`${left ? `${escapeLatex(left.label)}: ${href(left.href, socialLabel(left))}` : ""} & ${right ? href(right.href, socialLabel(right)) : ""}`);
-  for (const link of socials.filter((link) => link !== left && link !== right)) {
-    rows.push(`${escapeLatex(link.label)}: ${href(link.href, socialLabel(link))} & `);
+  for (let index = 0; index < socials.length; index += 2) {
+    const [left, right] = socials.slice(index, index + 2);
+    rows.push(`${escapeLatex(left.label)}: ${href(left.href, socialLabel(left))} & ${right ? href(right.href, socialLabel(right)) : ""}`);
   }
   return `\\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}\n${rows.join("\\\\\n")}\\\\\n\\end{tabular*}`;
 }
@@ -73,7 +69,7 @@ export function generateResumeLatex(document) {
   const education = list(included(document.education).map((item) => `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.details)}`));
   const projects = list(included(document.projects).map((item) => `\\item
 \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-\\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}} & ${item.links.filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} \\\\
+\\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}} & ${included(item.links).filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} \\\\
 \\end{tabular*}
 ${item.skills.length ? `{\\small \\textit{Tools: ${escapeLatex(item.skills.join(", "))}}}\n` : ""}\\vspace{-5pt}
 ${bullets(cleanLines(item.bullets).slice(0, 3))}

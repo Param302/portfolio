@@ -6,9 +6,18 @@ const url = z.union([z.literal(""), z.string().url()]);
 const bulletList = z.array(text).transform((items) => items.filter(Boolean)).pipe(z.array(text).min(1));
 
 const linkSchema = z.object({
-  label: shortText,
-  href: url,
+  id: shortText.optional(),
+  label: shortText.min(1, "Enter a link name."),
+  href: z.string().trim().url("Enter a complete URL."),
+  includeInPdf: z.boolean().default(true),
 });
+
+const linkList = (maximum) => z.preprocess(
+  (value) => Array.isArray(value)
+    ? value.filter((item) => !(typeof item?.label === "string" && typeof item?.href === "string" && !item.label.trim() && !item.href.trim()))
+    : value,
+  z.array(linkSchema).max(maximum),
+);
 
 const experienceSchema = z.object({
   id: shortText,
@@ -30,7 +39,7 @@ const projectSchema = z.object({
   skills: z.array(shortText).max(16),
   image: shortText,
   theme: z.enum(["surface", "brand", "accent"]).default("surface"),
-  links: z.array(linkSchema).max(4),
+  links: linkList(4),
 });
 
 export const resumeDocumentSchema = z.object({
@@ -49,7 +58,7 @@ export const resumeDocumentSchema = z.object({
     phone: shortText,
     website: url,
     location: shortText,
-    socials: z.array(linkSchema).max(8),
+    socials: linkList(8),
   }),
   summary: text,
   experience: z.array(experienceSchema).min(1).max(12),

@@ -1,0 +1,66 @@
+"use client";
+
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import styles from "./ResumeRows.module.css";
+
+const rowGrid = "grid grid-cols-[2rem_minmax(0,1fr)_auto] items-start gap-2 sm:gap-3";
+const rowInput = "min-w-0 w-full rounded-lg border border-prussian-blue/15 bg-white px-3 py-2 text-sm text-prussian-blue outline-none transition focus:border-sky-surge focus:ring-2 focus:ring-sky-surge/15";
+
+export function PdfCheck({ included, onChange, label }) {
+  return <label className="inline-flex h-9 w-8 cursor-pointer items-center justify-center" title={label}>
+    <input type="checkbox" checked={included !== false} onChange={(event) => onChange(event.target.checked)} aria-label={label} className="h-4 w-4 cursor-pointer rounded border-prussian-blue/25 accent-prussian-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-surge" />
+  </label>;
+}
+
+export function RowActions({ index, length, onMove, onRemove, label, stackedOnMobile = false }) {
+  const buttonClass = "inline-flex h-8 w-8 items-center justify-center rounded-lg text-prussian-blue/65 transition hover:bg-prussian-blue/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-surge disabled:cursor-default disabled:opacity-25 disabled:hover:bg-transparent";
+  return <div className={`flex shrink-0 gap-0.5 pt-0.5 ${stackedOnMobile ? styles.rowActions : ""}`}>
+    <button type="button" disabled={index === 0} onClick={() => onMove(index, index - 1)} className={buttonClass} aria-label={`Move ${label} up`} title="Move up"><ArrowUp className="h-4 w-4" /></button>
+    <button type="button" disabled={index === length - 1} onClick={() => onMove(index, index + 1)} className={buttonClass} aria-label={`Move ${label} down`} title="Move down"><ArrowDown className="h-4 w-4" /></button>
+    <button type="button" onClick={onRemove} className={`${buttonClass} text-rose-600 hover:bg-rose-50`} aria-label={`Delete ${label}`} title="Delete"><Trash2 className="h-4 w-4" /></button>
+  </div>;
+}
+
+export function RowsTable({ label, heading, children }) {
+  return <div role="table" aria-label={label} className={`${styles.table} overflow-hidden rounded-xl border border-prussian-blue/10`}>
+    <div role="rowgroup" className="border-b border-prussian-blue/10 bg-[#f8fafc] px-2 py-2 sm:px-3">
+      <div role="row" className={`${rowGrid} items-center text-[10px] font-semibold uppercase tracking-[0.1em] text-prussian-blue/55`}>
+        <span role="columnheader" className="text-center">PDF</span>
+        <div role="columnheader">{heading}</div>
+        <span role="columnheader" className={`${styles.actionColumn} text-right`}><span className="sr-only">Actions</span></span>
+      </div>
+    </div>
+    <div role="rowgroup" className="divide-y divide-prussian-blue/10">{children}</div>
+  </div>;
+}
+
+export function EditableRow({ children, included, onToggle, controls, label }) {
+  return <div role="row" className={`${rowGrid} px-2 py-3 sm:px-3`}>
+    <div role="cell"><PdfCheck included={included} onChange={onToggle} label={`Include ${label} in PDF`} /></div>
+    <div role="cell" className="min-w-0">{children}</div>
+    <div role="cell">{controls}</div>
+  </div>;
+}
+
+export function LinkRows({ title = "Links", items, onChange, maxItems = 8 }) {
+  function update(index, field, value) { onChange(items.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item)); }
+  function move(from, to) { const next = [...items]; const [item] = next.splice(from, 1); next.splice(to, 0, item); onChange(next); }
+  return <div className="space-y-2">
+    <div className="flex items-center justify-between gap-3">
+      <h3 className="text-sm font-semibold">{title}</h3>
+      <button type="button" disabled={items.length >= maxItems} onClick={() => onChange([...items, { id: crypto.randomUUID(), label: "", href: "", includeInPdf: true }])} className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-semibold text-prussian-blue/70 hover:bg-prussian-blue/5 disabled:opacity-35" aria-label={`Add ${title.toLowerCase()} link`}><Plus className="h-3.5 w-3.5" />Add link</button>
+    </div>
+    <RowsTable label={title} heading={<div className={styles.linkFields}><span>Name<span className={styles.combinedLabel}> / URL</span></span><span className={styles.urlHeading}>URL</span></div>}>
+      {items.map((item, index) => {
+        const label = `${title.toLowerCase()} ${index + 1}`;
+        return <EditableRow key={item.id || index} label={label} included={item.includeInPdf} onToggle={(value) => update(index, "includeInPdf", value)} controls={<RowActions stackedOnMobile index={index} length={items.length} onMove={move} onRemove={() => onChange(items.filter((_, itemIndex) => itemIndex !== index))} label={label} />}>
+          <div className={styles.linkFields}>
+            <input aria-label={`${label} name`} placeholder="e.g. LinkedIn" value={item.label} onChange={(event) => update(index, "label", event.target.value)} className={rowInput} />
+            <input aria-label={`${label} URL`} placeholder="https://…" type="url" value={item.href} onChange={(event) => update(index, "href", event.target.value)} className={rowInput} />
+          </div>
+        </EditableRow>;
+      })}
+      {!items.length && <div role="row"><p role="cell" className="px-4 py-5 text-sm text-prussian-blue/50">No links yet. Add one above.</p></div>}
+    </RowsTable>
+  </div>;
+}
