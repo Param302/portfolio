@@ -4,6 +4,7 @@ import { Download, ExternalLink, Home, Mail } from "lucide-react";
 
 import { pageMetadata, publicPageStructuredData, serializeJsonLd } from "@/app/data/seoData";
 import { getPublishedResume } from "@/lib/resume-content";
+import { resolveResumeSections } from "@/lib/resume-sections";
 
 const title = "Resume of Parampreet Singh";
 const description = "Resume of Parampreet Singh (Param), AI Engineer and community builder: experience, IIT Madras education, AI projects, technical skills and achievements.";
@@ -33,6 +34,14 @@ function socialDisplay(link) {
 export default async function ResumePage() {
   const { id, content } = await getPublishedResume();
   const { profile } = content;
+  const sectionContent = {
+    summary: <p>{content.summary}</p>,
+    experience: content.experience.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.role} | {item.company}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{item.dates}</span></div>{item.link && <a href={item.link} target="_blank" rel="noreferrer" className="text-sm text-sky-surge">{item.link.replace(/^https?:\/\//, "")}</a>}<Bullets items={item.bullets} /></article>),
+    education: content.education.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.school} | {item.program}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{[item.score, item.dates].filter(Boolean).join(" | ")}</span></div><Bullets items={item.details} /></article>),
+    projects: content.projects.map((project) => <article key={project.id}><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-heading text-lg font-semibold">{project.name} | {project.subtitle}</h3><div className="flex gap-2">{project.links.map((link) => <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className="text-xs text-sky-surge">{link.label}</a>)}</div></div><p className="mt-2">{project.description}</p><p className="mt-1 text-sm opacity-70">{project.skills.join(" · ")}</p><Bullets items={project.bullets} /></article>),
+    skills: content.skills.map((group) => <p key={group.label}><strong>{group.label}:</strong> {group.items.join(", ")}</p>),
+    achievements: <Bullets items={content.achievements.map((item) => typeof item === "string" ? item : item.text)} />,
+  };
   return (
     <main className="min-h-screen bg-background px-4 pb-12 pt-24 text-prussian-blue dark:text-bright-snow sm:px-6 lg:px-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(publicPageStructuredData(content, "/resume", title, description, "ProfilePage")) }} />
@@ -55,24 +64,9 @@ export default async function ResumePage() {
             </div>
           </div>
 
-          <div className="mt-7 space-y-5">
-            {content.skills.map((group) => (
-              <div key={group.label}>
-                <p className="font-heading text-xs uppercase tracking-[0.22em] opacity-55">{group.label}</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {group.items.map((skill) => <span key={skill} className="rounded-full border border-prussian-blue/15 bg-bright-snow/65 px-2.5 py-1 font-description text-xs dark:border-alice-blue/10 dark:bg-prussian-blue/50">{skill}</span>)}
-                </div>
-              </div>
-            ))}
-          </div>
         </aside>
         <div className="space-y-5">
-          <Section title="Summary"><p>{content.summary}</p></Section>
-          <Section title="Experience">{content.experience.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.role} | {item.company}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{item.dates}</span></div>{item.link && <a href={item.link} target="_blank" rel="noreferrer" className="text-sm text-sky-surge">{item.link.replace(/^https?:\/\//, "")}</a>}<Bullets items={item.bullets} /></article>)}</Section>
-          <Section title="Education">{content.education.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.school} | {item.program}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{[item.score, item.dates].filter(Boolean).join(" | ")}</span></div><Bullets items={item.details} /></article>)}</Section>
-          <Section title="Projects">{content.projects.map((project) => <article key={project.id}><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-heading text-lg font-semibold">{project.name} | {project.subtitle}</h3><div className="flex gap-2">{project.links.map((link) => <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className="text-xs text-sky-surge">{link.label}</a>)}</div></div><p className="mt-2">{project.description}</p><p className="mt-1 text-sm opacity-70">{project.skills.join(" · ")}</p><Bullets items={project.bullets} /></article>)}</Section>
-          <Section title="Skills">{content.skills.map((group) => <p key={group.label}><strong>{group.label}:</strong> {group.items.join(", ")}</p>)}</Section>
-          <Section title="Co-Curricular & Achievements"><Bullets items={content.achievements.map((item) => typeof item === "string" ? item : item.text)} /></Section>
+          {resolveResumeSections(content).map((section) => <Section key={section.id} title={section.title}>{sectionContent[section.id]}</Section>)}
         </div>
       </div>
     </main>

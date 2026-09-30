@@ -89,6 +89,89 @@ test("default PDF limits retain the first three non-empty bullets per experience
   assert.deepEqual(document, before);
 });
 
+test("all six PDF sections follow saved titles and order while retaining their content", () => {
+  const document = fixture();
+  document.sections = [
+    { id: "skills", title: "Technical toolkit" },
+    { id: "projects", title: "Selected builds" },
+    { id: "education", title: "Academic background" },
+    { id: "experience", title: "Industry work" },
+    { id: "achievements", title: "Community contributions" },
+    { id: "summary", title: "About me" },
+  ];
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  const sectionStarts = document.sections.map(({ title }) => source.indexOf(`\\section{\\textbf{${title}}}`));
+  assert.ok(sectionStarts.every((offset, index) => offset >= 0 && (index === 0 || offset > sectionStarts[index - 1])));
+  const content = ["Languages:", "Pocket Coder", "IIT Madras", "Gurmat Darbar", "Official Codex Ambassador", "AI Engineer shipping production systems"];
+  content.forEach((text, index) => {
+    const end = sectionStarts[index + 1] ?? source.indexOf("\\end{document}");
+    assert.ok(source.slice(sectionStarts[index], end).includes(text), text);
+  });
+  assert.ok(source.indexOf("\\resumeHeaderRow{\\textbf") < sectionStarts[0]);
+  assert.equal((source.match(/\\section\{\\textbf\{/g) || []).length, 6);
+  assert.deepEqual(document, before);
+});
+
+test("custom PDF section titles escape TeX metacharacters", () => {
+  const document = fixture();
+  document.sections = [
+    { id: "summary", title: String.raw`Research & work | 100% _ {x} \ # $ ~ ^` },
+    { id: "experience", title: "Experience" },
+    { id: "education", title: "Education" },
+    { id: "projects", title: "Projects" },
+    { id: "skills", title: "Skills" },
+    { id: "achievements", title: "Co-Curricular & Achievements" },
+  ];
+  const source = generateResumeLatex(document);
+  assert.ok(source.includes(String.raw`\section{\textbf{Research \& work \textbar{} 100\% \_ \{x\} \textbackslash{} \# \$ \textasciitilde{} \textasciicircum{}}}`));
+  assert.ok(source.includes(document.summary));
+});
+
+test("renamed and reordered sections still obey PDF visibility by stable ID", () => {
+  const document = fixture();
+  document.sections = [
+    { id: "experience", title: "Industry work" },
+    { id: "achievements", title: "Community contributions" },
+    { id: "summary", title: "Profile" },
+    { id: "skills", title: "Toolkit" },
+    { id: "education", title: "Academic background" },
+    { id: "projects", title: "Selected builds" },
+  ];
+  document.pdfSections = { experience: false, achievements: false };
+  const source = generateResumeLatex(document);
+  for (const omitted of ["Industry work", "Community contributions", "Gurmat Darbar", "Official Codex Ambassador"]) assert.ok(!source.includes(omitted), omitted);
+  for (const retained of ["Profile", "Toolkit", "Academic background", "Selected builds", "Pocket Coder"]) assert.ok(source.includes(retained), retained);
+});
+
+test("legacy documents retain the original section titles and order", () => {
+  const document = fixture();
+  delete document.sections;
+  const source = generateResumeLatex(document);
+  const titles = ["Summary", "Experience", "Education", "Projects", "Skills", String.raw`Co-Curricular \& Achievements`];
+  const positions = titles.map((title) => source.indexOf(`\\section{\\textbf{${title}}}`));
+  assert.ok(positions.every((offset, index) => offset >= 0 && (index === 0 || offset > positions[index - 1])));
+});
+
+test("empty renamed sections are omitted without disturbing the remaining order", () => {
+  const document = fixture();
+  document.sections = [
+    { id: "summary", title: "Empty profile" },
+    { id: "achievements", title: "Empty community" },
+    { id: "skills", title: "Toolkit" },
+    { id: "education", title: "Education" },
+    { id: "projects", title: "Selected builds" },
+    { id: "experience", title: "Empty experience" },
+  ];
+  document.summary = "   ";
+  document.achievements = [{ text: "  " }, { text: "Excluded", includeInPdf: false }];
+  document.experience.forEach((item) => { item.includeInPdf = false; });
+  const source = generateResumeLatex(document);
+  assert.doesNotMatch(source, /Empty profile|Empty community|Empty experience/);
+  assert.ok(source.indexOf("\\section{\\textbf{Toolkit}}") < source.indexOf("\\section{\\textbf{Education}}"));
+  assert.ok(source.indexOf("\\section{\\textbf{Education}}") < source.indexOf("\\section{\\textbf{Selected builds}}"));
+});
+
 test("education details support optional bold labels, PDF visibility, and legacy strings", () => {
   const document = fixture();
   document.education[0].details = [

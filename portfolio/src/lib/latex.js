@@ -1,5 +1,6 @@
 import resumeTemplate from "../../resume.tex";
 import { defaultPdfLayout } from "./resume-layout.js";
+import { resolveResumeSections } from "./resume-sections.js";
 
 // Replace characters in one pass so inserted TeX commands are never escaped again.
 function escapeLatex(value = "") {
@@ -123,16 +124,23 @@ export function generateResumeLatex(document) {
   }));
   const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`), true);
   const achievements = list(cleanLines(included(document.achievements).map((item) => typeof item === "string" ? item : item.text)).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`), true);
+  const bodies = {
+    summary: escapeLatex(document.summary.trim()),
+    experience: experiences,
+    education,
+    projects,
+    skills,
+    achievements,
+  };
   const blocks = {
     layout: layoutBlock(layout),
     header: header(document.profile),
-    summary: section("Summary", escapeLatex(document.summary.trim())),
-    experience: section("Experience", experiences),
-    education: section("Education", education),
-    projects: section("Projects", projects),
-    skills: section("Skills", skills),
-    achievements: section("Co-Curricular & Achievements", achievements),
+    sections: resolveResumeSections(document)
+      .filter(({ id }) => document.pdfSections?.[id] !== false)
+      .map(({ id, title }) => section(title, bodies[id]))
+      .filter(Boolean)
+      .join("\n\n"),
   };
   return resumeTemplate.replace(/% resume:(\w+):start\r?\n[\s\S]*?% resume:\1:end/g,
-    (_, key) => document.pdfSections?.[key] === false ? "" : blocks[key]);
+    (_, key) => blocks[key]);
 }

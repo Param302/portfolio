@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { defaultPdfLayout } from "./resume-layout.js";
+import { defaultResumeSections } from "./resume-sections.js";
 
 export { defaultPdfLayout } from "./resume-layout.js";
 
@@ -9,6 +10,17 @@ const url = z.union([z.literal(""), z.string().url()]);
 const bulletList = z.array(text).transform((items) => items.filter(Boolean)).pipe(z.array(text).min(1));
 const bulletLimit = z.number().int().min(0).max(12);
 const entryBulletLimit = bulletLimit.nullable().default(null);
+
+const sectionsSchema = z.array(z.object({
+  id: z.enum(defaultResumeSections.map((section) => section.id)),
+  title: z.string().trim().min(1, "Enter a section title.").max(80),
+})).length(defaultResumeSections.length).superRefine((sections, context) => {
+  const seen = new Set();
+  sections.forEach((section, index) => {
+    if (seen.has(section.id)) context.addIssue({ code: "custom", path: [index, "id"], message: "Each resume section must appear exactly once." });
+    seen.add(section.id);
+  });
+});
 
 const pdfLayoutSchema = z.object({
   fontSize: z.number().min(8.5).max(11).default(defaultPdfLayout.fontSize),
@@ -85,6 +97,7 @@ const projectSchema = z.object({
 
 export const resumeDocumentSchema = z.object({
   version: z.literal(1),
+  sections: sectionsSchema.prefault(defaultResumeSections),
   pdfLayout: pdfLayoutSchema.prefault({}),
   pdfSections: z.object({
     summary: z.boolean().default(true),

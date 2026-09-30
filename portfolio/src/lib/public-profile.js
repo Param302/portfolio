@@ -1,8 +1,22 @@
 import { homeSections, identityAliases, learningResources, siteConfig, socialResources } from "../app/data/seoData.js";
+import { resolveResumeSections } from "./resume-sections.js";
 
 const link = (label, url) => `[${label}](<${url}>)`;
 const bullets = (items) => items.map((item) => `- ${item}`).join("\n");
 const educationPoint = (item) => typeof item === "string" ? item : `${item.label ? `**${item.label}${item.label.endsWith(":") ? "" : ":"}** ` : ""}${item.text}`;
+const headingText = (value) => value.replace(/[\r\n]+/g, " ").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/[\\`*_{}\[\]#!|]/g, "\\$&");
+
+function resumeSections(content) {
+  const bodies = {
+    summary: content.summary,
+    experience: content.experience.map((item) => `#### ${item.role} — ${item.company}\n\n${item.dates}${item.link ? `\n\n${item.link}` : ""}\n\n${bullets(item.bullets)}`).join("\n\n"),
+    education: content.education.map((item) => `#### ${item.school} — ${item.program}\n\n${[item.score, item.dates].filter(Boolean).join(" | ")}\n\n${bullets(item.details.map(educationPoint))}`).join("\n\n"),
+    projects: content.projects.map((project) => `#### ${project.name}${project.subtitle ? ` — ${project.subtitle}` : ""}\n\n${project.description}\n\n${bullets(project.bullets)}\n\nSkills: ${project.skills.join(", ")}\n\n${project.links.map((item) => link(item.label, item.href)).join(" · ")}\n\nPortfolio: ${siteConfig.url}/#projects`).join("\n\n"),
+    skills: bullets(content.skills.map((group) => `**${group.label}:** ${group.items.join(", ")}`)),
+    achievements: bullets(content.achievements.map((item) => typeof item === "string" ? item : item.text)),
+  };
+  return resolveResumeSections(content).map((section) => `### ${headingText(section.title)}\n\n${bodies[section.id]}`).join("\n\n");
+}
 
 // Accept only the public, published resume document, never revision or account data.
 export function renderPublicProfile(content) {
@@ -57,29 +71,7 @@ This section uses the same published content source as ${siteConfig.url}/resume 
 
 ${bullets(profile.socials.map((item) => link(item.label, item.href)))}
 
-### Summary
-
-${content.summary}
-
-### Experience
-
-${content.experience.map((item) => `#### ${item.role} — ${item.company}\n\n${item.dates}${item.link ? `\n\n${item.link}` : ""}\n\n${bullets(item.bullets)}`).join("\n\n")}
-
-### Education
-
-${content.education.map((item) => `#### ${item.school} — ${item.program}\n\n${[item.score, item.dates].filter(Boolean).join(" | ")}\n\n${bullets(item.details.map(educationPoint))}`).join("\n\n")}
-
-### Projects by ${profile.name}
-
-${content.projects.map((project) => `#### ${project.name}${project.subtitle ? ` — ${project.subtitle}` : ""}\n\n${project.description}\n\n${bullets(project.bullets)}\n\nSkills: ${project.skills.join(", ")}\n\n${project.links.map((item) => link(item.label, item.href)).join(" · ")}\n\nPortfolio: ${siteConfig.url}/#projects`).join("\n\n")}
-
-### Skills
-
-${bullets(content.skills.map((group) => `**${group.label}:** ${group.items.join(", ")}`))}
-
-### Community and achievements
-
-${bullets(content.achievements.map((item) => typeof item === "string" ? item : item.text))}
+${resumeSections(content)}
 
 ## Connect with Param / Parampreet Singh
 
