@@ -91,9 +91,9 @@
 .notice { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 26px; background: var(--admin-accent-soft); color: var(--admin-accent); border-bottom: 1px solid var(--admin-border); font-size: 12px; }
 .notice > span { flex: 1; overflow-wrap: anywhere; }
 .workspace { display: grid; flex: 1; grid-template-columns: minmax(0,1fr) minmax(0,.94fr); grid-template-rows: minmax(0,1fr); min-height: 0; align-items: start; }
-.editor { min-width: 0; min-height: 0; height: 100%; overflow-y: auto; padding: 28px; scrollbar-gutter: stable; }
+.editor { --editor-padding: 28px; min-width: 0; min-height: 0; height: 100%; overflow-y: auto; padding: var(--editor-padding); scrollbar-gutter: stable; scroll-padding-top: 96px; }
 .section { min-width: 0; border-radius: 12px; border: 1px solid var(--admin-border); background: var(--admin-panel); }
-.sectionHead { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 17px 18px; border-bottom: 1px solid var(--admin-border); }
+.sectionHead { position: sticky; top: calc(-1 * var(--editor-padding)); z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 17px 18px; border-bottom: 1px solid var(--admin-border); border-radius: 12px 12px 0 0; background: var(--admin-panel); box-shadow: 0 4px 8px #00000008; }
 .sectionTitle { display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1; }
 .sectionTitle h1 { font-size: 21px; font-weight: 650; letter-spacing: -.5px; overflow-wrap: anywhere; }
 .sectionBody { padding: 20px; display: grid; gap: 22px; }
@@ -147,11 +147,13 @@ textarea.input { resize: vertical; line-height: 1.7; }
 .loading p { margin-bottom: 14px; }
 .mobileSelect { display: none; }
 @media (min-width: 1200px) { .collapsed .mobileSelect { display: flex; margin-bottom: 18px; } }
-@media (max-width: 1399px) { .editor { padding: 22px; } .topbar { padding-inline: 22px; } .saveState { display: none; } }
+@media (max-width: 1399px) { .editor { --editor-padding: 22px; } .topbar { padding-inline: 22px; } .saveState { display: none; } }
 @media (max-width: 1199px) {
   .main { height: auto; overflow: visible; }
   .workspace { display: block; flex: initial; }
-  .editor { height: auto; min-height: calc(100svh - 144px); max-width: 850px; margin: auto; padding: 26px; }
+  .editor { height: auto; min-height: calc(100svh - 144px); max-width: 850px; margin: auto; padding: 26px; overflow: visible; }
+  .sectionHead { top: var(--admin-topbar-height, 73px); }
+  .sectionBody :is(input, textarea, select, button) { scroll-margin-top: calc(var(--admin-topbar-height, 73px) + 96px); }
   .preview { position: relative; top: 0; height: calc(100svh - 144px); min-height: 540px; border-left: 0; }
   .hideOnSmall { display: none; }
   .mobileToolbar { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 12px 26px; border-bottom: 1px solid var(--admin-border); background: var(--admin-panel); }
@@ -188,7 +190,6 @@ textarea.input { resize: vertical; line-height: 1.7; }
   .segments button { min-height: 34px; padding: 6px 9px; }
   .editor { padding: 22px 14px 98px; }
   .sectionHead { padding: 15px; gap: 12px; }
-  .sectionTitle { flex-basis: 100%; }
   .sectionBody { padding: 16px; gap: 24px; }
   .item { padding: 16px; }
   .fields { grid-template-columns: minmax(0,1fr); gap: 14px; }

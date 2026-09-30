@@ -58,6 +58,7 @@ export default function AdminDashboard({ session }) {
   const worker = useRef(null);
   const editorRef = useRef(null);
   const mainRef = useRef(null);
+  const topbarRef = useRef(null);
   const confirmationTrigger = useRef(null);
   const editVersion = useRef(0);
   const compileRequest = useRef(0);
@@ -145,6 +146,14 @@ export default function AdminDashboard({ session }) {
   }, [loadTab]);
   useEffect(() => {
     setSidebarCollapsed(window.localStorage.getItem("portfolio-admin-sidebar") === "collapsed");
+  }, []);
+  useEffect(() => {
+    const topbar = topbarRef.current;
+    const updateHeight = () => mainRef.current?.style.setProperty("--admin-topbar-height", `${topbar.getBoundingClientRect().height}px`);
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(topbar);
+    return () => observer.disconnect();
   }, []);
   useEffect(() => {
     const query = window.matchMedia("(max-width: 767px)");
@@ -315,7 +324,7 @@ export default function AdminDashboard({ session }) {
       {mobileMenuOpen ? <button type="button" aria-label="Close navigation overlay" onClick={() => setMobileMenuOpen(false)} className={styles.backdrop} /> : null}
       <AdminSidebar activeTab={activeTab} onChange={chooseTab} collapsed={sidebarCollapsed} onToggle={toggleSidebar} onLogout={requestLogout} mobileOpen={mobileMenuOpen} isMobile={isMobile} onMobileClose={() => setMobileMenuOpen(false)} activeSection={activeSection} onSection={chooseSection} sections={sections} document={document} session={session} unreadCount={messages.filter((message) => message.status === "unread").length} />
       <div ref={mainRef} tabIndex={-1} className={styles.main} inert={isMobile && mobileMenuOpen}>
-        <header className={styles.topbar}>
+        <header ref={topbarRef} className={styles.topbar}>
           <button type="button" onClick={() => setMobileMenuOpen(true)} className={`${styles.iconButton} ${styles.mobileMenu}`} aria-label="Open navigation" aria-controls="admin-navigation" aria-expanded={mobileMenuOpen}><Menu /></button>
           <div className={styles.breadcrumb}><span>Workspace</span><ChevronRight /><strong>{activeTab === "resume" ? "Resume studio" : activeTab === "logs" ? "Activity" : "Inbox"}</strong></div>
           <div className={styles.headerActions}>
