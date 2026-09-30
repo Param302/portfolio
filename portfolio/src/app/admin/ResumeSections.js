@@ -45,7 +45,7 @@ export default function ResumeSections({ sections, onRename, onMove, onRemove, o
             {editing ? <input className={styles.input} aria-label="Section name" autoFocus maxLength={80} value={renaming.value} onChange={(event) => setRenaming({ ...renaming, value: event.target.value })} onKeyDown={(event) => { if (event.key === "Enter") finishRename(); if (event.key === "Escape") setRenaming(null); }} /> : <button type="button" onClick={() => onEdit(section.id)} className={sectionStyles.name}>{section.title}</button>}
             {protectedSection ? <LockKeyhole className={sectionStyles.lock} aria-label="Required by portfolio" /> : editing ? <div className={sectionStyles.renameActions}><button type="button" className={styles.iconButton} onClick={finishRename} disabled={!renaming.value.trim()} aria-label="Save section name"><Check /></button><button type="button" className={styles.iconButton} onClick={() => setRenaming(null)} aria-label="Cancel section rename"><X /></button></div> : <button type="button" className={styles.iconButton} onClick={() => setRenaming({ id: section.id, value: section.title })} aria-label={`Rename ${section.title} section`}><Pencil /></button>}
           </div>
-          <div role="cell"><RowActions label={`${section.title} section`} index={index} length={sections.length} onMove={onMove} onRemove={protectedSection ? undefined : () => { setRenaming(null); onRemove(section.id); }} /></div>
+          <div role="cell"><RowActions label={`${section.title} section`} index={index} length={sections.length} onMove={onMove} onRemove={protectedSection ? undefined : (event) => { setRenaming(null); onRemove(section.id, event.currentTarget); }} /></div>
         </div>;
       })}
     </div>

@@ -207,6 +207,12 @@ export default function AdminDashboard({ session }) {
     setActiveSection(section.id);
     setPreviewKind("pdf");
   }
+  function requestRemoveSection(id, trigger) {
+    confirmationTrigger.current = trigger;
+    if (isProtectedResumeSection(id)) return;
+    const section = resolveResumeSections(document).find((item) => item.id === id);
+    if (section) setConfirmation({ type: "section", id, title: section.title });
+  }
   function removeSection(id) {
     if (isProtectedResumeSection(id)) return;
     const sections = resolveResumeSections(document);
@@ -244,7 +250,7 @@ export default function AdminDashboard({ session }) {
       onPdfChange: (value) => isCustomResumeSection(section) ? editCustomSection(section.id, { includeInPdf: value }) : setPdfSection(section.id, value),
       onRename: isProtectedResumeSection(section.id) ? undefined : (title) => renameSection(section.id, title),
       protectedSection: isProtectedResumeSection(section.id),
-      orderControls: <RowActions index={index} length={resolveResumeSections(document).length} onMove={moveSection} onRemove={isProtectedResumeSection(section.id) ? undefined : () => removeSection(section.id)} label={`${section.title} section`} />,
+      orderControls: <RowActions index={index} length={resolveResumeSections(document).length} onMove={moveSection} onRemove={isProtectedResumeSection(section.id) ? undefined : (event) => requestRemoveSection(section.id, event.currentTarget)} label={`${section.title} section`} />,
     };
     if (isCustomResumeSection(section)) return <EditorSection key={section.id} {...common}>
       <label className={styles.field}><span>Content</span><select className={styles.input} aria-label="Section content format" value={section.format} onChange={(event) => editCustomSection(section.id, { format: event.target.value })}><option value="bullets">Bullet points</option><option value="text">Text</option></select></label>
@@ -312,6 +318,7 @@ export default function AdminDashboard({ session }) {
 
   return <main className={styles.root}>
     {confirmation?.type === "logout" ? <ConfirmDialog title="Sign out?" description={dirty ? "You have unsaved changes. Sign out without saving?" : "Sign out of the admin panel?"} confirmLabel="Sign out" returnFocusRef={confirmationTrigger} fallbackFocusRef={mainRef} onConfirm={logout} onCancel={() => setConfirmation(null)} /> : null}
+    {confirmation?.type === "section" ? <ConfirmDialog key={confirmation.id} title="Delete section?" description={`This removes “${confirmation.title}” from your resume draft.`} confirmLabel="Delete section" requiredText={confirmation.title} destructive returnFocusRef={confirmationTrigger} fallbackFocusRef={mainRef} onConfirm={() => removeSection(confirmation.id)} onCancel={() => setConfirmation(null)} /> : null}
     <div className={`${styles.shell} ${sidebarCollapsed ? styles.collapsed : ""}`}>
       {mobileMenuOpen ? <button type="button" aria-label="Close navigation overlay" onClick={() => setMobileMenuOpen(false)} className={styles.backdrop} /> : null}
       <AdminSidebar activeTab={activeTab} onChange={chooseTab} collapsed={sidebarCollapsed} onToggle={toggleSidebar} onLogout={requestLogout} mobileOpen={mobileMenuOpen} isMobile={isMobile} onMobileClose={() => setMobileMenuOpen(false)} activeSection={activeSection} onSection={chooseSection} sections={sections} document={document} session={session} unreadCount={messages.filter((message) => message.status === "unread").length} />
@@ -336,7 +343,7 @@ export default function AdminDashboard({ session }) {
           <div className={styles.workspace}>
             <div ref={editorRef} className={`${styles.editor} ${resumeView !== "edit" ? styles.hideOnSmall : ""}`}>
               {sectionSelect}
-              {activeSection === "sections" ? <ResumeSections sections={sections} onRename={renameSection} onMove={moveSection} onRemove={removeSection} onAdd={addSection} onEdit={chooseSection} /> : null}
+              {activeSection === "sections" ? <ResumeSections sections={sections} onRename={renameSection} onMove={moveSection} onRemove={requestRemoveSection} onAdd={addSection} onEdit={chooseSection} /> : null}
               {activeSection === "profile" ? <EditorSection title="Profile & contact"><div className={styles.fields}><Field label="Name" value={document.profile.name} onChange={(value) => set(["profile", "name"], value)} /><Field label="Email" type="email" value={document.profile.email} onChange={(value) => set(["profile", "email"], value)} /><Field label="Phone" value={document.profile.phone} onChange={(value) => set(["profile", "phone"], value)} /><Field label="Website" value={document.profile.website} onChange={(value) => set(["profile", "website"], value)} /><Field label="Location" value={document.profile.location} onChange={(value) => set(["profile", "location"], value)} /></div><LinkRows title="Social links" items={document.profile.socials} onChange={(links) => set(["profile", "socials"], links)} /></EditorSection> : null}
               {selectedSection ? renderResumeSection(selectedSection, sections.findIndex((section) => section.id === activeSection)) : null}
               {activeSection === "layout" ? <EditorSection title="PDF layout"><PdfLayoutControls value={document.pdfLayout} onChange={(value) => set(["pdfLayout"], value)} /></EditorSection> : null}
