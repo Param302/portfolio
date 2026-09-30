@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     devIndicators: false,
+    webpack(config) {
+        // Share the exact Overleaf template between the admin preview and API.
+        config.module.rules.push({ test: /\.tex$/, type: "asset/source" });
+        return config;
+    },
     async headers() {
         return [
             {

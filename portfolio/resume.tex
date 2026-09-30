@@ -1,106 +1,199 @@
+% Canonical PDF template. The app replaces the named blocks with saved resume content.
 \documentclass[a4paper,10pt]{article}
+
 \usepackage[empty]{fullpage}
-\usepackage[hidelinks]{hyperref}
-\usepackage{enumitem}
 \usepackage{titlesec}
+
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+% Match Overleaf's TS1 bullet fonts in the bundled browser PDFTeX engine.
+\pdfmapline{+tcrm0900 SFRM0900 "TS1Encoding ReEncodeFont" <cm-super-ts1.enc <sfrm0900.pfb}
+\pdfmapline{+tcrm1000 SFRM1000 "TS1Encoding ReEncodeFont" <cm-super-ts1.enc <sfrm1000.pfb}
+
 \pagestyle{empty}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{0pt}
-\renewcommand{\labelitemi}{$\bullet$}
-\setlength{\oddsidemargin}{-0.58in}
-\setlength{\evensidemargin}{-0.58in}
-\setlength{\textwidth}{7.45in}
-\setlength{\topmargin}{-0.58in}
-\setlength{\headheight}{0pt}
-\setlength{\headsep}{0pt}
-\setlength{\textheight}{10.75in}
-\setlength{\footskip}{0pt}
-\titleformat{\section}{\vspace{-7pt}\scshape\raggedright\normalsize\bfseries}{}{0em}{}[\titlerule\vspace{-5pt}]
-\newcommand{\entry}[2]{\textbf{#1}\hfill #2\\[-4pt]}
+
+\addtolength{\oddsidemargin}{-0.530in}
+\addtolength{\evensidemargin}{-0.375in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.45in}
+\addtolength{\textheight}{1in}
+
+\urlstyle{rm}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+\titleformat{\section}{
+  \vspace{-10pt}\raggedright\large
+}{}{0em}{}[\titlerule \vspace{-6pt}]
+
+\newcommand{\resumeItem}[1]{
+  \item\small{
+     #1 \vspace{-2pt}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2
+    \end{tabular*}
+    \vspace{-6pt}
+}
+
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-3pt}}
+
+\renewcommand{\labelitemii}{$\circ$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
 \begin{document}
-\fontsize{10pt}{11.2pt}\selectfont
+
+% resume:header:start
 \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
-{\LARGE\textbf{Parampreet Singh}} & \href{mailto:hey@itsparam.in}{hey@itsparam.in}\\
-\href{https://itsparam.in}{itsparam.in} & +91 836 884 6192\\
-\href{https://linkedin.com/in/param302}{LinkedIn} \textbar{} \href{https://github.com/param302}{GitHub} & India
+  \textbf{{\LARGE Parampreet Singh}} & \href{mailto:hey@itsparam.in}{hey@itsparam.in}\\
+  \href{https://itsparam.in}{Portfolio: \underline{itsparam.in}} & ~~~+91 836 884 6192 \\
+  \href{https://linkedin.com/in/param302}{LinkedIn: \underline{linkedin/param302}} & \href{https://github.com/param302}{\underline{github/param302}} \\
 \end{tabular*}
-\section{Summary}
-AI Engineer shipping production AI systems across voice, vision, agentic workflows, fine-tuned models, and scalable cloud backends.
-\section{Experience}
+% resume:header:end
 
-\entry{Founder | Gurmat Darbar}{Sept 2025 - Present}
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Built a Sikh community event platform used by 1,500+ people, covering 300+ samagams with 500+ community contributions.
-\item Created an AI poster-intelligence pipeline that extracts multilingual event fields and prepares listings for publication.
-\end{itemize}\vspace{-2pt}
+% resume:summary:start
+\section{\textbf{Summary}}
+{AI / ML Engineer focused on building and shipping end-to-end AI systems, from fine-tuning SLMs to deploying production-ready applications on cloud and edge. Experienced in multi-agent workflows, real-time inference systems, and scalable backends. I care about turning models into usable products, not just training them.}
+% resume:summary:end
 
-\entry{Freelance AI Engineer | Independent Client Work}{Jun 2026 - Aug 2026}
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Built a dashboard and three Indian-dialect voice agents for OT readiness, care follow-ups, and appointment booking using Bolna, LiveKit, Cartesia, and Deepgram.
-\item Designed graph-based agent reasoning and an OCR workflow that analyzes insurance forms for a client serving Indian hospitals.
-\end{itemize}\vspace{-2pt}
+% resume:experience:start
+\section{\textbf{Experience}}
+\resumeSubHeadingListStart
 
-\entry{AI Research Intern | mPragati Lab, IIT Delhi}{Sept 2025 - Jan 2026}
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Developed and trained 3D U-Net pipelines for deep-learning-based skull implant reconstruction.
-\end{itemize}\vspace{-2pt}
+\resumeSubheading
+{Founder \textbar{} Gurmat Darbar - \href{https://gurmatdarbar.com}{\underline{gurmatdarbar.com}}}{Sept 2025 - Present}
+{}{}
+\resumeItemListStart
+\resumeItem{Gained over \textbf{500+ users in the 1st month of Launch}, eventually lead to \textbf{150+ samagams (events) globally} with \textbf{200+ contributions}.}
+\resumeItem{Lead \& Built Biggest Full-Stack platform for Sikh community events with \textbf{Find Samagams Near Me} feature.}
+\resumeItem{Designed a GenAI pipeline to extract Structured Multilingual Data (EN/HI/PA) \& auto event poster generation.}
+\resumeItemListEnd
 
-\entry{Junior Applications Engineer | Coridors (Remote)}{Aug 2024 - Sept 2025}
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Built a Snowflake-backed Streamlit ingestion platform with 30+ interactive screens and Snowpark workflows.
-\item Delivered the company website and managed Vercel and Cloudflare deployments.
-\end{itemize}\vspace{-2pt}
+\resumeSubheading{AI Research Intern \textbar{} mPragati Lab, IIT Delhi}{Sept 2025 - Feb 2025}{}{}
+\resumeItemListStart
+\resumeItem{Worked on \textbf{3D skull implant generation} using deep learning for biomedical reconstruction.}
+\resumeItem{Created \& trained a pipeline \textbf{3D U-Net based architectures} for skull implant reconstruction.}
+\resumeItemListEnd
 
-\entry{Educator | YouTube (@Param3021)}{Jan 2023 - Present}
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Delivered 70+ live Python and ML sessions, reaching 175K+ learners.
-\end{itemize}\vspace{-2pt}
-\section{Education}
+\resumeSubheading{Junior Applications Engineer \textbar{} Coridors (Remote)}{Aug 2024 - Sep 2025}{}{}
+\resumeItemListStart
+\resumeItem{Built Streamlit-based data ingestion platform with \textbf{30+ interactive screens} integrated with Snowflake.}
+\resumeItem{Worked on backend integrations with Snowflake Snowpark for scalable data workflows.}
+\resumeItem{Designed, deployed, and maintained the company website using JavaScript + Tailwind CSS, managing multi-branch deployments via Vercel \& Cloudflare workers.}
+\resumeItemListEnd
 
-\entry{IIT Madras | BS in Data Science and Applications}{GPA: 8.3 | Sept 2022 - Present}
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Diplomas in Programming and Data Science; coursework in LLMs, Mathematical Foundations for GenAI, and Software Engineering.
-\end{itemize}\vspace{-2pt}
-\section{Projects}
+\resumeSubheading{Educator \textbar{} YouTube - \href{https://youtube.com/@Param3021}{\underline{@Param3021}}}{Jan 2023 - Present}{}{}
+\resumeItemListStart
+\resumeItem{Delivered \textbf{70+ live sessions} on Python and ML, reaching \textbf{175K+ learners}.}
+\resumeItemListEnd
 
-\entry{Pocket Coder | Local Coding Assistant}{\href{https://github.com/param302/pocket-coder}{GitHub}}
-\textit{A 1.2B parameter local coding assistant fine-tuned to run offline across CPUs and GPUs.}\\[0pt]
-\textit{Tools: PyTorch, LoRA, SFT, Ollama, MCP}\\[1pt]
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Fine-tuned LFM 2.5 with LoRA and scaled SFT context from 4K to 16K.
-\item Integrated Ollama with Jupyter magic and a VS Code MCP server.
-\end{itemize}\vspace{-2pt}
+\resumeSubHeadingListEnd
+% resume:experience:end
 
-\entry{GRWM | Get README With Me}{\href{https://getreadmewithme.vercel.app}{Live}}
-\textit{A production multi-agent system that researches repositories and writes personalized GitHub READMEs.}\\[0pt]
-\textit{Tools: LangGraph, FastAPI, Next.js, GCP, SSE}\\[1pt]
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Orchestrated Detective, CTO, and Ghostwriter agents with LangGraph and real-time SSE.
-\item Reached 100+ unique users in 16 hours and deployed on GCP Cloud Run.
-\end{itemize}\vspace{-2pt}
+% resume:education:start
+\section{\textbf{Education}}
+\resumeSubHeadingListStart
+\resumeSubheading{IIT Madras, BS in Data Science and Applications}{GPA: 8.3 \textbar{} Sept 2022 - Present}{}{}
+\resumeItemListStart
+\resumeItem{\textbf{Core Subjects:} LLMs, Maths for Gen AI, Software Engineering}
+\resumeItem{\textbf{Completed Diplomas:} Diploma in Programming; Diploma in Data Science}
+\resumeItem{\textbf{NPTEL Electives:} Intro to Quantum Computing, Applied Accelerated AI}
+\resumeItemListEnd
+\resumeSubHeadingListEnd
+% resume:education:end
 
-\entry{Hand Gesture LNN | Liquid Neural Network Research}{\href{https://github.com/param302/hand-gesture-lnn}{GitHub}}
-\textit{A from-scratch LTC network for segmenting 32-dimensional motion time series.}\\[0pt]
-\textit{Tools: PyTorch, LNN, LTC, Time Series}\\[1pt]
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Built custom LTC cells and reached 54.6\% validation accuracy, outperforming the LSTM baseline by 9.6 points.
-\end{itemize}\vspace{-2pt}
+% resume:projects:start
+\section{\textbf{Projects}}
 
-\entry{Quizzo V2 | Quiz Management System}{\href{https://github.com/param302/quizzo-v2}{GitHub}}
-\textit{A scalable quiz platform with asynchronous jobs, rate limiting, and automated certificates.}\\[0pt]
-\textit{Tools: Flask, Vue.js, Redis, Celery, PostgreSQL}\\[1pt]
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Used Redis and Celery for distributed jobs, email workflows, and certificate generation.
-\end{itemize}\vspace{-2pt}
-\section{Skills}
-\textbf{Languages:} Python, JavaScript, Java, C, SQL, Bash, HTML/CSS\\
-\textbf{ML / GenAI:} PyTorch, TensorFlow, LangGraph, LangChain, U-Net, Transformers, Vertex AI\\
-\textbf{Systems \& Infra:} FastAPI, Redis, PostgreSQL, Snowflake, GCP, Cloud Run, Docker, Git\\
-\section{Co-Curricular \& Achievements}
-\begin{itemize}[leftmargin=12pt,nosep]
-\item Official Codex Ambassador for New Delhi; hosted community events and two hackathons, including one with approximately 150 participants.
-\item PyDelhi organizing team member and volunteer across local Python meetups.
-\item Presented Real-Time DEM for Autonomous Space Exploration at GLEX 2025.
-\item Delivered a Python One-Liners talk and published ML notes with 120+ GitHub stars.
-\end{itemize}\vspace{-2pt}
+\resumeSubHeadingListStart
+
+\item
+\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+\textbf{Pocket Coder \textbar{} Local Coding Assistant} & \underline{\href{https://github.com/param302/pocket-coder}{Github}} \\
+\end{tabular*}
+{\small \textit{Tools: PyTorch, LoRA, SFT, Unsloth, Ollama, MCP, GGUF}}
+\vspace{-5pt}
+\resumeItemListStart
+\resumeItem{Fine-tuned \textbf{1.2B Liquid Foundation Model (LFM 2.5)} using LoRA on custom datasets for coding specific tasks.}
+\resumeItem{Engineered SFT pipeline to scale context length from \textbf{4K to 16K} (local + Kaggle multi-GPU).}
+\resumeItem{Created an \textbf{MCP server} \& integrated the model (Ollama) with Jupyter notebook magic command (\%\%code).}
+\resumeItemListEnd
+
+\vspace{2pt}
+
+\item
+\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+\textbf{GRWM \textbar{} Get README With Me} & \underline{\href{https://getreadmewithme.vercel.app}{Live link}} \\
+\end{tabular*}
+{\small \textit{Tools: LangGraph, FastAPI, Next.js, GCP Cloud Run, SSE}}
+\vspace{-5pt}
+\resumeItemListStart
+\resumeItem{Achieved \textbf{100+ unique users in first 16 hours} and 200+ within 24 hours.}
+\resumeItem{Built multi-agent GenAI system with three specialized agents (Detective, CTO, Ghostwriter).}
+\resumeItem{Implemented \textbf{agent orchestration with LangGraph}, real-time SSE, and personalized README generation.}
+\resumeItemListEnd
+
+\vspace{2pt}
+
+\item
+\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+\textbf{Hand Gesture Segmentation with LNN} & \underline{\href{https://github.com/param302/hand-gesture-lnn}{Github}} \\
+\end{tabular*}
+{\small \textit{Tools: PyTorch, Liquid Neural Networks, Time-Series Modeling}}
+\vspace{-5pt}
+\resumeItemListStart
+\resumeItem{Explored Liquid Neural Networks (continuous-time recurrent models using LTC dynamics for temporal adaptability).}
+\resumeItem{Reproduced LTC architecture and implemented hand gesture segmentation on 32-dimensional time-series motion data.}
+\resumeItem{Built custom LTC cells and benchmarked against LSTM, achieving 54.6\% validation accuracy with improved generalization stability.}
+\resumeItemListEnd
+
+\vspace{2pt}
+
+\item
+\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+\textbf{Quizzo \textbar{} Quiz Management System} & \underline{\href{https://github.com/param302/quizzo-v2}{Github}} \\
+\end{tabular*}
+{\small \textit{Tools: Flask, Vue.js, Redis, Celery, PostgreSQL}}
+\vspace{-5pt}
+\resumeItemListStart
+\resumeItem{Engineered scalable full-stack quiz platform with background task queues and API rate limiting.}
+\resumeItem{Implemented certificate generation and automated email workflows.}
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+% resume:projects:end
+
+% resume:skills:start
+\section{\textbf{Skills}}
+\resumeSubHeadingListStart
+\resumeSubItem{\textbf{Languages:}}{Python, JavaScript, Java, C, SQL, Bash, HTML/CSS}
+\resumeSubItem{\textbf{ML / GenAI:}}{PyTorch, TensorFlow, LangGraph, LangChain, U-Net, Transformers, VertexAI}
+\resumeSubItem{\textbf{Systems \& Infra:}}{Snowflake, FastAPI, Redis, PostgreSQL, GCP, Firebase, Cloud Run, Docker, Git}
+\resumeSubHeadingListEnd
+% resume:skills:end
+
+% resume:achievements:start
+\section{\textbf{Co-Curricular \& Achievements}}
+\vspace{5pt}
+\resumeSubHeadingListStart
+\resumeSubItem{}{\textbf{Presented research paper at GLEX 2025}: Real-Time DEM for Autonomous Space Exploration.}
+\resumeSubItem{}{Delivered Python One-Liners Talk - \href{https://parampreetsingh.me/python1liners}{\underline{YT Link}}.}
+\resumeSubItem{}{ML Specialization Notes (120+ stars).}
+\resumeSubItem{}{\textbf{Best \#23} Contributor in Winter of Code 2023 by IIIT Kalyani.}
+\resumeSubItem{}{Gold Badge in Python on HackerRank.}
+\resumeSubItem{}{\textbf{Top 3} in High School Code Connect coding competition.}
+\resumeSubHeadingListEnd
+% resume:achievements:end
+
 \end{document}

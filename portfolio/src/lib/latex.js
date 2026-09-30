@@ -1,74 +1,92 @@
+import resumeTemplate from "../../resume.tex";
+
+// Replace characters in one pass so inserted TeX commands are never escaped again.
 function escapeLatex(value = "") {
-  return String(value)
-    .replace(/\\/g, "\\textbackslash{}")
-    .replace(/([#$%&_{}])/g, "\\$1")
-    .replace(/~/g, "\\textasciitilde{}")
-    .replace(/\^/g, "\\textasciicircum{}");
+  const escapes = {
+    "\\": "\\textbackslash{}", "#": "\\#", "$": "\\$", "%": "\\%",
+    "&": "\\&", "_": "\\_", "{": "\\{", "}": "\\}",
+    "~": "\\textasciitilde{}", "^": "\\textasciicircum{}", "|": "\\textbar{}",
+  };
+  return String(value).replace(/[\\#$%&_{}~^|]/g, (character) => escapes[character]);
 }
 
-function href(url, label) {
+function href(url, label, underline = true) {
   if (!url) return escapeLatex(label);
-  return `\\href{${escapeLatex(url)}}{${escapeLatex(label)}}`;
+  const text = escapeLatex(label);
+  return `\\href{${escapeLatex(url)}}{${underline ? `\\underline{${text}}` : text}}`;
+}
+
+function cleanLines(items) {
+  return items.map((item) => item.trim()).filter(Boolean);
 }
 
 function bullets(items) {
-  return `\\begin{itemize}[leftmargin=12pt,nosep]\n${items.map((item) => `\\item ${escapeLatex(item)}`).join("\n")}\n\\end{itemize}\\vspace{-2pt}`;
+  const lines = cleanLines(items);
+  if (!lines.length) return "";
+  return `\\resumeItemListStart\n${lines.map((item) => `\\resumeItem{${escapeLatex(item)}}`).join("\n")}\n\\resumeItemListEnd`;
+}
+
+function list(items) {
+  return items.length ? `\\resumeSubHeadingListStart\n${items.join("\n\n")}\n\\resumeSubHeadingListEnd` : "";
+}
+
+function section(title, body) {
+  return body ? `\\section{\\textbf{${escapeLatex(title)}}}\n${body}` : "";
+}
+
+function socialLabel(link) {
+  try {
+    const url = new URL(link.href);
+    const path = url.pathname.replace(/\/$/, "");
+    if (/linkedin\.com$/i.test(url.hostname)) return `linkedin/${path.split("/").filter(Boolean).at(-1) || ""}`;
+    if (/github\.com$/i.test(url.hostname)) return `github${path}`;
+    return `${url.hostname.replace(/^www\./, "")}${path}`;
+  } catch {
+    return link.label;
+  }
+}
+
+function header(profile) {
+  const socials = profile.socials.filter((link) => link.href);
+  const linkedIn = socials.find((link) => /linkedin/i.test(link.label + link.href));
+  const github = socials.find((link) => /github/i.test(link.label + link.href));
+  const left = linkedIn || socials.find((link) => link !== github);
+  const right = github || socials.find((link) => link !== left);
+  const websiteLabel = profile.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const rows = [
+    `\\textbf{{\\LARGE ${escapeLatex(profile.name)}}} & ${href(`mailto:${profile.email}`, profile.email, false)}`,
+    `${profile.website ? `\\href{${escapeLatex(profile.website)}}{Portfolio: \\underline{${escapeLatex(websiteLabel)}}}` : ""} & ${escapeLatex(profile.phone)}`,
+  ];
+  if (left || right) rows.push(`${left ? `${escapeLatex(left.label)}: ${href(left.href, socialLabel(left))}` : ""} & ${right ? href(right.href, socialLabel(right)) : ""}`);
+  for (const link of socials.filter((link) => link !== left && link !== right)) {
+    rows.push(`${escapeLatex(link.label)}: ${href(link.href, socialLabel(link))} & `);
+  }
+  return `\\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}\n${rows.join("\\\\\n")}\\\\\n\\end{tabular*}`;
 }
 
 export function generateResumeLatex(document) {
-  const profile = document.profile;
-  const websiteLabel = profile.website.replace(/^https?:\/\//, "");
-  const experiences = document.experience.map((item) => `
-\\entry{${escapeLatex(`${item.role} | ${item.company}`)}}{${escapeLatex(item.dates)}}
-${bullets(item.bullets)}`).join("\n");
-  const education = document.education.map((item) => `
-\\entry{${escapeLatex(`${item.school} | ${item.program}`)}}{${escapeLatex(item.dates)}}
-${bullets(item.details)}`).join("\n");
-  const projects = document.projects.map((item) => `
-\\entry{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}}{${item.links[0] ? href(item.links[0].href, item.links[0].label) : ""}}
-\\textit{${escapeLatex(item.description)}}\\\\[0pt]
-\\textit{Tools: ${escapeLatex(item.skills.join(", "))}}\\\\[1pt]
-${bullets(item.bullets)}`).join("\n");
-  const skills = document.skills.map((group) => `\\textbf{${escapeLatex(group.label)}:} ${escapeLatex(group.items.join(", "))}\\\\`).join("\n");
-
-  return `\\documentclass[a4paper,10pt]{article}
-\\usepackage[empty]{fullpage}
-\\usepackage[hidelinks]{hyperref}
-\\usepackage{enumitem}
-\\usepackage{titlesec}
-\\pagestyle{empty}
-\\setlength{\\parindent}{0pt}
-\\setlength{\\parskip}{0pt}
-\\renewcommand{\\labelitemi}{$\\bullet$}
-\\setlength{\\oddsidemargin}{-0.58in}
-\\setlength{\\evensidemargin}{-0.58in}
-\\setlength{\\textwidth}{7.45in}
-\\setlength{\\topmargin}{-0.58in}
-\\setlength{\\headheight}{0pt}
-\\setlength{\\headsep}{0pt}
-\\setlength{\\textheight}{10.75in}
-\\setlength{\\footskip}{0pt}
-\\titleformat{\\section}{\\vspace{-7pt}\\scshape\\raggedright\\normalsize\\bfseries}{}{0em}{}[\\titlerule\\vspace{-5pt}]
-\\newcommand{\\entry}[2]{\\textbf{#1}\\hfill #2\\\\[-4pt]}
-\\begin{document}
-\\fontsize{10pt}{11.2pt}\\selectfont
-\\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}
-{\\LARGE\\textbf{${escapeLatex(profile.name)}}} & ${href(`mailto:${profile.email}`, profile.email)}\\\\
-${href(profile.website, websiteLabel)} & ${escapeLatex(profile.phone)}\\\\
-${profile.socials.slice(0, 2).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} & ${escapeLatex(profile.location)}
+  const experiences = list(document.experience.map((item) => {
+    const title = `${escapeLatex(item.role)} \\textbar{} ${escapeLatex(item.company)}${item.link ? ` - ${href(item.link, item.link.replace(/^https?:\/\//, "").replace(/\/$/, ""))}` : ""}`;
+    return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.bullets)}`;
+  }));
+  const education = list(document.education.map((item) => `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.details)}`));
+  const projects = list(document.projects.map((item) => `\\item
+\\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+\\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}} & ${item.links.filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} \\\\
 \\end{tabular*}
-\\section{Summary}
-${escapeLatex(document.summary)}
-\\section{Experience}
-${experiences}
-\\section{Education}
-${education}
-\\section{Projects}
-${projects}
-\\section{Skills}
-${skills}
-\\section{Co-Curricular \\& Achievements}
-${bullets(document.achievements)}
-\\end{document}
-`;
+${item.skills.length ? `{\\small \\textit{Tools: ${escapeLatex(item.skills.join(", "))}}}\n` : ""}\\vspace{-5pt}
+${bullets(item.bullets)}
+\\vspace{2pt}`));
+  const skills = list(document.skills.map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`));
+  const achievements = list(cleanLines(document.achievements).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`));
+  const blocks = {
+    header: header(document.profile),
+    summary: section("Summary", escapeLatex(document.summary.trim())),
+    experience: section("Experience", experiences),
+    education: section("Education", education),
+    projects: section("Projects", projects),
+    skills: section("Skills", skills),
+    achievements: section("Co-Curricular & Achievements", achievements ? `\\vspace{5pt}\n${achievements}` : ""),
+  };
+  return resumeTemplate.replace(/% resume:(\w+):start\r?\n[\s\S]*?% resume:\1:end/g, (_, key) => blocks[key]);
 }
