@@ -81,17 +81,13 @@
 .quoteIcon { color: var(--admin-accent); opacity: 0.72; }
 .quoteMark { position: absolute; top: 23px; right: 22px; color: var(--admin-muted); font-size: 10px; letter-spacing: 0.08em; opacity: 0.6; }
 .rail:hover .railTrack,
-.root:has(.form:focus-within) .railTrack,
-.root[data-feedback-paused="true"] .railTrack { animation-play-state: paused; }
+.root:has(.form:focus-within) .railTrack { animation-play-state: paused; }
 .footer { display: flex; min-height: 64px; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 32px; color: var(--admin-muted); font-size: 12px; }
-.motionToggle { display: inline-flex; min-height: 44px; align-items: center; gap: 7px; padding: 0 8px; border-radius: 8px; color: var(--admin-muted); font-size: 11px; }
-.motionToggle:hover { color: var(--admin-text); background: var(--admin-subtle); }
 .backLink:focus-visible,
 .themeToggle:focus-visible,
 .passwordToggle:focus-visible,
 .submit:focus-visible,
-.wallLink:focus-visible,
-.motionToggle:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: 4px; }
+.wallLink:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: 4px; }
 
 @keyframes feedbackVertical { to { transform: translateY(-50%); } }
 @keyframes feedbackHorizontal { to { transform: translateX(-50%); } }
@@ -122,7 +118,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .railTrack { animation: none; }
-  .motionToggle { display: none; }
   .field input,
   .submit { transition: none; }
 }

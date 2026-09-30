@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, Moon, Pause, Play, Quote, Sun } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, Moon, Quote, Sun } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 import { allFeedbacks } from "@/app/data/teachingImpactData";
 import CursorEyes from "./CursorEyes";
@@ -38,7 +38,6 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [feedbackPaused, setFeedbackPaused] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
@@ -57,7 +56,7 @@ export default function AdminLogin() {
   }
 
   return (
-    <main className={styles.root} data-feedback-paused={feedbackPaused}>
+    <main className={styles.root}>
       <header className={styles.header}>
         <Link href="/" className={styles.backLink}><ArrowLeft size={16} />Back to portfolio</Link>
         <button type="button" onClick={toggleTheme} disabled={!mounted} className={styles.themeToggle} aria-label={mounted && theme === "dark" ? "Switch to light theme" : "Switch to dark theme"} title={mounted && theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}>{mounted && theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
@@ -91,7 +90,6 @@ export default function AdminLogin() {
       </div>
       <footer className={styles.footer}>
         <span>itsparam.in</span>
-        <button type="button" className={styles.motionToggle} onClick={() => setFeedbackPaused((paused) => !paused)} aria-pressed={feedbackPaused} aria-label={feedbackPaused ? "Play feedback animation" : "Pause feedback animation"} title={feedbackPaused ? "Play feedback animation" : "Pause feedback animation"}>{feedbackPaused ? <Play size={14} /> : <Pause size={14} />}<span>{feedbackPaused ? "Play" : "Pause"}</span></button>
       </footer>
     </main>
   );
