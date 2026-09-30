@@ -18,7 +18,7 @@ export function RowActions({ index, length, onMove, onRemove, label, stackedOnMo
   return <div className={`flex shrink-0 gap-0.5 pt-0.5 ${stackedOnMobile ? styles.rowActions : ""}`}>
     <button type="button" disabled={index === 0} onClick={() => onMove(index, index - 1)} className={buttonClass} aria-label={`Move ${label} up`} title="Move up"><ArrowUp className="h-4 w-4" /></button>
     <button type="button" disabled={index === length - 1} onClick={() => onMove(index, index + 1)} className={buttonClass} aria-label={`Move ${label} down`} title="Move down"><ArrowDown className="h-4 w-4" /></button>
-    <button type="button" onClick={onRemove} className={`${buttonClass} text-rose-600 hover:bg-rose-50`} aria-label={`Delete ${label}`} title="Delete"><Trash2 className="h-4 w-4" /></button>
+    {onRemove ? <button type="button" onClick={onRemove} className={`${buttonClass} text-rose-600 hover:bg-rose-50`} aria-label={`Delete ${label}`} title="Delete"><Trash2 className="h-4 w-4" /></button> : null}
   </div>;
 }
 
