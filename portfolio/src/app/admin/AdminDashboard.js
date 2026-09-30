@@ -14,6 +14,7 @@ import { useTheme } from "@/app/ThemeContext";
 import { ProjectsPreview } from "@/app/components/Projects";
 import ProjectThemePicker from "./ProjectThemePicker";
 import ResumeSections from "./ResumeSections";
+import ConfirmDialog from "./ConfirmDialog";
 import { LogsWorkspace, InboxWorkspace } from "./AdminActivity";
 import styles from "./AdminWorkspace.module.css";
 
@@ -60,6 +61,7 @@ export default function AdminDashboard({ session }) {
   const worker = useRef(null);
   const editorRef = useRef(null);
   const mainRef = useRef(null);
+  const confirmationTrigger = useRef(null);
   const editVersion = useRef(0);
   const compileRequest = useRef(0);
   const pendingTabs = useRef(new Map());
@@ -78,6 +80,7 @@ export default function AdminDashboard({ session }) {
   const [preview, setPreview] = useState({ status: "idle", url: "", bytes: null, pageCount: 0, log: "" });
   const [notice, setNotice] = useState("");
   const [removedSection, setRemovedSection] = useState(null);
+  const [confirmation, setConfirmation] = useState(null);
   const [cacheNeedsRetry, setCacheNeedsRetry] = useState(false);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -275,7 +278,16 @@ export default function AdminDashboard({ session }) {
       await loadTab("inbox", { force: true });
     } catch (error) { setNotice(error.message || "Unable to update message. Please try again."); }
   }
-  async function logout() { await fetch("/api/admin/logout", { method: "POST" }); router.refresh(); }
+  function requestLogout(event) {
+    confirmationTrigger.current = event.currentTarget;
+    setMobileMenuOpen(false);
+    setConfirmation({ type: "logout" });
+  }
+  async function logout() {
+    const response = await fetch("/api/admin/logout", { method: "POST" });
+    if (!response.ok) throw new Error("Unable to sign out. Please try again.");
+    router.refresh();
+  }
   async function refreshActivePanel() {
     if (activeTab === "resume" && dirty && !window.confirm("Refresh the resume panel and discard unsaved changes?")) return;
     setNotice("");
@@ -299,10 +311,11 @@ export default function AdminDashboard({ session }) {
   const publishDisabled = saving || !document || preview.status !== "ready" || preview.pageCount < 1 || preview.pageCount > 20;
 
   return <main className={styles.root}>
+    {confirmation?.type === "logout" ? <ConfirmDialog title="Sign out?" description={dirty ? "You have unsaved changes. Sign out without saving?" : "Sign out of the admin panel?"} confirmLabel="Sign out" returnFocusRef={confirmationTrigger} fallbackFocusRef={mainRef} onConfirm={logout} onCancel={() => setConfirmation(null)} /> : null}
     <div className={`${styles.shell} ${sidebarCollapsed ? styles.collapsed : ""}`}>
       {mobileMenuOpen ? <button type="button" aria-label="Close navigation overlay" onClick={() => setMobileMenuOpen(false)} className={styles.backdrop} /> : null}
-      <AdminSidebar activeTab={activeTab} onChange={chooseTab} collapsed={sidebarCollapsed} onToggle={toggleSidebar} onLogout={logout} mobileOpen={mobileMenuOpen} isMobile={isMobile} onMobileClose={() => setMobileMenuOpen(false)} activeSection={activeSection} onSection={chooseSection} sections={sections} document={document} session={session} unreadCount={messages.filter((message) => message.status === "unread").length} />
-      <div ref={mainRef} className={styles.main} inert={isMobile && mobileMenuOpen}>
+      <AdminSidebar activeTab={activeTab} onChange={chooseTab} collapsed={sidebarCollapsed} onToggle={toggleSidebar} onLogout={requestLogout} mobileOpen={mobileMenuOpen} isMobile={isMobile} onMobileClose={() => setMobileMenuOpen(false)} activeSection={activeSection} onSection={chooseSection} sections={sections} document={document} session={session} unreadCount={messages.filter((message) => message.status === "unread").length} />
+      <div ref={mainRef} tabIndex={-1} className={styles.main} inert={isMobile && mobileMenuOpen}>
         <header className={styles.topbar}>
           <button type="button" onClick={() => setMobileMenuOpen(true)} className={`${styles.iconButton} ${styles.mobileMenu}`} aria-label="Open navigation" aria-controls="admin-navigation" aria-expanded={mobileMenuOpen}><Menu /></button>
           <div className={styles.breadcrumb}><span>Workspace</span><ChevronRight /><strong>{activeTab === "resume" ? "Resume studio" : activeTab === "logs" ? "Activity" : "Inbox"}</strong></div>

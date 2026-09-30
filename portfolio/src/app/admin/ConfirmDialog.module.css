@@ -1,0 +1,21 @@
+.dialog { width: min(440px, calc(100% - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--admin-border); border-radius: 16px; background: var(--admin-panel); color: var(--admin-text); box-shadow: 0 24px 80px #00000040; }
+.dialog::backdrop { background: #07121f99; backdrop-filter: blur(4px); }
+.form { padding: 28px; }
+.icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 18px; border-radius: 12px; background: var(--admin-accent-soft); color: var(--admin-accent); }
+.icon svg { width: 20px; height: 20px; }
+.destructive { background: var(--admin-danger-soft); color: var(--admin-danger); }
+.form h2 { margin: 0; font-size: 22px; line-height: 1.3; font-weight: 650; letter-spacing: -.4px; }
+.form p { margin-top: 10px; color: var(--admin-muted); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.field { display: block; margin-top: 22px; color: var(--admin-muted); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.field strong { color: var(--admin-text); font-weight: 600; }
+.field input { display: block; width: 100%; min-width: 0; min-height: 44px; margin-top: 9px; padding: 10px 12px; border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-field); color: var(--admin-text); font-size: 16px; }
+.actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 26px; }
+.actions button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 9px 16px; border: 1px solid var(--admin-border); border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.actions svg { width: 16px; height: 16px; }
+.cancel { background: var(--admin-panel); color: var(--admin-text); }
+.cancel:hover { background: var(--admin-subtle); }
+.actions .confirm { border-color: transparent; background: var(--admin-accent); color: var(--admin-on-accent); }
+.actions .dangerButton { background: var(--admin-danger); color: var(--admin-panel); }
+.confirm:hover:not(:disabled) { filter: brightness(.94); }
+.form .error { padding: 10px 12px; border-radius: 8px; background: var(--admin-danger-soft); color: var(--admin-danger); }
+@media (max-width: 479px) { .form { padding: 22px; } .actions > button { flex: 1; padding-inline: 12px; } }
