@@ -113,6 +113,27 @@ test("individual social and project links can be excluded only from the PDF", ()
   assert.deepEqual(document, before);
 });
 
+test("the PDF supports mixed legacy and editable achievements without excluded or blank rows", () => {
+  const document = fixture();
+  document.achievements = [
+    { text: "Visible achievement", includeInPdf: true },
+    { text: "Hidden achievement", includeInPdf: false },
+    { text: " \n " },
+    "Legacy achievement",
+  ];
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  for (const retained of ["Visible achievement", "Legacy achievement"]) assert.ok(source.includes(retained), retained);
+  for (const omitted of ["Hidden achievement", "\\resumeSubItem{}{}", "[object Object]"]) assert.ok(!source.includes(omitted), omitted);
+  assert.deepEqual(document, before);
+});
+
+test("the PDF omits an empty achievements section after excluding its last row", () => {
+  const document = fixture();
+  document.achievements = [{ text: "Hidden achievement", includeInPdf: false }, { text: "  " }];
+  assert.ok(!generateResumeLatex(document).includes("Co-Curricular"));
+});
+
 test("header social rows preserve editor order and never duplicate a lone link", () => {
   const document = fixture();
   document.profile.socials = [

@@ -57,7 +57,10 @@ for (const section of ["experience", "projects"]) {
 test("empty co-curricular draft fields do not create blank website bullets", () => {
   const document = structuredClone(defaultResumeDocument);
   document.achievements = ["  First achievement  ", "", "  ", "Second achievement"];
-  assert.deepEqual(parseResumeDocument(document).achievements, ["First achievement", "Second achievement"]);
+  assert.deepEqual(parseResumeDocument(document).achievements, [
+    { text: "First achievement", includeInPdf: true },
+    { text: "Second achievement", includeInPdf: true },
+  ]);
   document.achievements = ["", "  "];
   assert.deepEqual(parseResumeDocument(document).achievements, []);
 });
@@ -85,6 +88,21 @@ test("blank social and project link drafts are removed while partial links requi
   }
 });
 
+test("editable achievements preserve visibility and stable IDs while discarding blank rows", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.achievements = [
+    { id: "retained", text: "  Website achievement  ", includeInPdf: false },
+    { id: "blank", text: " \n\t ", includeInPdf: false },
+    { text: "Included achievement" },
+    "Legacy achievement",
+  ];
+  assert.deepEqual(parseResumeDocument(document).achievements, [
+    { id: "retained", text: "Website achievement", includeInPdf: false },
+    { text: "Included achievement", includeInPdf: true },
+    { text: "Legacy achievement", includeInPdf: true },
+  ]);
+});
+
 test("individual PDF exclusions retain links in public content", () => {
   const document = structuredClone(defaultResumeDocument);
   document.profile.socials = [{ id: "social", label: "Community", href: "https://example.com/community", includeInPdf: false }];
@@ -94,4 +112,16 @@ test("individual PDF exclusions retain links in public content", () => {
   assert.deepEqual(normalized.projects[0].links, document.projects[0].links);
   const publicText = renderPublicProfile(normalized);
   for (const retained of ["https://example.com/community", "https://example.com/reference"]) assert.ok(publicText.includes(retained), retained);
+});
+
+test("individual PDF exclusions retain achievements and every bullet in public content", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.achievements = [{ id: "achievement", text: "Website-only achievement", includeInPdf: false }];
+  document.experience[0].bullets = ["First", "Second", "Third", "Fourth website bullet"];
+  const normalized = parseResumeDocument(document);
+  assert.deepEqual(normalized.achievements, document.achievements);
+  assert.deepEqual(normalized.experience[0].bullets, document.experience[0].bullets);
+  const publicText = renderPublicProfile(normalized);
+  for (const retained of ["Website-only achievement", "Fourth website bullet"]) assert.ok(publicText.includes(retained), retained);
+  assert.ok(!publicText.includes("[object Object]"));
 });

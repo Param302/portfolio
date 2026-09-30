@@ -78,7 +78,7 @@ ${bullets(content.skills.map((group) => `**${group.label}:** ${group.items.join(
 
 ### Community and achievements
 
-${bullets(content.achievements)}
+${bullets(content.achievements.map((item) => typeof item === "string" ? item : item.text))}
 
 ## Connect with Param / Parampreet Singh
 

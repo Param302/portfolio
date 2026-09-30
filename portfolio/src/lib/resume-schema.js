@@ -19,6 +19,15 @@ const linkList = (maximum) => z.preprocess(
   z.array(linkSchema).max(maximum),
 );
 
+const achievementSchema = z.preprocess(
+  (value) => typeof value === "string" ? { text: value } : value,
+  z.object({
+    id: shortText.optional(),
+    text,
+    includeInPdf: z.boolean().default(true),
+  }),
+);
+
 const experienceSchema = z.object({
   id: shortText,
   role: shortText,
@@ -76,7 +85,7 @@ export const resumeDocumentSchema = z.object({
     includeInPdf: z.boolean().default(true),
     items: z.array(shortText).max(30),
   })).min(1).max(8),
-  achievements: z.array(text).transform((items) => items.filter(Boolean)).pipe(z.array(text).max(16)),
+  achievements: z.array(achievementSchema).transform((items) => items.filter((item) => item.text)).pipe(z.array(achievementSchema).max(16)),
 });
 
 export const defaultResumeDocument = resumeDocumentSchema.parse({

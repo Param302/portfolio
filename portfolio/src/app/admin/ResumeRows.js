@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import styles from "./ResumeRows.module.css";
 
@@ -63,4 +64,35 @@ export function LinkRows({ title = "Links", items, onChange, maxItems = 8 }) {
       {!items.length && <div role="row"><p role="cell" className="px-4 py-5 text-sm text-prussian-blue/50">No links yet. Add one above.</p></div>}
     </RowsTable>
   </div>;
+}
+
+function GrowingArea({ label, value, onChange }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    const field = ref.current;
+    function resize() { if (field.clientWidth) { field.style.height = "auto"; field.style.height = `${field.scrollHeight + field.offsetHeight - field.clientHeight}px`; } }
+    resize();
+    let width = field.clientWidth;
+    const observer = new ResizeObserver(() => { if (field.clientWidth !== width) { width = field.clientWidth; resize(); } });
+    observer.observe(field);
+    return () => observer.disconnect();
+  }, [value]);
+  return <textarea ref={ref} aria-label={label} rows={2} value={value} onChange={(event) => onChange(event.target.value)} placeholder="Add an achievement or activity…" className={`${rowInput} min-h-[60px] resize-y leading-6`} />;
+}
+
+export function AchievementRows({ items, onChange }) {
+  function update(index, field, value) {
+    onChange(items.map((item, itemIndex) => itemIndex === index ? { ...(typeof item === "string" ? { text: item, includeInPdf: true } : item), [field]: value } : item));
+  }
+  function move(from, to) { const next = [...items]; const [item] = next.splice(from, 1); next.splice(to, 0, item); onChange(next); }
+  return <RowsTable label="Co-curricular points" heading="Achievement or activity">
+    {items.map((value, index) => {
+      const item = typeof value === "string" ? { text: value, includeInPdf: true } : value;
+      const label = `achievement ${index + 1}`;
+      return <EditableRow key={item.id || index} label={label} included={item.includeInPdf} onToggle={(included) => update(index, "includeInPdf", included)} controls={<RowActions stackedOnMobile index={index} length={items.length} onMove={move} onRemove={() => onChange(items.filter((_, itemIndex) => itemIndex !== index))} label={label} />}>
+        <GrowingArea label={label} value={item.text} onChange={(text) => update(index, "text", text)} />
+      </EditableRow>;
+    })}
+    {!items.length && <div role="row"><p role="cell" className="px-4 py-5 text-sm text-prussian-blue/50">Add an achievement or activity to get started.</p></div>}
+  </RowsTable>;
 }

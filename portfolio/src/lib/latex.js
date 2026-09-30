@@ -75,7 +75,7 @@ ${item.skills.length ? `{\\small \\textit{Tools: ${escapeLatex(item.skills.join(
 ${bullets(cleanLines(item.bullets).slice(0, 3))}
 \\vspace{2pt}`));
   const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`));
-  const achievements = list(cleanLines(document.achievements).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`));
+  const achievements = list(cleanLines(included(document.achievements).map((item) => typeof item === "string" ? item : item.text)).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`));
   const blocks = {
     header: header(document.profile),
     summary: section("Summary", escapeLatex(document.summary.trim())),

@@ -66,7 +66,7 @@ export default async function ResumePage() {
           <Section title="Education">{content.education.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.school} | {item.program}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{item.dates}</span></div><Bullets items={item.details} /></article>)}</Section>
           <Section title="Projects">{content.projects.map((project) => <article key={project.id}><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-heading text-lg font-semibold">{project.name} | {project.subtitle}</h3><div className="flex gap-2">{project.links.map((link) => <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className="text-xs text-sky-surge">{link.label}</a>)}</div></div><p className="mt-2">{project.description}</p><p className="mt-1 text-sm opacity-70">{project.skills.join(" · ")}</p><Bullets items={project.bullets} /></article>)}</Section>
           <Section title="Skills">{content.skills.map((group) => <p key={group.label}><strong>{group.label}:</strong> {group.items.join(", ")}</p>)}</Section>
-          <Section title="Co-Curricular & Achievements"><Bullets items={content.achievements} /></Section>
+          <Section title="Co-Curricular & Achievements"><Bullets items={content.achievements.map((item) => typeof item === "string" ? item : item.text)} /></Section>
         </div>
       </div>
     </main>
