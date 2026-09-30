@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { Check, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { getProjectTheme, interpolateProjectColor, normalizeProjectGradient, projectPalette, projectThemes } from "@/lib/project-themes";
 import { useTheme } from "@/app/ThemeContext";
 import styles from "./ProjectThemePicker.module.css";
@@ -43,8 +43,13 @@ export default function ProjectThemePicker({ value, gradient: inputGradient, onC
     setActiveStop(gradient.stops.length);
     update({ stops: [...gradient.stops, stop] });
   };
-  return <fieldset className={styles.root}>
-    <legend>Theme</legend>
+  return <details className={styles.root}>
+    <summary className={styles.summary}>
+      <span className={styles.title}>Theme</span>
+      <span className={styles.selection}><span className={styles.previewSwatch} style={{ background: getProjectTheme(selected.id, mode, gradient).colors.background }} aria-hidden="true" /><span>{selected.label}</span></span>
+      <ChevronDown className={styles.chevron} aria-hidden="true" />
+    </summary>
+    <div className={styles.panel}>
     <div className={styles.themes} role="group" aria-label="Project theme">
       {projectThemes.map((theme) => <button key={theme.id} type="button" aria-label={`Use ${theme.label} theme`} aria-pressed={selected.id === theme.id} onClick={() => onChange(theme.id)}>
         <span className={styles.swatch} style={{ background: getProjectTheme(theme.id, mode, gradient).colors.background }} aria-hidden="true">{selected.id === theme.id ? <span className={styles.selectedMark}><Check /></span> : null}</span>
@@ -76,5 +81,6 @@ export default function ProjectThemePicker({ value, gradient: inputGradient, onC
         {projectPalette.map(({ label, color }) => <button type="button" key={color} title={label} aria-label={`Use ${label} for stop ${stopIndex + 1}`} style={{ "--palette-color": color }} onClick={() => updateStop(stopIndex, { color })}><span /></button>)}
       </div>
     </div> : null}
-  </fieldset>;
+    </div>
+  </details>;
 }
