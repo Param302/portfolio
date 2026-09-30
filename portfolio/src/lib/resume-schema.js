@@ -1,9 +1,26 @@
 import { z } from "zod";
+import { defaultPdfLayout } from "./resume-layout.js";
+
+export { defaultPdfLayout } from "./resume-layout.js";
 
 const text = z.string().trim().max(2000);
 const shortText = z.string().trim().max(240);
 const url = z.union([z.literal(""), z.string().url()]);
 const bulletList = z.array(text).transform((items) => items.filter(Boolean)).pipe(z.array(text).min(1));
+const bulletLimit = z.number().int().min(0).max(12);
+const entryBulletLimit = bulletLimit.nullable().default(null);
+
+const pdfLayoutSchema = z.object({
+  fontSize: z.number().min(8.5).max(11).default(defaultPdfLayout.fontSize),
+  lineHeight: z.number().min(1).max(1.5).default(defaultPdfLayout.lineHeight),
+  bulletGap: z.number().min(0).max(6).default(defaultPdfLayout.bulletGap),
+  entryGap: z.number().min(0).max(16).default(defaultPdfLayout.entryGap),
+  sectionGap: z.number().min(4).max(24).default(defaultPdfLayout.sectionGap),
+  experienceBulletLimit: bulletLimit.default(defaultPdfLayout.experienceBulletLimit),
+  projectBulletLimit: bulletLimit.default(defaultPdfLayout.projectBulletLimit),
+  educationBulletLimit: bulletLimit.default(defaultPdfLayout.educationBulletLimit),
+  projectToolsPlacement: z.enum(["heading", "line", "hidden"]).default(defaultPdfLayout.projectToolsPlacement),
+});
 
 const linkSchema = z.object({
   id: shortText.optional(),
@@ -48,6 +65,7 @@ const experienceSchema = z.object({
   dates: shortText,
   link: url.default(""),
   includeInPdf: z.boolean().default(true),
+  pdfBulletLimit: entryBulletLimit,
   bullets: bulletList,
 });
 
@@ -57,6 +75,7 @@ const projectSchema = z.object({
   subtitle: shortText.default(""),
   description: text,
   includeInPdf: z.boolean().default(true),
+  pdfBulletLimit: entryBulletLimit,
   bullets: bulletList,
   skills: z.array(shortText).max(16),
   image: shortText,
@@ -66,6 +85,7 @@ const projectSchema = z.object({
 
 export const resumeDocumentSchema = z.object({
   version: z.literal(1),
+  pdfLayout: pdfLayoutSchema.prefault({}),
   pdfSections: z.object({
     summary: z.boolean().default(true),
     experience: z.boolean().default(true),
@@ -87,6 +107,7 @@ export const resumeDocumentSchema = z.object({
   education: z.array(z.object({
     id: shortText,
     includeInPdf: z.boolean().default(true),
+    pdfBulletLimit: entryBulletLimit,
     school: shortText,
     program: shortText,
     dates: shortText,

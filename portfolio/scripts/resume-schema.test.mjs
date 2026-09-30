@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { defaultResumeDocument, parseResumeDocument } from "../src/lib/resume-schema.js";
+import { defaultPdfLayout, defaultResumeDocument, parseResumeDocument } from "../src/lib/resume-schema.js";
 import { renderPublicProfile } from "../src/lib/public-profile.js";
 
 const sections = ["summary", "experience", "education", "projects", "skills", "achievements"];
@@ -126,6 +126,70 @@ test("individual PDF exclusions retain achievements and every bullet in public c
   assert.ok(!publicText.includes("[object Object]"));
 });
 
+test("legacy resumes gain PDF defaults and inherit section bullet limits without losing education text", () => {
+  const legacy = structuredClone(defaultResumeDocument);
+  delete legacy.pdfLayout;
+  for (const section of ["experience", "projects", "education"]) {
+    for (const item of legacy[section]) delete item.pdfBulletLimit;
+  }
+  legacy.education[0].details = ["Diplomas in Programming and Data Science", "Core Subjects: LLMs and GenAI"];
+  const original = structuredClone(legacy);
+  const normalized = parseResumeDocument(legacy);
+  assert.deepEqual(normalized.pdfLayout, defaultPdfLayout);
+  for (const section of ["experience", "projects", "education"]) {
+    assert.ok(normalized[section].every((item) => item.pdfBulletLimit === null));
+  }
+  assert.deepEqual(normalized.education[0].details, legacy.education[0].details.map((text) => ({ label: "", text, includeInPdf: true })));
+  assert.deepEqual(legacy, original);
+});
+
+test("PDF layout controls preserve valid custom settings and fill only missing defaults", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.pdfLayout = { fontSize: 8.75, lineHeight: 1.2, bulletGap: 2, entryGap: 6, sectionGap: 10, experienceBulletLimit: 0, projectBulletLimit: 5, educationBulletLimit: 2, projectToolsPlacement: "line" };
+  assert.deepEqual(parseResumeDocument(document).pdfLayout, document.pdfLayout);
+  document.pdfLayout = { projectBulletLimit: 1, projectToolsPlacement: "hidden" };
+  assert.deepEqual(parseResumeDocument(document).pdfLayout, { ...defaultPdfLayout, ...document.pdfLayout });
+});
+
+test("PDF layout values reject unsafe dimensions and noninteger bullet limits", () => {
+  const invalidValues = {
+    fontSize: [8.49, 11.01, "9"],
+    lineHeight: [0.99, 1.51],
+    bulletGap: [-0.1, 6.1],
+    entryGap: [-0.1, 16.1],
+    sectionGap: [3.9, 24.1],
+    experienceBulletLimit: [-1, 13, 1.5],
+    projectBulletLimit: [-1, 13, 1.5],
+    educationBulletLimit: [-1, 13, 1.5],
+    projectToolsPlacement: ["before", "", null],
+  };
+  for (const [key, values] of Object.entries(invalidValues)) {
+    for (const value of values) {
+      const document = structuredClone(defaultResumeDocument);
+      document.pdfLayout[key] = value;
+      assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.join(".") === `pdfLayout.${key}`), `${key}: ${value}`);
+    }
+  }
+});
+
+test("per-entry PDF limits preserve inherit, all and custom counts without truncating website bullets", () => {
+  for (const section of ["experience", "projects", "education"]) {
+    const document = structuredClone(defaultResumeDocument);
+    const pointsKey = section === "education" ? "details" : "bullets";
+    document[section][0][pointsKey] = Array.from({ length: 8 }, (_, index) => `Website point ${index + 1}`);
+    for (const limit of [null, 0, 1, 12]) {
+      document[section][0].pdfBulletLimit = limit;
+      const normalized = parseResumeDocument(document);
+      assert.equal(normalized[section][0].pdfBulletLimit, limit);
+      assert.equal(normalized[section][0][pointsKey].length, 8);
+    }
+    for (const limit of [-1, 13, 1.5, "3"]) {
+      document[section][0].pdfBulletLimit = limit;
+      assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.join(".") === `${section}.0.pdfBulletLimit`));
+    }
+  }
+});
+
 test("education rows preserve labels, visibility and IDs and discard only fully blank drafts", () => {
   const document = structuredClone(defaultResumeDocument);
   document.education[0].details = [
@@ -151,8 +215,10 @@ test("education supports sixteen nonblank rows and enforces its limit after disc
   assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.join(".") === "education.0.details"));
 });
 
-test("public education retains labelled and excluded points", () => {
+test("public education retains labelled and excluded points regardless of PDF count settings", () => {
   const document = structuredClone(defaultResumeDocument);
+  document.pdfLayout.educationBulletLimit = 1;
+  document.education[0].pdfBulletLimit = 1;
   document.education[0].details = [
     { label: "Core Subjects", text: "LLMs and GenAI", includeInPdf: false },
     { label: "Diplomas:", text: "Programming and Data Science", includeInPdf: true },

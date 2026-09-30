@@ -7,9 +7,32 @@
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 
-% Match Overleaf's TS1 bullet fonts in the bundled browser PDFTeX engine.
-\pdfmapline{+tcrm0900 SFRM0900 "TS1Encoding ReEncodeFont" <cm-super-ts1.enc <sfrm0900.pfb}
+% Scale bundled outline fonts at every editor size, including half-point sizes.
+% Reuse the bundled TS1 font for symbols instead of requesting missing sizes.
+\DeclareFontShape{OT1}{cmr}{m}{n}{<-9>cmr8 <9-10>cmr9 <10-12>cmr10 <12->cmr12}{}
+\DeclareFontShape{OT1}{cmr}{bx}{n}{<-9>cmbx8 <9-10>cmbx9 <10-12>cmbx10 <12->cmbx12}{}
+\DeclareFontShape{OT1}{cmr}{m}{it}{<-9>cmti8 <9-10>cmti9 <10-12>cmti10 <12->cmti12}{}
+\DeclareFontShape{OT1}{cmr}{bx}{it}{<->cmbxti10}{}
+\DeclareFontShape{OML}{cmm}{m}{it}{<-9>cmmi8 <9-10>cmmi9 <10->cmmi10}{}
+\DeclareFontShape{OML}{cmm}{b}{it}{<->cmmib10}{}
+\DeclareFontShape{OMS}{cmsy}{m}{n}{<-9>cmsy8 <9-10>cmsy9 <10->cmsy10}{}
+\DeclareFontShape{OMS}{cmsy}{b}{n}{<->cmbsy10}{}
+\DeclareFontShape{TS1}{cmr}{m}{n}{<->tcrm1000}{}
+\DeclareFontShape{TS1}{cmr}{bx}{n}{<->ssub * cmr/m/n}{}
+\DeclareFontShape{TS1}{cmr}{m}{it}{<->ssub * cmr/m/n}{}
+\DeclareFontShape{TS1}{cmr}{bx}{it}{<->ssub * cmr/m/n}{}
 \pdfmapline{+tcrm1000 SFRM1000 "TS1Encoding ReEncodeFont" <cm-super-ts1.enc <sfrm1000.pfb}
+
+% resume:layout:start
+\newcommand{\resumeFontSize}{9}
+\newcommand{\resumeBaseline}{10.35}
+\newcommand{\resumeToolsSize}{8.5}
+\newcommand{\resumeSectionSize}{11}
+\newcommand{\resumeSectionBaseline}{12.65}
+\newcommand{\resumeBulletGap}{0pt}
+\newcommand{\resumeEntryGap}{4pt}
+\newcommand{\resumeSectionGap}{8pt}
+% resume:layout:end
 
 \pagestyle{empty}
 
@@ -24,42 +47,72 @@
 \raggedbottom
 \raggedright
 \setlength{\tabcolsep}{0in}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+\clubpenalty=10000
+\widowpenalty=10000
 
 \titleformat{\section}{
-  \vspace{-10pt}\raggedright\large
-}{}{0em}{}[\titlerule \vspace{-6pt}]
+  \raggedright\fontsize{\resumeSectionSize}{\resumeSectionBaseline}\selectfont
+}{}{0em}{}[\vspace{1pt}\titlerule]
+\titlespacing*{\section}{0pt}{\resumeSectionGap}{3pt}
 
-\newcommand{\resumeItem}[1]{
-  \item\small{
-     #1 \vspace{-2pt}
-  }
-}
+\newcommand{\resumeBodyFont}{\fontsize{\resumeFontSize}{\resumeBaseline}\selectfont}
+\newcommand{\resumeItem}[1]{\item #1}
+\newcommand{\resumeTools}[1]{{\normalfont\fontsize{\resumeToolsSize}{\resumeBaseline}\selectfont\textit{[#1]}}}
 
-\newcommand{\resumeSubheading}[4]{
+% Only the heading is boxed. Its bullets remain breakable across PDF pages.
+% Measure dates/links, but cap their column so long headings wrap safely.
+\newlength{\resumeRightWidth}
+\newcommand{\resumeEntryHeading}[2]{
   \item
-    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-      \textbf{#1} & #2
-    \end{tabular*}
-    \vspace{-6pt}
+  \if\relax\detokenize{#2}\relax
+    #1\par
+  \else
+    \settowidth{\resumeRightWidth}{#2}
+    \ifdim\resumeRightWidth>0.35\linewidth
+      \setlength{\resumeRightWidth}{0.35\linewidth}
+    \fi
+    \noindent\begin{minipage}[t]{\dimexpr\linewidth-\resumeRightWidth-1em\relax}
+      \raggedright\resumeBodyFont #1\par
+    \end{minipage}\hfill
+    \begin{minipage}[t]{\resumeRightWidth}
+      \raggedleft\resumeBodyFont #2\par
+    \end{minipage}\par
+  \fi
+  \nobreak
 }
 
-\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-3pt}}
+\newcommand{\resumeSubheading}[4]{\resumeEntryHeading{\textbf{#1}}{#2}}
+\newcommand{\resumeHeaderRow}[2]{
+  \noindent\begin{minipage}[t]{0.60\linewidth}
+    \raggedright\resumeBodyFont #1\par
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.38\linewidth}
+    \raggedleft\resumeBodyFont #2\par
+  \end{minipage}\par
+}
 
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1 #2}}
+
+\renewcommand{\labelitemi}{\textbullet}
 \renewcommand{\labelitemii}{$\circ$}
 
-\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*]}
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=1.2em,itemsep=\resumeEntryGap,topsep=1pt,parsep=0pt,partopsep=0pt]}
 \newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
-\newcommand{\resumeItemListStart}{\begin{itemize}}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+\newcommand{\resumePointListStart}{\begin{itemize}[leftmargin=1.2em,itemsep=\resumeBulletGap,topsep=1pt,parsep=0pt,partopsep=0pt]}
+\newcommand{\resumePointListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=1.5em,itemsep=\resumeBulletGap,topsep=1pt,parsep=0pt,partopsep=0pt,beginpenalty=10000]}
+\newcommand{\resumeItemListEnd}{\end{itemize}}
 
 \begin{document}
+\resumeBodyFont
 
 % resume:header:start
-\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
-  \textbf{{\LARGE Parampreet Singh}} & \href{mailto:hey@itsparam.in}{hey@itsparam.in}\\
-  \href{https://itsparam.in}{Portfolio: \underline{itsparam.in}} & ~~~+91 836 884 6192 \\
-  \href{https://linkedin.com/in/param302}{LinkedIn: \underline{linkedin/param302}} & \href{https://github.com/param302}{\underline{github/param302}} \\
-\end{tabular*}
+\resumeHeaderRow{\textbf{{\LARGE Parampreet Singh}}}{\href{mailto:hey@itsparam.in}{hey@itsparam.in}}
+\resumeHeaderRow{\href{https://itsparam.in}{Portfolio: \underline{itsparam.in}}}{+91 836 884 6192}
+\resumeHeaderRow{\href{https://linkedin.com/in/param302}{LinkedIn: \underline{linkedin/param302}}}{\href{https://github.com/param302}{\underline{github/param302}}}
 % resume:header:end
 
 % resume:summary:start
@@ -118,54 +171,28 @@
 
 \resumeSubHeadingListStart
 
-\item
-\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-\textbf{Pocket Coder \textbar{} Local Coding Assistant} & \underline{\href{https://github.com/param302/pocket-coder}{Github}} \\
-\end{tabular*}
-{\small \textit{Tools: PyTorch, LoRA, SFT, Unsloth, Ollama, MCP, GGUF}}
-\vspace{-5pt}
+\resumeEntryHeading{\textbf{Pocket Coder \textbar{} Local Coding Assistant} \resumeTools{PyTorch, LoRA, SFT, Unsloth, Ollama, MCP, GGUF}}{\href{https://github.com/param302/pocket-coder}{\underline{Github}}}
 \resumeItemListStart
 \resumeItem{Fine-tuned \textbf{1.2B Liquid Foundation Model (LFM 2.5)} using LoRA on custom datasets for coding specific tasks.}
 \resumeItem{Engineered SFT pipeline to scale context length from \textbf{4K to 16K} (local + Kaggle multi-GPU).}
 \resumeItem{Created an \textbf{MCP server} \& integrated the model (Ollama) with Jupyter notebook magic command (\%\%code).}
 \resumeItemListEnd
 
-\vspace{2pt}
-
-\item
-\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-\textbf{GRWM \textbar{} Get README With Me} & \underline{\href{https://getreadmewithme.vercel.app}{Live link}} \\
-\end{tabular*}
-{\small \textit{Tools: LangGraph, FastAPI, Next.js, GCP Cloud Run, SSE}}
-\vspace{-5pt}
+\resumeEntryHeading{\textbf{GRWM \textbar{} Get README With Me} \resumeTools{LangGraph, FastAPI, Next.js, GCP Cloud Run, SSE}}{\href{https://getreadmewithme.vercel.app}{\underline{Live link}}}
 \resumeItemListStart
 \resumeItem{Achieved \textbf{100+ unique users in first 16 hours} and 200+ within 24 hours.}
 \resumeItem{Built multi-agent GenAI system with three specialized agents (Detective, CTO, Ghostwriter).}
 \resumeItem{Implemented \textbf{agent orchestration with LangGraph}, real-time SSE, and personalized README generation.}
 \resumeItemListEnd
 
-\vspace{2pt}
-
-\item
-\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-\textbf{Hand Gesture Segmentation with LNN} & \underline{\href{https://github.com/param302/hand-gesture-lnn}{Github}} \\
-\end{tabular*}
-{\small \textit{Tools: PyTorch, Liquid Neural Networks, Time-Series Modeling}}
-\vspace{-5pt}
+\resumeEntryHeading{\textbf{Hand Gesture Segmentation with LNN} \resumeTools{PyTorch, Liquid Neural Networks, Time-Series Modeling}}{\href{https://github.com/param302/hand-gesture-lnn}{\underline{Github}}}
 \resumeItemListStart
 \resumeItem{Explored Liquid Neural Networks (continuous-time recurrent models using LTC dynamics for temporal adaptability).}
 \resumeItem{Reproduced LTC architecture and implemented hand gesture segmentation on 32-dimensional time-series motion data.}
 \resumeItem{Built custom LTC cells and benchmarked against LSTM, achieving 54.6\% validation accuracy with improved generalization stability.}
 \resumeItemListEnd
 
-\vspace{2pt}
-
-\item
-\begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
-\textbf{Quizzo \textbar{} Quiz Management System} & \underline{\href{https://github.com/param302/quizzo-v2}{Github}} \\
-\end{tabular*}
-{\small \textit{Tools: Flask, Vue.js, Redis, Celery, PostgreSQL}}
-\vspace{-5pt}
+\resumeEntryHeading{\textbf{Quizzo \textbar{} Quiz Management System} \resumeTools{Flask, Vue.js, Redis, Celery, PostgreSQL}}{\href{https://github.com/param302/quizzo-v2}{\underline{Github}}}
 \resumeItemListStart
 \resumeItem{Engineered scalable full-stack quiz platform with background task queues and API rate limiting.}
 \resumeItem{Implemented certificate generation and automated email workflows.}
@@ -176,24 +203,23 @@
 
 % resume:skills:start
 \section{\textbf{Skills}}
-\resumeSubHeadingListStart
+\resumePointListStart
 \resumeSubItem{\textbf{Languages:}}{Python, JavaScript, Java, C, SQL, Bash, HTML/CSS}
 \resumeSubItem{\textbf{ML / GenAI:}}{PyTorch, TensorFlow, LangGraph, LangChain, U-Net, Transformers, VertexAI}
 \resumeSubItem{\textbf{Systems \& Infra:}}{Snowflake, FastAPI, Redis, PostgreSQL, GCP, Firebase, Cloud Run, Docker, Git}
-\resumeSubHeadingListEnd
+\resumePointListEnd
 % resume:skills:end
 
 % resume:achievements:start
 \section{\textbf{Co-Curricular \& Achievements}}
-\vspace{5pt}
-\resumeSubHeadingListStart
+\resumePointListStart
 \resumeSubItem{}{\textbf{Presented research paper at GLEX 2025}: Real-Time DEM for Autonomous Space Exploration.}
 \resumeSubItem{}{Delivered Python One-Liners Talk - \href{https://parampreetsingh.me/python1liners}{\underline{YT Link}}.}
 \resumeSubItem{}{ML Specialization Notes (120+ stars).}
 \resumeSubItem{}{\textbf{Best \#23} Contributor in Winter of Code 2023 by IIIT Kalyani.}
 \resumeSubItem{}{Gold Badge in Python on HackerRank.}
 \resumeSubItem{}{\textbf{Top 3} in High School Code Connect coding competition.}
-\resumeSubHeadingListEnd
+\resumePointListEnd
 % resume:achievements:end
 
 \end{document}

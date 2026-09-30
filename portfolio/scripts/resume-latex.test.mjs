@@ -19,10 +19,12 @@ const { generateResumeLatex } = await import("../src/lib/latex.js");
 
 const fixture = () => structuredClone(defaultResumeDocument);
 
-test("the PDF uses the canonical Overleaf preamble and replaces every example block", async () => {
+test("the PDF uses the single canonical template and replaces every example block", async () => {
   const template = await readFile(new URL("../resume.tex", import.meta.url), "utf8");
   const source = generateResumeLatex(fixture());
-  assert.equal(source.split("% resume:header:start")[0].split("\\begin{document}")[0], template.split("\\begin{document}")[0]);
+  const withoutSettings = (text) => text.split("\\begin{document}")[0]
+    .replace(/% resume:layout:(start|end)/g, "").replace(/\s+/g, " ").trim();
+  assert.equal(withoutSettings(source), withoutSettings(template));
   assert.doesNotMatch(source, /% resume:|Core Subjects:|Gold Badge/);
   assert.match(source, /\\resumeSubheading\{Founder \\textbar\{\} Gurmat Darbar/);
   assert.match(source, /\\resumeItemListStart/);
@@ -70,7 +72,7 @@ test("every section can be independently excluded and legacy documents include a
   }
 });
 
-test("PDF takes only the first three non-empty bullets per experience and project", () => {
+test("default PDF limits retain the first three non-empty bullets per experience and project", () => {
   const document = fixture();
   for (const key of ["experience", "projects"]) {
     document[key].forEach((item, index) => {
@@ -85,6 +87,141 @@ test("PDF takes only the first three non-empty bullets per experience and projec
     });
   }
   assert.deepEqual(document, before);
+});
+
+test("education details support optional bold labels, PDF visibility, and legacy strings", () => {
+  const document = fixture();
+  document.education[0].details = [
+    { label: "Core subjects:", text: "LLMs & Gen AI", includeInPdf: true },
+    { label: "Completed diplomas: :", text: "Programming; Data Science" },
+    { label: "Hidden", text: "Excluded detail", includeInPdf: false },
+    { label: "Empty", text: "   " },
+    { label: "", text: "A detail without a label" },
+    "Legacy education detail",
+  ];
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  assert.ok(source.includes(String.raw`\resumeItem{\textbf{Core subjects:} LLMs \& Gen AI}`));
+  assert.ok(source.includes(String.raw`\resumeItem{\textbf{Completed diplomas:} Programming; Data Science}`));
+  assert.ok(source.includes(String.raw`\resumeItem{A detail without a label}`));
+  assert.ok(source.includes(String.raw`\resumeItem{Legacy education detail}`));
+  assert.doesNotMatch(source, /Excluded detail|\\textbf\{Empty:|::|\[object Object\]/);
+  assert.deepEqual(document, before);
+});
+
+test("education joins score and dates without a dangling separator", () => {
+  const document = fixture();
+  const school = document.education[0];
+  school.score = "GPA: 8.3";
+  school.dates = "Sept 2022 - Present";
+  assert.ok(generateResumeLatex(document).includes(String.raw`{GPA: 8.3 \textbar{} Sept 2022 - Present}{}{}`));
+  school.dates = "";
+  assert.ok(generateResumeLatex(document).includes("{GPA: 8.3}{}{}"));
+  school.score = "";
+  school.dates = "Sept 2022 - Present";
+  assert.ok(generateResumeLatex(document).includes("{Sept 2022 - Present}{}{}"));
+});
+
+test("section bullet limits and per-entry overrides apply after filtering without mutating the document", () => {
+  const document = fixture();
+  document.pdfLayout = { experienceBulletLimit: 2, projectBulletLimit: 1, educationBulletLimit: 2 };
+  document.experience = document.experience.slice(0, 3);
+  document.projects = document.projects.slice(0, 3);
+  for (const section of ["experience", "projects"]) {
+    document[section].forEach((item, index) => {
+      item.pdfBulletLimit = [null, 0, 4][index];
+      item.bullets = ["", ...Array.from({ length: 5 }, (_, point) => `${section}entry${index}point${point + 1}`)];
+    });
+  }
+  document.education[0].details = [
+    { text: "excludededucation", includeInPdf: false },
+    { text: "   " },
+    ...Array.from({ length: 5 }, (_, point) => ({ label: "Study", text: `educationpoint${point + 1}` })),
+  ];
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  for (const section of ["experience", "projects"]) {
+    const inherited = section === "experience" ? 2 : 1;
+    document[section].forEach((_, index) => {
+      const expected = [inherited, 5, 4][index];
+      for (let point = 1; point <= 5; point += 1) assert.equal(source.includes(`${section}entry${index}point${point}`), point <= expected);
+    });
+  }
+  assert.ok(source.includes("educationpoint2"));
+  assert.doesNotMatch(source, /educationpoint3|excludededucation/);
+  assert.deepEqual(document, before);
+  document.education[0].pdfBulletLimit = 0;
+  assert.ok(generateResumeLatex(document).includes("educationpoint5"));
+  document.education[0].pdfBulletLimit = 1;
+  assert.ok(!generateResumeLatex(document).includes("educationpoint2"));
+});
+
+test("zero section limits retain every experience, project, and education point", () => {
+  const document = fixture();
+  document.pdfLayout = { experienceBulletLimit: 0, projectBulletLimit: 0, educationBulletLimit: 0 };
+  document.experience[0].bullets = Array.from({ length: 8 }, (_, index) => `experienceunlimited${index}`);
+  document.projects[0].bullets = Array.from({ length: 8 }, (_, index) => `projectunlimited${index}`);
+  document.education[0].details = Array.from({ length: 8 }, (_, index) => `educationunlimited${index}`);
+  const source = generateResumeLatex(document);
+  for (const section of ["experience", "project", "education"]) assert.ok(source.includes(`${section}unlimited7`));
+});
+
+test("font size, leading, and each spacing setting produce independent dimensions", () => {
+  const document = fixture();
+  document.pdfLayout = { fontSize: 8.5, lineHeight: 1.2, bulletGap: 1.5, entryGap: 6, sectionGap: 10 };
+  const source = generateResumeLatex(document);
+  for (const setting of [
+    String.raw`\newcommand{\resumeFontSize}{8.5}`,
+    String.raw`\newcommand{\resumeBaseline}{10.2}`,
+    String.raw`\newcommand{\resumeToolsSize}{8}`,
+    String.raw`\newcommand{\resumeBulletGap}{1.5pt}`,
+    String.raw`\newcommand{\resumeEntryGap}{6pt}`,
+    String.raw`\newcommand{\resumeSectionGap}{10pt}`,
+  ]) assert.ok(source.includes(setting), setting);
+  assert.doesNotMatch(source, /\\vspace\{-|\\resizebox|\\enlargethispage/);
+  assert.ok(source.includes(String.raw`\section{\textbf{Skills}}` + "\n\\resumePointListStart"));
+  assert.ok(source.includes(String.raw`\section{\textbf{Co-Curricular \& Achievements}}` + "\n\\resumePointListStart"));
+  document.pdfLayout = { fontSize: 11, lineHeight: 1.5 };
+  const expanded = generateResumeLatex(document);
+  assert.ok(expanded.includes(String.raw`\newcommand{\resumeBaseline}{16.5}`));
+  assert.ok(expanded.includes(String.raw`\newcommand{\resumeFontSize}{11}`));
+});
+
+test("draft layout values cannot introduce TeX commands or invalid dimensions", () => {
+  const document = fixture();
+  document.pdfLayout = { fontSize: String.raw`9}\input{bad`, lineHeight: Infinity, bulletGap: -4, entryGap: 999, sectionGap: NaN };
+  const source = generateResumeLatex(document);
+  assert.doesNotMatch(source, /input\{bad|Infinity|NaN/);
+  assert.ok(source.includes(String.raw`\newcommand{\resumeFontSize}{9}`));
+  assert.ok(source.includes(String.raw`\newcommand{\resumeBulletGap}{0pt}`));
+  assert.ok(source.includes(String.raw`\newcommand{\resumeEntryGap}{16pt}`));
+});
+
+test("project tools use small italic brackets in the heading, on a separate line, or are hidden", () => {
+  const document = fixture();
+  document.projects = [document.projects[0]];
+  const toolText = String.raw`\resumeTools{PyTorch, LoRA, SFT, Ollama, MCP}`;
+  const heading = generateResumeLatex(document);
+  assert.ok(heading.includes(String.raw`\resumeEntryHeading{\textbf{Pocket Coder \textbar{} Local Coding Assistant} ` + toolText + "}"));
+  assert.ok(heading.includes(String.raw`\textit{[#1]}`));
+  assert.doesNotMatch(heading, /Tools:/);
+  document.pdfLayout = { projectToolsPlacement: "line" };
+  assert.ok(generateResumeLatex(document).includes(`${toolText}\\par\n\\resumeItemListStart`));
+  document.pdfLayout.projectToolsPlacement = "hidden";
+  assert.ok(!generateResumeLatex(document).includes(toolText));
+  assert.deepEqual(document.projects[0].skills, ["PyTorch", "LoRA", "SFT", "Ollama", "MCP"]);
+});
+
+test("long headings use bounded columns while bullets can continue across pages", () => {
+  const document = fixture();
+  document.experience[0].link = "https://example.com/a-very-long-reference-page-for-this-experience";
+  const source = generateResumeLatex(document);
+  assert.ok(source.includes(String.raw`\setlength{\resumeRightWidth}{0.35\linewidth}`));
+  assert.ok(source.includes(String.raw`\dimexpr\linewidth-\resumeRightWidth-1em\relax`));
+  assert.ok(source.includes(String.raw`\allowbreak{}`));
+  assert.doesNotMatch(source, /\\begin\{tabular\*\}/);
+  const entry = source.slice(source.indexOf("\\resumeSubheading{Founder"));
+  assert.ok(entry.indexOf("\\resumeItemListStart") > entry.indexOf("{}{}"));
 });
 
 test("education and achievements retain more than three points in the PDF", () => {
@@ -155,37 +292,4 @@ test("header social rows preserve editor order and never duplicate a lone link",
   const empty = generateResumeLatex(document);
   assert.ok(!empty.includes("Hidden:"));
   assert.ok(!empty.includes("Empty:"));
-});
-
-test("education details support optional bold labels, PDF visibility, and legacy strings", () => {
-  const document = fixture();
-  document.education[0].details = [
-    { label: "Core subjects:", text: "LLMs & Gen AI", includeInPdf: true },
-    { label: "Completed diplomas: :", text: "Programming; Data Science" },
-    { label: "Hidden", text: "Excluded detail", includeInPdf: false },
-    { label: "Empty", text: "   " },
-    { label: "", text: "A detail without a label" },
-    "Legacy education detail",
-  ];
-  const before = structuredClone(document);
-  const source = generateResumeLatex(document);
-  assert.ok(source.includes(String.raw`\resumeItem{\textbf{Core subjects:} LLMs \& Gen AI}`));
-  assert.ok(source.includes(String.raw`\resumeItem{\textbf{Completed diplomas:} Programming; Data Science}`));
-  assert.ok(source.includes(String.raw`\resumeItem{A detail without a label}`));
-  assert.ok(source.includes(String.raw`\resumeItem{Legacy education detail}`));
-  assert.doesNotMatch(source, /Excluded detail|\\textbf\{Empty:|::|\[object Object\]/);
-  assert.deepEqual(document, before);
-});
-
-test("education joins score and dates without a dangling separator", () => {
-  const document = fixture();
-  const school = document.education[0];
-  school.score = "GPA: 8.3";
-  school.dates = "Sept 2022 - Present";
-  assert.ok(generateResumeLatex(document).includes(String.raw`{GPA: 8.3 \textbar{} Sept 2022 - Present}{}{}`));
-  school.dates = "";
-  assert.ok(generateResumeLatex(document).includes("{GPA: 8.3}{}{}"));
-  school.score = "";
-  school.dates = "Sept 2022 - Present";
-  assert.ok(generateResumeLatex(document).includes("{Sept 2022 - Present}{}{}"));
 });

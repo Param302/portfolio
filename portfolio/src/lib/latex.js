@@ -1,4 +1,5 @@
 import resumeTemplate from "../../resume.tex";
+import { defaultPdfLayout } from "./resume-layout.js";
 
 // Replace characters in one pass so inserted TeX commands are never escaped again.
 function escapeLatex(value = "") {
@@ -12,27 +13,57 @@ function escapeLatex(value = "") {
 
 function href(url, label, underline = true) {
   if (!url) return escapeLatex(label);
-  const text = escapeLatex(label);
-  return `\\href{${escapeLatex(url)}}{${underline ? `\\underline{${text}}` : text}}`;
+  // Underline in short segments when necessary so long link labels can wrap.
+  const segments = String(label).length > 24
+    ? String(label).split(/(?<=[/_.@-])/).flatMap((part) => part.match(/.{1,20}/gu) || [])
+    : [String(label)];
+  const text = segments.map((part) => underline ? `\\underline{${escapeLatex(part)}}` : escapeLatex(part)).join("\\allowbreak{}");
+  return `\\href{${escapeLatex(url)}}{${text}}`;
 }
 
 function cleanLines(items) {
   return items.map((item) => item.trim()).filter(Boolean);
 }
 
-function bullets(items) {
-  const lines = cleanLines(items);
-  if (!lines.length) return "";
-  return `\\resumeItemListStart\n${lines.map((item) => `\\resumeItem{${escapeLatex(item)}}`).join("\n")}\n\\resumeItemListEnd`;
-}
-
-function educationBullets(lines) {
+function bullets(lines) {
   if (!lines.length) return "";
   return `\\resumeItemListStart\n${lines.map((item) => `\\resumeItem{${item}}`).join("\n")}\n\\resumeItemListEnd`;
 }
 
-function list(items) {
-  return items.length ? `\\resumeSubHeadingListStart\n${items.join("\n\n")}\n\\resumeSubHeadingListEnd` : "";
+function limited(items, entryLimit, sectionLimit) {
+  const limit = entryLimit ?? sectionLimit;
+  return limit > 0 ? items.slice(0, limit) : items;
+}
+
+function decimal(value) { return Number(value.toFixed(3)); }
+
+function layoutBlock(settings) {
+  const dimensions = [
+    ["FontSize", "fontSize", 8.5, 11],
+    ["LineHeight", "lineHeight", 1, 1.5],
+    ["BulletGap", "bulletGap", 0, 6],
+    ["EntryGap", "entryGap", 0, 16],
+    ["SectionGap", "sectionGap", 4, 24],
+  ];
+  const values = Object.fromEntries(dimensions.map(([name, key, minimum, maximum]) => {
+    const value = typeof settings[key] === "number" && Number.isFinite(settings[key]) ? settings[key] : defaultPdfLayout[key];
+    return [name, decimal(Math.max(minimum, Math.min(maximum, value)))];
+  }));
+  return [
+    `\\newcommand{\\resumeFontSize}{${values.FontSize}}`,
+    `\\newcommand{\\resumeBaseline}{${decimal(values.FontSize * values.LineHeight)}}`,
+    `\\newcommand{\\resumeToolsSize}{${decimal(values.FontSize - 0.5)}}`,
+    `\\newcommand{\\resumeSectionSize}{${decimal(values.FontSize + 2)}}`,
+    `\\newcommand{\\resumeSectionBaseline}{${decimal((values.FontSize + 2) * values.LineHeight)}}`,
+    `\\newcommand{\\resumeBulletGap}{${values.BulletGap}pt}`,
+    `\\newcommand{\\resumeEntryGap}{${values.EntryGap}pt}`,
+    `\\newcommand{\\resumeSectionGap}{${values.SectionGap}pt}`,
+  ].join("\n");
+}
+
+function list(items, points = false) {
+  const macro = points ? "resumePointList" : "resumeSubHeadingList";
+  return items.length ? `\\${macro}Start\n${items.join("\n\n")}\n\\${macro}End` : "";
 }
 
 function section(title, body) {
@@ -55,48 +86,52 @@ function header(profile) {
   const socials = profile.socials.filter((link) => link.includeInPdf !== false && link.href);
   const websiteLabel = profile.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
   const rows = [
-    `\\textbf{{\\LARGE ${escapeLatex(profile.name)}}} & ${href(`mailto:${profile.email}`, profile.email, false)}`,
-    `${profile.website ? `\\href{${escapeLatex(profile.website)}}{Portfolio: \\underline{${escapeLatex(websiteLabel)}}}` : ""} & ${escapeLatex(profile.phone)}`,
+    `\\resumeHeaderRow{\\textbf{{\\LARGE ${escapeLatex(profile.name)}}}}{${href(`mailto:${profile.email}`, profile.email, false)}}`,
+    `\\resumeHeaderRow{${profile.website ? `\\href{${escapeLatex(profile.website)}}{Portfolio: \\underline{${escapeLatex(websiteLabel)}}}` : ""}}{${escapeLatex(profile.phone)}}`,
   ];
   for (let index = 0; index < socials.length; index += 2) {
     const [left, right] = socials.slice(index, index + 2);
-    rows.push(`${escapeLatex(left.label)}: ${href(left.href, socialLabel(left))} & ${right ? href(right.href, socialLabel(right)) : ""}`);
+    rows.push(`\\resumeHeaderRow{${escapeLatex(left.label)}: ${href(left.href, socialLabel(left))}}{${right ? href(right.href, socialLabel(right)) : ""}}`);
   }
-  return `\\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}\n${rows.join("\\\\\n")}\\\\\n\\end{tabular*}`;
+  return rows.join("\n");
 }
 
 export function generateResumeLatex(document) {
+  const layout = { ...defaultPdfLayout, ...document.pdfLayout };
   const included = (items) => items.filter((item) => item.includeInPdf !== false);
   const experiences = list(included(document.experience).map((item) => {
     const title = `${escapeLatex(item.role)} \\textbar{} ${escapeLatex(item.company)}${item.link ? ` - ${href(item.link, item.link.replace(/^https?:\/\//, "").replace(/\/$/, ""))}` : ""}`;
-    return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(cleanLines(item.bullets).slice(0, 3))}`;
+    const points = limited(cleanLines(item.bullets), item.pdfBulletLimit, layout.experienceBulletLimit);
+    return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(points.map(escapeLatex))}`;
   }));
   const education = list(included(document.education).map((item) => {
     const details = included(item.details.map((point) => typeof point === "string" ? { text: point } : point)).filter((point) => point.text.trim());
-    const points = details.map((point) => {
+    const points = limited(details, item.pdfBulletLimit, layout.educationBulletLimit).map((point) => {
       const label = (point.label || "").trim().replace(/[:\s]+$/, "");
       return `${label ? `\\textbf{${escapeLatex(label)}:} ` : ""}${escapeLatex(point.text.trim())}`;
     });
     const right = [item.score, item.dates].filter((value) => value?.trim()).join(" | ");
-    return `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(right)}}{}{}\n${educationBullets(points)}`;
+    return `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(right)}}{}{}\n${bullets(points)}`;
   }));
-  const projects = list(included(document.projects).map((item) => `\\item
-\\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
-\\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}} & ${included(item.links).filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} \\\\
-\\end{tabular*}
-${item.skills.length ? `{\\small \\textit{Tools: ${escapeLatex(item.skills.join(", "))}}}\n` : ""}\\vspace{-5pt}
-${bullets(cleanLines(item.bullets).slice(0, 3))}
-\\vspace{2pt}`));
-  const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`));
-  const achievements = list(cleanLines(included(document.achievements).map((item) => typeof item === "string" ? item : item.text)).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`));
+  const projects = list(included(document.projects).map((item) => {
+    const title = `\\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}}`;
+    const tools = item.skills.length && layout.projectToolsPlacement !== "hidden" ? `\\resumeTools{${escapeLatex(item.skills.join(", "))}}` : "";
+    const heading = `${title}${tools && layout.projectToolsPlacement === "heading" ? ` ${tools}` : ""}`;
+    const links = included(item.links).filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ");
+    const points = limited(cleanLines(item.bullets), item.pdfBulletLimit, layout.projectBulletLimit);
+    return `\\resumeEntryHeading{${heading}}{${links}}\n${tools && layout.projectToolsPlacement === "line" ? `${tools}\\par\n` : ""}${bullets(points.map(escapeLatex))}`;
+  }));
+  const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`), true);
+  const achievements = list(cleanLines(included(document.achievements).map((item) => typeof item === "string" ? item : item.text)).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`), true);
   const blocks = {
+    layout: layoutBlock(layout),
     header: header(document.profile),
     summary: section("Summary", escapeLatex(document.summary.trim())),
     experience: section("Experience", experiences),
     education: section("Education", education),
     projects: section("Projects", projects),
     skills: section("Skills", skills),
-    achievements: section("Co-Curricular & Achievements", achievements ? `\\vspace{5pt}\n${achievements}` : ""),
+    achievements: section("Co-Curricular & Achievements", achievements),
   };
   return resumeTemplate.replace(/% resume:(\w+):start\r?\n[\s\S]*?% resume:\1:end/g,
     (_, key) => document.pdfSections?.[key] === false ? "" : blocks[key]);
