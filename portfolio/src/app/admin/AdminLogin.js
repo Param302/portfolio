@@ -3,9 +3,32 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, Moon, Sun } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, Moon, Pause, Play, Quote, Sun } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
+import { allFeedbacks } from "@/app/data/teachingImpactData";
 import styles from "./AdminLogin.module.css";
+
+const loginFeedbacks = allFeedbacks.filter((quote) => quote.length >= 40 && quote.length <= 180).slice(0, 16);
+
+function FeedbackRail({ items, reverse = false }) {
+  return (
+    <aside className={`${styles.rail} ${reverse ? styles.reverseRail : ""}`} aria-label="Learner feedback">
+      <div className={styles.railTrack}>
+        {[false, true].map((duplicate) => (
+          <div key={String(duplicate)} className={styles.quoteGroup} aria-hidden={duplicate ? "true" : undefined}>
+            {items.map((quote, index) => (
+              <blockquote key={quote} className={styles.quoteCard}>
+                <Quote size={18} aria-hidden="true" className={styles.quoteIcon} />
+                <p>{quote}</p>
+                <span className={styles.quoteMark} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+              </blockquote>
+            ))}
+          </div>
+        ))}
+      </div>
+    </aside>
+  );
+}
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -14,6 +37,7 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [feedbackPaused, setFeedbackPaused] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
@@ -32,15 +56,21 @@ export default function AdminLogin() {
   }
 
   return (
-    <main className={styles.root}>
+    <main className={styles.root} data-feedback-paused={feedbackPaused}>
       <header className={styles.header}>
         <Link href="/" className={styles.backLink}><ArrowLeft size={16} />Back to portfolio</Link>
         <button type="button" onClick={toggleTheme} disabled={!mounted} className={styles.themeToggle} aria-label={mounted && theme === "dark" ? "Switch to light theme" : "Switch to dark theme"} title={mounted && theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}>{mounted && theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
       </header>
       <div className={styles.content}>
+        <FeedbackRail items={loginFeedbacks.slice(0, 8)} />
         <div className={styles.formWrap}>
           <div className={styles.intro}>
-            <h1>Sign in</h1>
+            <div className={styles.introTop}>
+              <span className={styles.adminBadge}>Admin</span>
+              <span className={styles.eyes} aria-hidden="true"><span /><span /></span>
+            </div>
+            <h1>Well, hello there.</h1>
+            <p>This corner is just for Param.</p>
           </div>
           <form onSubmit={submit} className={styles.form} aria-busy={loading}>
             <label className={styles.field}><span>Email</span><input required type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>
@@ -54,9 +84,14 @@ export default function AdminLogin() {
             {error ? <p role="alert" className={styles.error}>{error}</p> : null}
             <button disabled={loading} className={styles.submit}><span>{loading ? "Signing in…" : "Sign in"}</span>{loading ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />}</button>
           </form>
+          <Link href="/walloffame" className={styles.wallLink}>Wall of Fame<ArrowRight size={14} aria-hidden="true" /></Link>
         </div>
+        <FeedbackRail items={loginFeedbacks.slice(8, 16)} reverse />
       </div>
-      <footer className={styles.footer}>itsparam.in</footer>
+      <footer className={styles.footer}>
+        <span>itsparam.in</span>
+        <button type="button" className={styles.motionToggle} onClick={() => setFeedbackPaused((paused) => !paused)} aria-pressed={feedbackPaused} aria-label={feedbackPaused ? "Play feedback animation" : "Pause feedback animation"} title={feedbackPaused ? "Play feedback animation" : "Pause feedback animation"}>{feedbackPaused ? <Play size={14} /> : <Pause size={14} />}<span>{feedbackPaused ? "Play" : "Pause"}</span></button>
+      </footer>
     </main>
   );
 }
