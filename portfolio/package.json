@@ -13,6 +13,7 @@
     "admin:set-password": "node scripts/set-admin-password.mjs",
     "feedback:import": "python scripts/import_feedback.py",
     "images:optimize": "node scripts/optimize-images.mjs",
+    "test:projects": "node --test scripts/project-themes.test.mjs",
     "test:seo": "node --test scripts/seo.test.mjs",
     "test:seo:http": "node scripts/seo-smoke.mjs"
   },

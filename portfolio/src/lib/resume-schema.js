@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { defaultPdfLayout } from "./resume-layout.js";
 import { defaultResumeSections } from "./resume-sections.js";
+import { projectThemeIds } from "./project-themes.js";
 
 export { defaultPdfLayout } from "./resume-layout.js";
 
@@ -91,7 +92,7 @@ const projectSchema = z.object({
   bullets: bulletList,
   skills: z.array(shortText).max(16),
   image: shortText,
-  theme: z.enum(["surface", "brand", "accent"]).default("surface"),
+  theme: z.enum(projectThemeIds).default("surface"),
   links: linkList(4),
 });
 

@@ -39,7 +39,7 @@ export default async function Home() {
       <CommunitySection codexImages={codexImages} pyDelhiImages={pyDelhiImages} extraImages={extraImages} subscriberLabel={formatCompactCount(youtubeStats?.subscriber_count)} />
       <GurmatDarbarSpotlight screenshots={gurmatScreenshots} />
       <Work experiences={content.experience} />
-      <Projects />
+      <Projects projects={content.projects} />
       <Contact />
       <Footer />
     </main>
