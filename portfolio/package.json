@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "test:ml": "node --test scripts/gradient-math.test.mjs scripts/more-ml-demos.test.mjs scripts/token-demos.test.mjs",
-    "test:resume": "node --test scripts/resume-latex.test.mjs scripts/resume-schema.test.mjs scripts/resume-compiler.test.mjs",
+    "test:resume": "node --test scripts/resume-inline.test.mjs scripts/resume-latex.test.mjs scripts/resume-schema.test.mjs scripts/resume-compiler.test.mjs",
     "db:migrate": "node scripts/migrate.mjs",
     "admin:set-password": "node scripts/set-admin-password.mjs",
     "feedback:import": "python scripts/import_feedback.py",

@@ -9,6 +9,7 @@ import * as seoData from "../src/app/data/seoData.js";
 import { defaultPdfLayout, defaultResumeDocument, parseResumeDocument } from "../src/lib/resume-schema.js";
 import { defaultResumeSections, isCustomResumeSection, isProtectedResumeSection, resolveResumeSections } from "../src/lib/resume-sections.js";
 import { renderPublicProfile } from "../src/lib/public-profile.js";
+import * as resumeInline from "../src/lib/resume-inline.js";
 
 const sections = ["summary", "experience", "education", "projects", "skills", "achievements"];
 const itemSections = ["experience", "education", "projects", "skills"];
@@ -324,21 +325,84 @@ test("public text honors renamed section order and retains every PDF-excluded se
   assert.ok(escaped.includes("### &lt;script&gt;alert(1)&lt;/script&gt; &amp; \\*\\*Title\\*\\* \\# Extra\n"));
 });
 
-async function renderResumeHtml(document) {
-  const source = await readFile(new URL("../src/app/resume/page.js", import.meta.url), "utf8");
-  const { code } = await transform(source, { filename: "resume-page.js", jsc: { target: "es2022", parser: { syntax: "ecmascript", jsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
+async function loadJsx(path, modules) {
+  const source = await readFile(new URL(path, import.meta.url), "utf8");
+  const { code } = await transform(source, { filename: path, jsc: { target: "es2022", parser: { syntax: "ecmascript", jsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
   const require = createRequire(import.meta.url);
-  const modules = {
+  const output = { exports: {} };
+  new Function("require", "module", "exports", code)((name) => modules[name] || require(name), output, output.exports);
+  return output.exports;
+}
+
+const resumeInlineComponent = await loadJsx("../src/app/components/ResumeInline.js", { "@/lib/resume-inline": resumeInline });
+
+async function renderResumeHtml(document) {
+  const { default: ResumePage } = await loadJsx("../src/app/resume/page.js", {
+    "@/app/components/ResumeInline": resumeInlineComponent,
     "@/app/data/seoData": seoData,
     "@/lib/resume-content": { getPublishedResume: async () => ({ id: "repository-default", content: document }) },
+    "@/lib/resume-inline": resumeInline,
     "@/lib/resume-sections": { isCustomResumeSection, resolveResumeSections },
     "next/image": ({ src, alt }) => createElement("img", { src, alt }),
     "next/link": (props) => createElement("a", props),
-  };
-  const output = { exports: {} };
-  new Function("require", "module", "exports", code)((name) => modules[name] || require(name), output, output.exports);
-  return renderToStaticMarkup(await output.exports.default());
+  });
+  return renderToStaticMarkup(await ResumePage());
 }
+
+test("public resume renders emphasis across point types and retains points beyond PDF limits", async () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.summary = "**Summary bold** and *summary italic*.";
+  document.experience[0].role = "**Literal role**";
+  document.experience[0].pdfBulletLimit = 3;
+  document.experience[0].bullets = ["Gained **500+ users** with *first milestone* and _team effort_.", "Second", "Third", "**Fourth experience point** remains"];
+  document.education[0].details = [{ label: "_Core subjects_:", text: "**Algorithms** and *AI*", includeInPdf: false }];
+  document.projects[0].description = "A **project description**.";
+  document.projects[0].skills = ["**Python**", "_FastAPI_"];
+  document.projects[0].pdfBulletLimit = 3;
+  document.projects[0].bullets = ["**Project outcome**", "*Second project point*", "Third", "_Fourth project point_ remains"];
+  document.skills = [{ label: "_Languages_", items: ["**JavaScript**", "*SQL*"], includeInPdf: false }];
+  document.achievements = [{ text: "**Community organizer** and _speaker_", includeInPdf: false }];
+  document.sections.push(
+    { id: "custom-talks", type: "custom", title: "Talks", format: "bullets", items: [{ label: "_Conference_", text: "**Custom point** with *emphasis*", includeInPdf: false }], includeInPdf: false },
+    { id: "custom-note", type: "custom", title: "Note", format: "text", text: "**Custom paragraph** and _italic note_", includeInPdf: false },
+  );
+  const html = await renderResumeHtml(parseResumeDocument(document));
+  for (const expected of [
+    "<strong>Summary bold</strong> and <em>summary italic</em>",
+    "Gained <strong>500+ users</strong> with <em>first milestone</em> and <em>team effort</em>",
+    "<strong>Fourth experience point</strong> remains",
+    "<strong><em>Core subjects</em>:</strong> <strong>Algorithms</strong> and <em>AI</em>",
+    "A <strong>project description</strong>",
+    "<strong>Python</strong> · <em>FastAPI</em>",
+    "<strong>Project outcome</strong>",
+    "<em>Fourth project point</em> remains",
+    "<strong><em>Languages</em>:</strong> <strong>JavaScript</strong>, <em>SQL</em>",
+    "<strong>Community organizer</strong> and <em>speaker</em>",
+    "<strong><em>Conference</em>:</strong> <strong>Custom point</strong> with <em>emphasis</em>",
+    "<strong>Custom paragraph</strong> and <em>italic note</em>",
+  ]) assert.ok(html.includes(expected), expected);
+  assert.ok(html.includes("**Literal role**"), "headings remain ordinary text");
+  assert.ok(!html.includes("Core subjects</em>::"));
+});
+
+test("inline resume formatting keeps HTML and TeX literal and escapes them safely", async () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.experience[0].bullets = ['**<img src=x onerror="alert(1)">** and *<script>alert(2)</script>* with \\input{secret}'];
+  const html = await renderResumeHtml(parseResumeDocument(document));
+  assert.ok(html.includes("<strong>&lt;img src=x onerror=&quot;alert(1)&quot;&gt;</strong>"));
+  assert.ok(html.includes("<em>&lt;script&gt;alert(2)&lt;/script&gt;</em> with \\input{secret}"));
+  assert.doesNotMatch(html, /<img src="?x|<script>alert\(2\)/);
+});
+
+test("homepage Work keeps emphasis wording without adding formatting or losing later points", async () => {
+  const { default: Work } = await loadJsx("../src/app/components/Work.js", { "@/lib/resume-inline": resumeInline });
+  const experience = structuredClone(defaultResumeDocument.experience[0]);
+  experience.pdfBulletLimit = 3;
+  experience.bullets = ["**500+ users** and *first launch*", "_Team effort_", "Third", "**Fourth point** stays"];
+  const html = renderToStaticMarkup(createElement(Work, { experiences: [experience] }));
+  for (const expected of ["500+ users and first launch", "Team effort", "Fourth point stays"]) assert.ok(html.includes(expected), expected);
+  assert.doesNotMatch(html, /<(strong|em)(\s|>)|\*\*|\*first launch\*|_Team effort_/);
+});
 
 test("public resume HTML renders custom headings as text, follows section order and shows skills once", async () => {
   const document = structuredClone(defaultResumeDocument);
@@ -453,7 +517,7 @@ test("custom sections and points enforce limits and duplicate protection", () =>
   assert.throws(() => parseResumeDocument(document));
 });
 
-test("custom public sections preserve shared order and ignore PDF flags without rendering markup", async () => {
+test("custom public sections preserve shared order and ignore PDF flags without rendering raw HTML", async () => {
   const document = structuredClone(defaultResumeDocument);
   document.sections = [
     { id: "custom-research", type: "custom", title: "Research & talks", format: "bullets", items: [{ label: "Publication:", text: '<script>alert("row")</script>', includeInPdf: false }], includeInPdf: false },
@@ -469,6 +533,7 @@ test("custom public sections preserve shared order and ignore PDF flags without 
   assert.ok(html.includes("&lt;script&gt;"));
   assert.ok(!html.includes('<script>alert("row")</script>'));
   assert.ok(html.includes("whitespace-pre-line"));
+  assert.ok(html.includes("<strong>Literal</strong> &amp; &lt;b&gt;text&lt;/b&gt;"));
   assert.ok(text.includes('**Publication:** &lt;script&gt;alert("row")&lt;/script&gt;'));
   assert.ok(text.includes("Line one\n\\*\\*Literal\\*\\* &amp; &lt;b&gt;text&lt;/b&gt;"));
   assert.ok(text.indexOf("### Research &amp; talks") < text.indexOf("### Projects"));

@@ -1,6 +1,7 @@
 import resumeTemplate from "../../resume.tex";
 import { defaultPdfLayout } from "./resume-layout.js";
 import { isCustomResumeSection, resolveResumeSections } from "./resume-sections.js";
+import { parseResumeInline } from "./resume-inline.js";
 
 // Replace characters in one pass so inserted TeX commands are never escaped again.
 function escapeLatex(value = "") {
@@ -10,6 +11,14 @@ function escapeLatex(value = "") {
     "~": "\\textasciitilde{}", "^": "\\textasciicircum{}", "|": "\\textbar{}",
   };
   return String(value).replace(/[\\#$%&_{}~^|]/g, (character) => escapes[character]);
+}
+
+export function formatResumeLatex(value) {
+  function render(nodes) {
+    return nodes.map((node) => node.type === "text" ? escapeLatex(node.value)
+      : `\\${node.type === "strong" ? "textbf" : "textit"}{${render(node.children)}}`).join("");
+  }
+  return render(parseResumeInline(value));
 }
 
 function href(url, label, underline = true) {
@@ -73,11 +82,11 @@ function section(title, body) {
 
 function labeledPoint(point) {
   const label = (point.label || "").trim().replace(/[:\s]+$/, "");
-  return `${label ? `\\textbf{${escapeLatex(label)}:} ` : ""}${escapeLatex(point.text.trim())}`;
+  return `${label ? `\\textbf{${formatResumeLatex(label)}:} ` : ""}${formatResumeLatex(point.text.trim())}`;
 }
 
 function customSectionBody(section) {
-  if (section.format === "text") return escapeLatex(section.text.trim()).replace(/\r?\n/g, "\\par\n");
+  if (section.format === "text") return formatResumeLatex(section.text.trim()).replace(/\r?\n/g, "\\par\n");
   return list(section.items
     .filter((point) => point.includeInPdf !== false && point.text?.trim())
     .map((point) => `\\resumeSubItem{}{${labeledPoint(point)}}`), true);
@@ -115,7 +124,7 @@ export function generateResumeLatex(document) {
   const experiences = list(included(document.experience).map((item) => {
     const title = `${escapeLatex(item.role)} \\textbar{} ${escapeLatex(item.company)}${item.link ? ` - ${href(item.link, item.link.replace(/^https?:\/\//, "").replace(/\/$/, ""))}` : ""}`;
     const points = limited(cleanLines(item.bullets), item.pdfBulletLimit, layout.experienceBulletLimit);
-    return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(points.map(escapeLatex))}`;
+    return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(points.map(formatResumeLatex))}`;
   }));
   const education = list(included(document.education).map((item) => {
     const details = included(item.details.map((point) => typeof point === "string" ? { text: point } : point)).filter((point) => point.text.trim());
@@ -125,16 +134,16 @@ export function generateResumeLatex(document) {
   }));
   const projects = list(included(document.projects).map((item) => {
     const title = `\\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}}`;
-    const tools = item.skills.length && layout.projectToolsPlacement !== "hidden" ? `\\resumeTools{${escapeLatex(item.skills.join(", "))}}` : "";
+    const tools = item.skills.length && layout.projectToolsPlacement !== "hidden" ? `\\resumeTools{${item.skills.map(formatResumeLatex).join(", ")}}` : "";
     const heading = `${title}${tools && layout.projectToolsPlacement === "heading" ? ` ${tools}` : ""}`;
     const links = included(item.links).filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ");
     const points = limited(cleanLines(item.bullets), item.pdfBulletLimit, layout.projectBulletLimit);
-    return `\\resumeEntryHeading{${heading}}{${links}}\n${tools && layout.projectToolsPlacement === "line" ? `${tools}\\par\n` : ""}${bullets(points.map(escapeLatex))}`;
+    return `\\resumeEntryHeading{${heading}}{${links}}\n${tools && layout.projectToolsPlacement === "line" ? `${tools}\\par\n` : ""}${bullets(points.map(formatResumeLatex))}`;
   }));
-  const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`), true);
-  const achievements = list(cleanLines(included(document.achievements).map((item) => typeof item === "string" ? item : item.text)).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`), true);
+  const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${formatResumeLatex(group.label)}:}}{${group.items.map(formatResumeLatex).join(", ")}}`), true);
+  const achievements = list(cleanLines(included(document.achievements).map((item) => typeof item === "string" ? item : item.text)).map((item) => `\\resumeSubItem{}{${formatResumeLatex(item)}}`), true);
   const bodies = {
-    summary: escapeLatex(document.summary.trim()),
+    summary: formatResumeLatex(document.summary.trim()),
     experience: experiences,
     education,
     projects,

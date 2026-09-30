@@ -6,6 +6,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transform } from "next/dist/build/swc/index.js";
 import * as themeModule from "../src/lib/project-themes.js";
+import * as resumeInline from "../src/lib/resume-inline.js";
 import { defaultResumeDocument, parseResumeDocument } from "../src/lib/resume-schema.js";
 
 const { defaultProjectGradient, getProjectTheme, normalizeProjectGradient, projectForDisplay, projectGradientCss, projectLinkLabel, projectPalette, projectThemes } = themeModule;
@@ -23,6 +24,7 @@ const components = await loadJsx("../src/app/components/Projects.js", {
   "@/app/ThemeContext": { useTheme: () => ({ theme: "light" }) },
   "@/lib/optimized-image": { optimizedImage: (value) => value },
   "@/lib/project-themes": themeModule,
+  "@/lib/resume-inline": resumeInline,
   "@/app/data/projects": { projects: [] },
   "./Projects.module.css": new Proxy({}, { get: (_, key) => key }),
   "next/image": ({ src, alt }) => createElement("img", { src, alt }),
@@ -116,6 +118,19 @@ test("homepage and live preview render the same editable content and palettes", 
   assert.ok(publicHtml.includes("data-stack-card"));
   assert.ok(!previewHtml.includes("data-stack-card"));
   assert.ok(previewHtml.includes('data-preview-theme="dark"'));
+});
+
+test("homepage project cards and preview remove emphasis markers without applying resume formatting", () => {
+  const project = structuredClone(defaultResumeDocument.projects[0]);
+  project.description = "A **bold idea** and *italic description*.";
+  project.skills = ["**Python**", "_FastAPI_", "model_name"];
+  project.pdfBulletLimit = 3;
+  project.bullets = ["**500+ users** and *first launch*", "_Team effort_", "Third", "**Fourth project point** stays"];
+  for (const component of [components.default, components.ProjectsPreview]) {
+    const html = renderToStaticMarkup(createElement(component, { projects: [project] }));
+    for (const expected of ["A bold idea and italic description.", "500+ users and first launch", "Team effort", "Fourth project point stays", ">Python</span>", ">FastAPI</span>", ">model_name</span>"]) assert.ok(html.includes(expected), expected);
+    assert.doesNotMatch(html, /<(strong|em)(\s|>)|\*\*|\*italic description\*|_FastAPI_|_Team effort_/);
+  }
 });
 
 test("homepage server boundary supplies published projects to the shared section", async () => {

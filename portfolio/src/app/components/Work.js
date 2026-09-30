@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Plus } from "lucide-react";
+import { plainResumeText } from "@/lib/resume-inline";
 
 export default function Work({ experiences }) {
   const reduceMotion = useReducedMotion();
@@ -32,7 +33,7 @@ export default function Work({ experiences }) {
                     <p className="col-start-2 row-start-2 whitespace-nowrap text-right font-accent text-sm italic text-[#945429] dark:text-papaya-whip sm:row-start-1 sm:text-xl">{experience.dates}</p>
                   </div>
                   <div className="mt-5 space-y-3">
-                    {experience.bullets.map((point) => <div key={point} className="flex gap-3"><span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-surge/12 text-sky-surge transition group-hover:bg-sky-surge group-hover:text-ink-black"><Plus className="h-3.5 w-3.5" /></span><p className="font-description text-sm leading-7 text-prussian-blue/78 dark:text-bright-snow/78 sm:text-[0.96rem]">{point}</p></div>)}
+                    {experience.bullets.map((point) => <div key={point} className="flex gap-3"><span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-surge/12 text-sky-surge transition group-hover:bg-sky-surge group-hover:text-ink-black"><Plus className="h-3.5 w-3.5" /></span><p className="font-description text-sm leading-7 text-prussian-blue/78 dark:text-bright-snow/78 sm:text-[0.96rem]">{plainResumeText(point)}</p></div>)}
                   </div>
                 </article>
               </motion.div>

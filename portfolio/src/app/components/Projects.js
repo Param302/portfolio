@@ -5,6 +5,7 @@ import { ArrowUpRight, Github, ImageIcon, Zap } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "@/app/ThemeContext";
 import { optimizedImage } from "@/lib/optimized-image";
+import { plainResumeText } from "@/lib/resume-inline";
 import { getProjectTheme, projectForDisplay, projectLinkLabel } from "@/lib/project-themes";
 import styles from "./Projects.module.css";
 
@@ -51,17 +52,17 @@ export function ProjectBlock({ project: source, index = 0, theme: mode = "light"
             </a>
           ) : null}
         </div>
-        {project.description ? <p className={`${styles.description} font-description`}>{project.description}</p> : null}
+        {project.description ? <p className={`${styles.description} font-description`}>{plainResumeText(project.description)}</p> : null}
         {project.pointers.length ? <div className={styles.pointers}>
           {project.pointers.map((pointer, pointIndex) => (
             <div key={pointIndex} className={styles.pointer}>
               <Zap aria-hidden="true" className="h-4 w-4 shrink-0" />
-              <p className={`${styles.pointerText} font-accent font-medium italic`}>{pointer}</p>
+              <p className={`${styles.pointerText} font-accent font-medium italic`}>{plainResumeText(pointer)}</p>
             </div>
           ))}
         </div> : null}
         {project.skills.length ? <div className={styles.skills}>
-          {project.skills.map((skill, skillIndex) => <span key={skillIndex} className="font-description">{skill}</span>)}
+          {project.skills.map((skill, skillIndex) => <span key={skillIndex} className="font-description">{plainResumeText(skill)}</span>)}
         </div> : null}
         {remainingLinks.length ? <div className={styles.actions}>
           {remainingLinks.map((link, linkIndex) => <a key={`${link.href}-${linkIndex}`} href={link.href} target="_blank" rel="noopener noreferrer" className="font-heading">

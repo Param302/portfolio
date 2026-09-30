@@ -16,7 +16,7 @@ register(`data:text/javascript,${encodeURIComponent(`
     return nextLoad(url, context);
   }
 `)}`, import.meta.url);
-const { generateResumeLatex } = await import("../src/lib/latex.js");
+const { generateResumeLatex, formatResumeLatex } = await import("../src/lib/latex.js");
 
 const fixture = () => structuredClone(defaultResumeDocument);
 
@@ -415,4 +415,29 @@ test("header social rows preserve editor order and never duplicate a lone link",
   const empty = generateResumeLatex(document);
   assert.ok(!empty.includes("Hidden:"));
   assert.ok(!empty.includes("Empty:"));
+});
+
+test("inline emphasis escapes content while supporting nested bold and italic", () => {
+  assert.equal(formatResumeLatex("Built **reliable *AI* systems** with _care_."), String.raw`Built \textbf{reliable \textit{AI} systems} with \textit{care}.`);
+  assert.equal(formatResumeLatex(String.raw`**\input{private} & 50%**`), String.raw`\textbf{\textbackslash{}input\{private\} \& 50\%}`);
+  assert.equal(formatResumeLatex("<script>alert('x')</script>"), "<script>alert('x')</script>");
+  assert.equal(formatResumeLatex(String.raw`\*literal\* and snake_case`), String.raw`*literal* and snake\_case`);
+});
+
+
+test("formatting is shared by resume point types while PDF limits and stored text are preserved", () => {
+  const document = fixture();
+  document.experience[0].bullets = ["**Experience impact** for 500 users", "*Second point*", "_Third point_", "**Excluded fourth point**"];
+  document.projects[0].bullets = ["**Project impact** and *latency*"];
+  document.education[0].details = [{ label: "*Core subjects*", text: "**Deep learning** and _statistics_" }];
+  document.skills[0].items = ["**Python**", "*SQL*"];
+  document.achievements = [{ text: "**Community** with _mentoring_" }];
+  document.summary = "**Engineer** and *mentor*";
+  document.sections.push({ id: "custom-formatting", type: "custom", title: "Custom", format: "bullets", items: [{ text: "**Custom impact** and _research_" }] });
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  for (const expected of [String.raw`\textbf{Experience impact} for 500 users`, String.raw`\textit{Second point}`, String.raw`\textit{Third point}`, String.raw`\textbf{Project impact} and \textit{latency}`, String.raw`\textbf{\textit{Core subjects}:} \textbf{Deep learning} and \textit{statistics}`, String.raw`\textbf{Python}, \textit{SQL}`, String.raw`\textbf{Community} with \textit{mentoring}`, String.raw`\textbf{Engineer} and \textit{mentor}`, String.raw`\textbf{Custom impact} and \textit{research}`]) assert.ok(source.includes(expected), expected);
+  assert.doesNotMatch(source, /Excluded fourth point/);
+  assert.deepEqual(document, before);
+  assert.ok(source.includes(`{${document.experience[0].dates}}{}{}`), "heading dates are not rewritten as metrics");
 });

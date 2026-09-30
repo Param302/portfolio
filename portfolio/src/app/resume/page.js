@@ -1,9 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { Download, ExternalLink, Home, Mail } from "lucide-react";
 
+import ResumeInline from "@/app/components/ResumeInline";
 import { pageMetadata, publicPageStructuredData, serializeJsonLd } from "@/app/data/seoData";
 import { getPublishedResume } from "@/lib/resume-content";
+import { plainResumeText } from "@/lib/resume-inline";
 import { isCustomResumeSection, resolveResumeSections } from "@/lib/resume-sections";
 
 const title = "Resume of Parampreet Singh";
@@ -17,7 +20,7 @@ function Section({ title, children }) {
 function Bullets({ items }) {
   return <ul className="mt-2 list-disc space-y-1 pl-5">{items.map((item, index) => (
     <li key={typeof item === "string" ? `${index}-${item}` : item.id || index}>
-      {typeof item === "string" ? item : <>{item.label && <><strong>{item.label}{item.label.endsWith(":") ? "" : ":"}</strong>{" "}</>}{item.text}</>}
+      {typeof item === "string" ? <ResumeInline>{item}</ResumeInline> : <>{item.label && <><strong><ResumeInline>{item.label}</ResumeInline>{plainResumeText(item.label).endsWith(":") ? "" : ":"}</strong>{" "}</>}<ResumeInline>{item.text}</ResumeInline></>}
     </li>
   ))}</ul>;
 }
@@ -35,11 +38,11 @@ export default async function ResumePage() {
   const { id, content } = await getPublishedResume();
   const { profile } = content;
   const sectionContent = {
-    summary: <p>{content.summary}</p>,
+    summary: <p><ResumeInline>{content.summary}</ResumeInline></p>,
     experience: content.experience.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.role} | {item.company}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{item.dates}</span></div>{item.link && <a href={item.link} target="_blank" rel="noreferrer" className="text-sm text-sky-surge">{item.link.replace(/^https?:\/\//, "")}</a>}<Bullets items={item.bullets} /></article>),
     education: content.education.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.school} | {item.program}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{[item.score, item.dates].filter(Boolean).join(" | ")}</span></div><Bullets items={item.details} /></article>),
-    projects: content.projects.map((project) => <article key={project.id}><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-heading text-lg font-semibold">{project.name} | {project.subtitle}</h3><div className="flex gap-2">{project.links.map((link) => <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className="text-xs text-sky-surge">{link.label}</a>)}</div></div><p className="mt-2">{project.description}</p><p className="mt-1 text-sm opacity-70">{project.skills.join(" · ")}</p><Bullets items={project.bullets} /></article>),
-    skills: content.skills.map((group) => <p key={group.label}><strong>{group.label}:</strong> {group.items.join(", ")}</p>),
+    projects: content.projects.map((project) => <article key={project.id}><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-heading text-lg font-semibold">{project.name} | {project.subtitle}</h3><div className="flex gap-2">{project.links.map((link) => <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className="text-xs text-sky-surge">{link.label}</a>)}</div></div><p className="mt-2"><ResumeInline>{project.description}</ResumeInline></p><p className="mt-1 text-sm opacity-70">{project.skills.map((skill, index) => <Fragment key={index}>{index > 0 && " · "}<ResumeInline>{skill}</ResumeInline></Fragment>)}</p><Bullets items={project.bullets} /></article>),
+    skills: content.skills.map((group) => <p key={group.label}><strong><ResumeInline>{group.label}</ResumeInline>:</strong> {group.items.map((item, index) => <Fragment key={index}>{index > 0 && ", "}<ResumeInline>{item}</ResumeInline></Fragment>)}</p>),
     achievements: <Bullets items={content.achievements.map((item) => typeof item === "string" ? item : item.text)} />,
   };
   return (
@@ -67,7 +70,7 @@ export default async function ResumePage() {
         </aside>
         <div className="space-y-5">
           {resolveResumeSections(content).map((section) => <Section key={section.id} title={section.title}>{isCustomResumeSection(section)
-            ? section.format === "text" ? <p className="whitespace-pre-line">{section.text}</p> : <Bullets items={section.items.filter((item) => item.text?.trim())} />
+            ? section.format === "text" ? <p className="whitespace-pre-line"><ResumeInline>{section.text}</ResumeInline></p> : <Bullets items={section.items.filter((item) => item.text?.trim())} />
             : sectionContent[section.id]}</Section>)}
         </div>
       </div>
