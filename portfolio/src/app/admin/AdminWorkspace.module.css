@@ -96,7 +96,6 @@
 .sectionHead { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 17px 18px; border-bottom: 1px solid var(--admin-border); }
 .sectionTitle { display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1; }
 .sectionTitle h1 { font-size: 21px; font-weight: 650; letter-spacing: -.5px; overflow-wrap: anywhere; }
-.sectionControls { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 .sectionBody { padding: 20px; display: grid; gap: 22px; }
 .sectionBody > * { min-width: 0; }
 .entrySection { border: 0; background: transparent; }
@@ -114,9 +113,6 @@
 textarea.input { resize: vertical; line-height: 1.7; }
 .hint { font-size: 11px; color: var(--admin-muted); line-height: 1.65; }
 .warning { background: var(--admin-warning-soft); color: var(--admin-warning); border-radius: 6px; padding: 7px 10px; font-size: 11px; }
-.pdfToggle { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: var(--admin-muted); min-height: 32px; cursor: pointer; }
-.pdfToggle input { height: 15px; width: 15px; accent-color: var(--admin-accent); }
-.rename { display: flex; align-items: center; gap: 8px; background: var(--admin-subtle); padding: 12px 18px; border-bottom: 1px solid var(--admin-border); }
 .preview { position: relative; height: 100%; min-height: 0; display: flex; flex-direction: column; min-width: 0; background: var(--admin-subtle); border-left: 1px solid var(--admin-border); }
 .previewBar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--admin-border); padding: 14px 18px; background: var(--admin-panel); }
 .segments { display: inline-flex; padding: 3px; gap: 3px; border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-subtle); }
@@ -151,7 +147,7 @@ textarea.input { resize: vertical; line-height: 1.7; }
 .loading p { margin-bottom: 14px; }
 .mobileSelect { display: none; }
 @media (min-width: 1200px) { .collapsed .mobileSelect { display: flex; margin-bottom: 18px; } }
-@media (max-width: 1399px) { .editor { padding: 22px; } .topbar { padding-inline: 22px; } .saveState { display: none; } .sectionControls { gap: 6px; } }
+@media (max-width: 1399px) { .editor { padding: 22px; } .topbar { padding-inline: 22px; } .saveState { display: none; } }
 @media (max-width: 1199px) {
   .main { height: auto; overflow: visible; }
   .workspace { display: block; flex: initial; }
@@ -193,8 +189,6 @@ textarea.input { resize: vertical; line-height: 1.7; }
   .editor { padding: 22px 14px 98px; }
   .sectionHead { padding: 15px; gap: 12px; }
   .sectionTitle { flex-basis: 100%; }
-  .sectionControls { width: 100%; justify-content: flex-end; gap: 14px; }
-  .sectionControls > label { margin-right: auto; order: -1; }
   .sectionBody { padding: 16px; gap: 24px; }
   .item { padding: 16px; }
   .fields { grid-template-columns: minmax(0,1fr); gap: 14px; }

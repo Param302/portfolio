@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, Check, ChevronRight, Circle, FileText, History, Inbox, LayoutList, Loader2, LockKeyhole, LogOut, Menu, Monitor, Moon, PanelLeftClose, PanelLeftOpen, Pencil, Plus, RefreshCw, RotateCcw, Save, ScrollText, Send, SlidersHorizontal, Smartphone, Sun, UserRound, X } from "lucide-react";
+import { ArrowUpRight, Check, ChevronRight, Circle, FileText, History, Inbox, LayoutList, Loader2, LogOut, Menu, Monitor, Moon, PanelLeftClose, PanelLeftOpen, Plus, RefreshCw, RotateCcw, Save, ScrollText, Send, SlidersHorizontal, Smartphone, Sun, UserRound, X } from "lucide-react";
 
 import { generateResumeLatex } from "@/lib/latex";
 import { defaultPdfLayout } from "@/lib/resume-layout";
@@ -46,9 +46,6 @@ function ListField({ label, items, onChange, multiline = false }) {
     onChange(values);
   }
   return multiline ? <Area label={label} value={draft} onChange={edit} rows={3} /> : <Field label={label} value={draft} onChange={edit} />;
-}
-function PdfToggle({ checked, onChange, label = "PDF", ariaLabel = label }) {
-  return <label className={styles.pdfToggle}><input type="checkbox" checked={checked !== false} onChange={(event) => onChange(event.target.checked)} aria-label={ariaLabel}  />{label}</label>;
 }
 function toBase64(bytes) { let binary = ""; const chunk = 0x8000; for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk)); return btoa(binary); }
 
@@ -241,16 +238,11 @@ export default function AdminDashboard({ session }) {
     if (!document || ["profile", "sections", "layout", "history"].includes(activeSection)) return;
     if (!resolveResumeSections(document).some((section) => section.id === activeSection)) setActiveSection("sections");
   }, [document, activeSection]);
-  function renderResumeSection(section, index) {
+  function renderResumeSection(section) {
     const common = {
       sectionId: section.id,
       title: section.title,
 
-      pdfIncluded: isCustomResumeSection(section) ? section.includeInPdf : document.pdfSections?.[section.id],
-      onPdfChange: (value) => isCustomResumeSection(section) ? editCustomSection(section.id, { includeInPdf: value }) : setPdfSection(section.id, value),
-      onRename: isProtectedResumeSection(section.id) ? undefined : (title) => renameSection(section.id, title),
-      protectedSection: isProtectedResumeSection(section.id),
-      orderControls: <RowActions index={index} length={resolveResumeSections(document).length} onMove={moveSection} onRemove={isProtectedResumeSection(section.id) ? undefined : (event) => requestRemoveSection(section.id, event.currentTarget)} label={`${section.title} section`} />,
     };
     if (isCustomResumeSection(section)) return <EditorSection key={section.id} {...common}>
       <label className={styles.field}><span>Content</span><select className={styles.input} aria-label="Section content format" value={section.format} onChange={(event) => editCustomSection(section.id, { format: event.target.value })}><option value="bullets">Bullet points</option><option value="text">Text</option></select></label>
@@ -343,9 +335,9 @@ export default function AdminDashboard({ session }) {
           <div className={styles.workspace}>
             <div ref={editorRef} className={`${styles.editor} ${resumeView !== "edit" ? styles.hideOnSmall : ""}`}>
               {sectionSelect}
-              {activeSection === "sections" ? <ResumeSections sections={sections} onRename={renameSection} onMove={moveSection} onRemove={requestRemoveSection} onAdd={addSection} onEdit={chooseSection} /> : null}
+              {activeSection === "sections" ? <ResumeSections sections={sections.map((section) => ({ ...section, includeInPdf: isCustomResumeSection(section) ? section.includeInPdf : document.pdfSections?.[section.id] !== false }))} onPdfChange={(id, value) => isCustomResumeSection(sections.find((section) => section.id === id)) ? editCustomSection(id, { includeInPdf: value }) : setPdfSection(id, value)} onRename={renameSection} onMove={moveSection} onRemove={requestRemoveSection} onAdd={addSection} onEdit={chooseSection} /> : null}
               {activeSection === "profile" ? <EditorSection title="Profile & contact"><div className={styles.fields}><Field label="Name" value={document.profile.name} onChange={(value) => set(["profile", "name"], value)} /><Field label="Email" type="email" value={document.profile.email} onChange={(value) => set(["profile", "email"], value)} /><Field label="Phone" value={document.profile.phone} onChange={(value) => set(["profile", "phone"], value)} /><Field label="Website" value={document.profile.website} onChange={(value) => set(["profile", "website"], value)} /><Field label="Location" value={document.profile.location} onChange={(value) => set(["profile", "location"], value)} /></div><LinkRows title="Social links" items={document.profile.socials} onChange={(links) => set(["profile", "socials"], links)} /></EditorSection> : null}
-              {selectedSection ? renderResumeSection(selectedSection, sections.findIndex((section) => section.id === activeSection)) : null}
+              {selectedSection ? renderResumeSection(selectedSection) : null}
               {activeSection === "layout" ? <EditorSection title="PDF layout"><PdfLayoutControls value={document.pdfLayout} onChange={(value) => set(["pdfLayout"], value)} /></EditorSection> : null}
               {activeSection === "history" ? <RevisionHistory history={history} onRestore={restore} status={tabStatus.history} onRetry={() => loadTab("history", { force: true })} /> : null}
             </div>
@@ -411,14 +403,9 @@ function WorkspaceState({ label, status, onRetry }) {
   return <div className={styles.loading}>{status === "error" ? <div><p>Unable to load {label}.</p><button type="button" onClick={onRetry} className={styles.button}>Try again</button></div> : <><Loader2 className="animate-spin" />Loading {label}…</>}</div>;
 }
 
-function EditorSection({ title, onAdd, children, pdfIncluded, onPdfChange, sectionId, onRename, orderControls, protectedSection }) {
-  const [renaming, setRenaming] = useState(false);
-  const [titleDraft, setTitleDraft] = useState(title);
-  const titleId = useId();
-  function finishRename() { const next = titleDraft.trim(); if (!next) return; onRename(next); setRenaming(false); }
+function EditorSection({ title, onAdd, children, sectionId }) {
   return <section data-resume-section={sectionId} aria-label={`${title} editor`} className={`${styles.section} ${["experience", "education", "projects", "skills"].includes(sectionId) ? styles.entrySection : ""}`}>
-    <div className={styles.sectionHead}><div className={styles.sectionTitle}><h1>{title}</h1>{protectedSection ? <LockKeyhole className="h-4 w-4 shrink-0 text-[var(--admin-muted)]" aria-label="Required by portfolio" /> : null}{onRename ? <button type="button" onClick={() => { setTitleDraft(title); setRenaming((current) => !current); }} aria-label={`Rename ${title} section`} aria-expanded={renaming} title="Rename section" className={styles.iconButton}><Pencil /></button> : null}</div>{orderControls || onPdfChange || onAdd ? <div className={styles.sectionControls}>{orderControls}{onPdfChange ? <PdfToggle checked={pdfIncluded} onChange={onPdfChange} ariaLabel={`Include ${title} section in PDF`} /> : null}{onAdd ? <button type="button" onClick={onAdd} className={styles.button} aria-label={`Add ${title.toLowerCase()} entry`}><Plus />Add</button> : null}</div> : null}</div>
-    {renaming ? <div className={styles.rename}><label className="sr-only" htmlFor={titleId}>Section title</label><input id={titleId} autoFocus maxLength={80} value={titleDraft} onChange={(event) => setTitleDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); finishRename(); } if (event.key === "Escape") setRenaming(false); }} className={inputClass} /><button type="button" disabled={!titleDraft.trim()} onClick={finishRename} className={styles.primaryButton}>Done</button><button type="button" aria-label="Cancel rename" onClick={() => setRenaming(false)} className={styles.iconButton}><X /></button></div> : null}
+    <header className={styles.sectionHead}><div className={styles.sectionTitle}><h1>{title}</h1></div>{onAdd ? <button type="button" onClick={onAdd} className={styles.button} aria-label={`Add ${title.toLowerCase()} entry`}><Plus />Add</button> : null}</header>
     <div className={styles.sectionBody}>{children}</div>
   </section>;
 }
