@@ -13,9 +13,23 @@ function escapeLatex(value = "") {
   return String(value).replace(/[\\#$%&_{}~^|]/g, (character) => escapes[character]);
 }
 
+function pointText(value) {
+  // Keep URLs and identifiers (e.g. Python3, model_v2) intact. Numeric quantities
+  // use math bold; grouped commas need braces to avoid math punctuation spacing.
+  const tokens = /(?:https?:\/\/|www\.)\S+|[\p{L}_][\p{L}\p{N}_]*(?:[-./][\p{L}\p{N}_]+)*|\d+(?:[,.]\d+)*/gu;
+  let result = "";
+  let offset = 0;
+  for (const match of value.matchAll(tokens)) {
+    result += escapeLatex(value.slice(offset, match.index));
+    result += /^\d/.test(match[0]) ? `\\ensuremath{\\mathbf{${match[0].replace(/,/g, "{,}")}}}` : escapeLatex(match[0]);
+    offset = match.index + match[0].length;
+  }
+  return result + escapeLatex(value.slice(offset));
+}
+
 export function formatResumeLatex(value) {
   function render(nodes) {
-    return nodes.map((node) => node.type === "text" ? escapeLatex(node.value)
+    return nodes.map((node) => node.type === "text" ? pointText(node.value)
       : `\\${node.type === "strong" ? "textbf" : "textit"}{${render(node.children)}}`).join("");
   }
   return render(parseResumeInline(value));

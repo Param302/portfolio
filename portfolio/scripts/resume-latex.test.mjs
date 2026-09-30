@@ -44,7 +44,7 @@ test("literal separators and special characters cannot become TeX commands", () 
   const document = fixture();
   document.summary = String.raw`C:\work | #1 $2 20% & _ {x} ~ ^`;
   const source = generateResumeLatex(document);
-  assert.ok(source.includes(String.raw`C:\textbackslash{}work \textbar{} \#1 \$2 20\% \& \_ \{x\} \textasciitilde{} \textasciicircum{}`));
+  assert.ok(source.includes(String.raw`C:\textbackslash{}work \textbar{} \#\ensuremath{\mathbf{1}} \$\ensuremath{\mathbf{2}} \ensuremath{\mathbf{20}}\% \& \_ \{x\} \textasciitilde{} \textasciicircum{}`));
   assert.doesNotMatch(source, /textbackslash\\\{/);
 });
 
@@ -197,8 +197,8 @@ test("custom sections render escaped text and labelled points in shared order wi
   const titles = [String.raw`Certificates \& awards`, "Projects", "Statement", "Experience"];
   const positions = titles.map((title) => source.indexOf(`\\section{\\textbf{${title}}}`));
   assert.ok(positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1])));
-  assert.ok(source.includes(String.raw`\resumeSubItem{}{\textbf{Cloud:} AI \& ML \textbar{} 100\%}`));
-  assert.ok(source.includes("First paragraph.\\par\n" + String.raw`\textbackslash{}input\{private\} \#1 \_`));
+  assert.ok(source.includes(String.raw`\resumeSubItem{}{\textbf{Cloud:} AI \& ML \textbar{} \ensuremath{\mathbf{100}}\%}`));
+  assert.ok(source.includes("First paragraph.\\par\n" + String.raw`\textbackslash{}input\{private\} \#\ensuremath{\mathbf{1}} \_`));
   assert.doesNotMatch(source, /Excluded certificate|Hidden custom|Old projects title|Old experience title|\\input\{private\}|undefined|\[object Object\]/);
   assert.deepEqual(document, before);
 });
@@ -419,11 +419,15 @@ test("header social rows preserve editor order and never duplicate a lone link",
 
 test("inline emphasis escapes content while supporting nested bold and italic", () => {
   assert.equal(formatResumeLatex("Built **reliable *AI* systems** with _care_."), String.raw`Built \textbf{reliable \textit{AI} systems} with \textit{care}.`);
-  assert.equal(formatResumeLatex(String.raw`**\input{private} & 50%**`), String.raw`\textbf{\textbackslash{}input\{private\} \& 50\%}`);
+  assert.equal(formatResumeLatex(String.raw`**\input{private} & 50%**`), String.raw`\textbf{\textbackslash{}input\{private\} \& \ensuremath{\mathbf{50}}\%}`);
   assert.equal(formatResumeLatex("<script>alert('x')</script>"), "<script>alert('x')</script>");
   assert.equal(formatResumeLatex(String.raw`\*literal\* and snake_case`), String.raw`*literal* and snake\_case`);
 });
 
+test("numeric quantities use math bold without changing identifiers, URLs, or separators", () => {
+  assert.equal(formatResumeLatex("1,500+ users, 20.5%, 3D and 175K; Python3 model_v2 https://example.com/v2"), String.raw`\ensuremath{\mathbf{1{,}500}}+ users, \ensuremath{\mathbf{20.5}}\%, \ensuremath{\mathbf{3}}D and \ensuremath{\mathbf{175}}K; Python3 model\_v2 https://example.com/v2`);
+  assert.equal(formatResumeLatex("**500** and *12*"), String.raw`\textbf{\ensuremath{\mathbf{500}}} and \textit{\ensuremath{\mathbf{12}}}`);
+});
 
 test("formatting is shared by resume point types while PDF limits and stored text are preserved", () => {
   const document = fixture();
@@ -436,7 +440,7 @@ test("formatting is shared by resume point types while PDF limits and stored tex
   document.sections.push({ id: "custom-formatting", type: "custom", title: "Custom", format: "bullets", items: [{ text: "**Custom impact** and _research_" }] });
   const before = structuredClone(document);
   const source = generateResumeLatex(document);
-  for (const expected of [String.raw`\textbf{Experience impact} for 500 users`, String.raw`\textit{Second point}`, String.raw`\textit{Third point}`, String.raw`\textbf{Project impact} and \textit{latency}`, String.raw`\textbf{\textit{Core subjects}:} \textbf{Deep learning} and \textit{statistics}`, String.raw`\textbf{Python}, \textit{SQL}`, String.raw`\textbf{Community} with \textit{mentoring}`, String.raw`\textbf{Engineer} and \textit{mentor}`, String.raw`\textbf{Custom impact} and \textit{research}`]) assert.ok(source.includes(expected), expected);
+  for (const expected of [String.raw`\textbf{Experience impact} for \ensuremath{\mathbf{500}} users`, String.raw`\textit{Second point}`, String.raw`\textit{Third point}`, String.raw`\textbf{Project impact} and \textit{latency}`, String.raw`\textbf{\textit{Core subjects}:} \textbf{Deep learning} and \textit{statistics}`, String.raw`\textbf{Python}, \textit{SQL}`, String.raw`\textbf{Community} with \textit{mentoring}`, String.raw`\textbf{Engineer} and \textit{mentor}`, String.raw`\textbf{Custom impact} and \textit{research}`]) assert.ok(source.includes(expected), expected);
   assert.doesNotMatch(source, /Excluded fourth point/);
   assert.deepEqual(document, before);
   assert.ok(source.includes(`{${document.experience[0].dates}}{}{}`), "heading dates are not rewritten as metrics");
