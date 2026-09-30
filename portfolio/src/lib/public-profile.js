@@ -50,7 +50,6 @@ This section uses the same published content source as ${siteConfig.url}/resume 
 ### Profile
 
 - Name: ${profile.name}
-- Headline: ${profile.headline}
 - Location: ${profile.location}
 - Website: ${profile.website}
 - Email: ${profile.email}

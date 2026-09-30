@@ -34,7 +34,6 @@ export const resumeDocumentSchema = z.object({
   version: z.literal(1),
   profile: z.object({
     name: shortText,
-    headline: shortText,
     email: z.string().email(),
     phone: shortText,
     website: url,
@@ -62,7 +61,6 @@ export const defaultResumeDocument = {
   version: 1,
   profile: {
     name: "Parampreet Singh",
-    headline: "AI Engineer",
     email: "hey@itsparam.in",
     phone: "+91 836 884 6192",
     website: "https://itsparam.in",

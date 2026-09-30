@@ -80,7 +80,7 @@ export function personSchema(content) {
     name: content.profile.name, alternateName: identityAliases,
     url: `${siteConfig.url}/`, image: `${siteConfig.url}/optimized/parampreet_singh.webp`,
     description: content.summary, email: content.profile.email,
-    jobTitle: content.profile.headline,
+    jobTitle: "AI Engineer",
     sameAs: [...new Set([...siteConfig.sameAs, ...content.profile.socials.map((social) => social.href)])],
     knowsAbout: content.skills.flatMap((group) => group.items),
     // The published resume describes an ongoing degree; do not claim graduation.
