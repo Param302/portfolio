@@ -344,12 +344,12 @@ function EditorSection({ title, onAdd, children, pdfIncluded, onPdfChange, secti
   const [titleDraft, setTitleDraft] = useState(title);
   const titleId = useId();
   function finishRename() { const next = titleDraft.trim(); if (!next) return; onRename(next); setRenaming(false); }
-  return <section data-resume-section={sectionId} aria-label={`${title} editor`} className={styles.section}>
+  return <section data-resume-section={sectionId} aria-label={`${title} editor`} className={`${styles.section} ${["experience", "education", "projects", "skills"].includes(sectionId) ? styles.entrySection : ""}`}>
     <div className={styles.sectionHead}><div className={styles.sectionTitle}><h1>{title}</h1>{onRename ? <button type="button" onClick={() => { setTitleDraft(title); setRenaming((current) => !current); }} aria-label={`Rename ${title} section`} aria-expanded={renaming} title="Rename section" className={styles.iconButton}><Pencil /></button> : null}</div>{orderControls || onPdfChange || onAdd ? <div className={styles.sectionControls}>{orderControls}{onPdfChange ? <PdfToggle checked={pdfIncluded} onChange={onPdfChange} ariaLabel={`Include ${title} section in PDF`} /> : null}{onAdd ? <button type="button" onClick={onAdd} className={styles.button} aria-label={`Add ${title.toLowerCase()} entry`}><Plus />Add</button> : null}</div> : null}</div>
     {renaming ? <div className={styles.rename}><label className="sr-only" htmlFor={titleId}>Section title</label><input id={titleId} autoFocus maxLength={80} value={titleDraft} onChange={(event) => setTitleDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); finishRename(); } if (event.key === "Escape") setRenaming(false); }} className={inputClass} /><button type="button" disabled={!titleDraft.trim()} onClick={finishRename} className={styles.primaryButton}>Done</button><button type="button" aria-label="Cancel rename" onClick={() => setRenaming(false)} className={styles.iconButton}><X /></button></div> : null}
     <div className={styles.sectionBody}>{children}</div>
   </section>;
 }
 function Item({ title, controls, children, pdfIncluded, onPdfChange }) {
-  return <article aria-label={title} className={styles.item}><div className={styles.itemBar}><span className={styles.itemIndex}>{title}</span><div className={styles.itemTools}>{onPdfChange ? <PdfCheck included={pdfIncluded} onChange={onPdfChange} label={`Include ${title} in PDF`} /> : null}{controls}</div></div>{children}</article>;
+  return <article aria-label={title} className={styles.item}><div className={styles.itemBar}><h2 className={styles.itemIndex}>{title}</h2><div className={styles.itemTools}>{onPdfChange ? <PdfCheck included={pdfIncluded} onChange={onPdfChange} label={`Include ${title} in PDF`} /> : null}{controls}</div></div>{children}</article>;
 }
