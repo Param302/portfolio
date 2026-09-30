@@ -7,19 +7,37 @@ export const defaultResumeSections = [
   { id: "achievements", title: "Co-Curricular & Achievements" },
 ];
 
-// Draft previews and older revisions may not have a complete section list yet.
+export function isProtectedResumeSection(id) {
+  return id === "experience" || id === "projects";
+}
+
+export function isCustomResumeSection(section) {
+  return section?.type === "custom" && typeof section.id === "string" && /^custom-[a-zA-Z0-9-]+$/.test(section.id);
+}
+
+// An explicit list owns its order and optional removals. Only older revisions
+// without a list receive all defaults; protected sections remain safe in drafts.
 export function resolveResumeSections(document) {
+  if (!Array.isArray(document?.sections)) return defaultResumeSections.map((section) => ({ ...section }));
   const defaults = new Map(defaultResumeSections.map((section) => [section.id, section]));
   const seen = new Set();
   const sections = [];
-  for (const section of Array.isArray(document?.sections) ? document.sections : []) {
+  for (const section of document.sections) {
     const fallback = defaults.get(section?.id);
-    if (!fallback || seen.has(section.id)) continue;
+    if ((!fallback && !isCustomResumeSection(section)) || seen.has(section.id)) continue;
     seen.add(section.id);
-    sections.push({ id: section.id, title: typeof section.title === "string" && section.title.trim() ? section.title.trim() : fallback.title });
+    const title = isProtectedResumeSection(section.id) ? fallback.title : typeof section.title === "string" && section.title.trim() ? section.title.trim() : fallback?.title || "Untitled section";
+    sections.push(fallback ? { id: section.id, title } : {
+      ...section,
+      title,
+      format: section.format === "text" ? "text" : "bullets",
+      text: typeof section.text === "string" ? section.text : "",
+      items: Array.isArray(section.items) ? section.items : [],
+      includeInPdf: section.includeInPdf !== false,
+    });
   }
   for (const section of defaultResumeSections) {
-    if (!seen.has(section.id)) sections.push({ ...section });
+    if (isProtectedResumeSection(section.id) && !seen.has(section.id)) sections.push({ ...section });
   }
   return sections;
 }

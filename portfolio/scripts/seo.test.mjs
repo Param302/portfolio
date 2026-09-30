@@ -81,6 +81,17 @@ test("published text cannot break out of JSON-LD scripts", () => {
   assert.deepEqual(JSON.parse(serialized), input);
 });
 
+test("resume metadata omits removed optional sections while the homepage keeps its source data", () => {
+  const content = structuredClone(defaultResumeDocument);
+  content.sections = content.sections.filter(({ id }) => id === "experience" || id === "projects");
+  const resumePerson = publicPageStructuredData(content, "/resume", "Resume", "Resume")["@graph"].find((item) => item["@type"] === "Person");
+  for (const key of ["description", "knowsAbout", "memberOf"]) assert.equal(resumePerson[key], undefined, key);
+  const homePerson = homeStructuredData(content)["@graph"].find((item) => item["@type"] === "Person");
+  assert.equal(homePerson.description, content.summary);
+  assert.deepEqual(homePerson.knowsAbout, content.skills.flatMap((group) => group.items));
+  assert.equal(homePerson.memberOf.length, content.education.length);
+});
+
 test("optimized image manifest points to smaller files and preserves originals", async () => {
   const manifest = JSON.parse(await readFile(new URL("../src/lib/optimized-images.json", import.meta.url), "utf8"));
   assert.ok(Object.keys(manifest).length > 20);

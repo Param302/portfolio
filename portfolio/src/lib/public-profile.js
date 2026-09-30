@@ -1,10 +1,12 @@
 import { homeSections, identityAliases, learningResources, siteConfig, socialResources } from "../app/data/seoData.js";
-import { resolveResumeSections } from "./resume-sections.js";
+import { isCustomResumeSection, resolveResumeSections } from "./resume-sections.js";
 
 const link = (label, url) => `[${label}](<${url}>)`;
 const bullets = (items) => items.map((item) => `- ${item}`).join("\n");
 const educationPoint = (item) => typeof item === "string" ? item : `${item.label ? `**${item.label}${item.label.endsWith(":") ? "" : ":"}** ` : ""}${item.text}`;
 const headingText = (value) => value.replace(/[\r\n]+/g, " ").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/[\\`*_{}\[\]#!|]/g, "\\$&");
+const plainText = (value) => value.split(/\r?\n/).map(headingText).join("\n");
+const customPoint = (item) => `${item.label ? `**${headingText(item.label.replace(/[:\s]+$/, ""))}:** ` : ""}${plainText(item.text)}`;
 
 function resumeSections(content) {
   const bodies = {
@@ -15,7 +17,12 @@ function resumeSections(content) {
     skills: bullets(content.skills.map((group) => `**${group.label}:** ${group.items.join(", ")}`)),
     achievements: bullets(content.achievements.map((item) => typeof item === "string" ? item : item.text)),
   };
-  return resolveResumeSections(content).map((section) => `### ${headingText(section.title)}\n\n${bodies[section.id]}`).join("\n\n");
+  return resolveResumeSections(content).map((section) => {
+    const body = isCustomResumeSection(section)
+      ? section.format === "text" ? plainText(section.text) : bullets(section.items.filter((item) => item.text?.trim()).map(customPoint))
+      : bodies[section.id];
+    return `### ${headingText(section.title)}\n\n${body}`;
+  }).join("\n\n");
 }
 
 // Accept only the public, published resume document, never revision or account data.
@@ -29,7 +36,7 @@ export function renderPublicProfile(content) {
 
 ${profile.name}, also known as ${identityAliases.join(", ")}, is an AI engineer, educator and community builder. He is the Codex Ambassador for New Delhi, organizes Python community events with PyDelhi, and founded Gurmat Darbar.
 
-${content.summary}
+${resolveResumeSections(content).some((section) => section.id === "summary") ? content.summary : ""}
 
 Search context: “Param Python” and “Sessions by Parampreet Singh” refer to his Python teaching. “Param IITM” and “Param IITMBS” refer to his IIT Madras BS context. “Param” and “Python” alone are ambiguous and can refer to other people or topics; these terms are not unique identifiers.
 

@@ -4,7 +4,7 @@ import { Download, ExternalLink, Home, Mail } from "lucide-react";
 
 import { pageMetadata, publicPageStructuredData, serializeJsonLd } from "@/app/data/seoData";
 import { getPublishedResume } from "@/lib/resume-content";
-import { resolveResumeSections } from "@/lib/resume-sections";
+import { isCustomResumeSection, resolveResumeSections } from "@/lib/resume-sections";
 
 const title = "Resume of Parampreet Singh";
 const description = "Resume of Parampreet Singh (Param), AI Engineer and community builder: experience, IIT Madras education, AI projects, technical skills and achievements.";
@@ -66,7 +66,9 @@ export default async function ResumePage() {
 
         </aside>
         <div className="space-y-5">
-          {resolveResumeSections(content).map((section) => <Section key={section.id} title={section.title}>{sectionContent[section.id]}</Section>)}
+          {resolveResumeSections(content).map((section) => <Section key={section.id} title={section.title}>{isCustomResumeSection(section)
+            ? section.format === "text" ? <p className="whitespace-pre-line">{section.text}</p> : <Bullets items={section.items.filter((item) => item.text?.trim())} />
+            : sectionContent[section.id]}</Section>)}
         </div>
       </div>
     </main>

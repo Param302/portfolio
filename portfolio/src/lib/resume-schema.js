@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { defaultPdfLayout } from "./resume-layout.js";
-import { defaultResumeSections } from "./resume-sections.js";
+import { defaultResumeSections, isProtectedResumeSection } from "./resume-sections.js";
 import { projectThemeIds } from "./project-themes.js";
 
 export { defaultPdfLayout } from "./resume-layout.js";
@@ -11,17 +11,6 @@ const url = z.union([z.literal(""), z.string().url()]);
 const bulletList = z.array(text).transform((items) => items.filter(Boolean)).pipe(z.array(text).min(1));
 const bulletLimit = z.number().int().min(0).max(12);
 const entryBulletLimit = bulletLimit.nullable().default(null);
-
-const sectionsSchema = z.array(z.object({
-  id: z.enum(defaultResumeSections.map((section) => section.id)),
-  title: z.string().trim().min(1, "Enter a section title.").max(80),
-})).length(defaultResumeSections.length).superRefine((sections, context) => {
-  const seen = new Set();
-  sections.forEach((section, index) => {
-    if (seen.has(section.id)) context.addIssue({ code: "custom", path: [index, "id"], message: "Each resume section must appear exactly once." });
-    seen.add(section.id);
-  });
-});
 
 const pdfLayoutSchema = z.object({
   fontSize: z.number().min(8.5).max(11).default(defaultPdfLayout.fontSize),
@@ -70,6 +59,46 @@ const educationDetailSchema = z.preprocess(
     path: ["text"],
   }),
 );
+
+const builtinSectionSchema = z.object({
+  id: z.enum(defaultResumeSections.map((section) => section.id)),
+  title: z.string().trim().min(1, "Enter a section title.").max(80),
+}).transform((section) => isProtectedResumeSection(section.id)
+  ? { ...section, title: defaultResumeSections.find(({ id }) => id === section.id).title }
+  : section);
+
+const customPointSchema = z.object({
+  id: shortText.optional(),
+  label: shortText.default(""),
+  text,
+  includeInPdf: z.boolean().default(true),
+});
+
+const customSectionSchema = z.object({
+  id: z.string().max(80).regex(/^custom-[a-zA-Z0-9-]+$/),
+  type: z.literal("custom"),
+  title: z.string().trim().min(1, "Enter a section title.").max(80),
+  format: z.enum(["bullets", "text"]).default("bullets"),
+  text: z.string().trim().max(4000).default(""),
+  items: z.array(customPointSchema).default([]).transform((items) => items.filter((item) => item.label || item.text)).pipe(z.array(customPointSchema).max(16)),
+  includeInPdf: z.boolean().default(true),
+}).superRefine((section, context) => {
+  if (section.format !== "bullets") return;
+  section.items.forEach((item, index) => {
+    if (item.label && !item.text) context.addIssue({ code: "custom", path: ["items", index, "text"], message: "Enter text for this point." });
+  });
+});
+
+const sectionsSchema = z.array(z.union([builtinSectionSchema, customSectionSchema])).min(2).max(16).superRefine((sections, context) => {
+  const seen = new Set();
+  sections.forEach((section, index) => {
+    if (seen.has(section.id)) context.addIssue({ code: "custom", path: [index, "id"], message: "Each resume section must appear only once." });
+    seen.add(section.id);
+  });
+  for (const id of ["experience", "projects"]) {
+    if (!seen.has(id)) context.addIssue({ code: "custom", message: `${id === "experience" ? "Experience" : "Projects"} cannot be removed.` });
+  }
+});
 
 const experienceSchema = z.object({
   id: shortText,
@@ -127,13 +156,13 @@ export const resumeDocumentSchema = z.object({
     dates: shortText,
     score: shortText.default(""),
     details: z.array(educationDetailSchema).transform((items) => items.filter((item) => item.label || item.text)).pipe(z.array(educationDetailSchema).max(16)),
-  })).min(1).max(6),
+  })).max(6),
   projects: z.array(projectSchema).min(1).max(12),
   skills: z.array(z.object({
     label: shortText,
     includeInPdf: z.boolean().default(true),
     items: z.array(shortText).max(30),
-  })).min(1).max(8),
+  })).max(8),
   achievements: z.array(achievementSchema).transform((items) => items.filter((item) => item.text)).pipe(z.array(achievementSchema).max(16)),
 });
 

@@ -1,4 +1,5 @@
 import { projects } from "./projects.js";
+import { resolveResumeSections } from "../../lib/resume-sections.js";
 
 export const siteConfig = {
   name: "Parampreet Singh",
@@ -74,17 +75,19 @@ export function pageMetadata(title, description, path) {
   };
 }
 
-export function personSchema(content) {
+export function personSchema(content, { resumeSectionsOnly = false } = {}) {
+  const sections = new Set(resolveResumeSections(content).map(({ id }) => id));
+  const includes = (id) => !resumeSectionsOnly || sections.has(id);
   return {
     "@type": "Person", "@id": personId,
     name: content.profile.name, alternateName: identityAliases,
     url: `${siteConfig.url}/`, image: `${siteConfig.url}/optimized/parampreet_singh.webp`,
-    description: content.summary, email: content.profile.email,
+    ...(includes("summary") ? { description: content.summary } : {}), email: content.profile.email,
     jobTitle: "AI Engineer",
     sameAs: [...new Set([...siteConfig.sameAs, ...content.profile.socials.map((social) => social.href)])],
-    knowsAbout: content.skills.flatMap((group) => group.items),
+    ...(includes("skills") ? { knowsAbout: content.skills.flatMap((group) => group.items) } : {}),
     // The published resume describes an ongoing degree; do not claim graduation.
-    memberOf: content.education.map((item) => ({ "@type": "CollegeOrUniversity", name: item.school })),
+    ...(includes("education") ? { memberOf: content.education.map((item) => ({ "@type": "CollegeOrUniversity", name: item.school })) } : {}),
     subjectOf: [{ "@id": pageId }, { "@id": `${siteConfig.url}/resume#webpage` }],
   };
 }
@@ -115,7 +118,7 @@ export function publicPageStructuredData(content, path, name, description, type 
   return {
     "@context": "https://schema.org",
     "@graph": [
-      personSchema(content),
+      personSchema(content, { resumeSectionsOnly: path === "/resume" }),
       { "@type": type, "@id": `${siteConfig.url}${path}#webpage`, name, description, url: `${siteConfig.url}${path}`, inLanguage: "en", about: { "@id": personId }, ...(type === "ProfilePage" ? { mainEntity: { "@id": personId } } : {}), isPartOf: { "@id": websiteId }, breadcrumb: { "@id": `${siteConfig.url}${path}#breadcrumb` } },
       { "@type": "BreadcrumbList", "@id": `${siteConfig.url}${path}#breadcrumb`, itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: `${siteConfig.url}/` },

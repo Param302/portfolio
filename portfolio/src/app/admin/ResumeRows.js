@@ -79,20 +79,20 @@ function GrowingArea({ label, value, onChange, placeholder = "Add an achievement
   return <textarea ref={ref} aria-label={label} rows={2} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={`${rowInput} min-h-[60px] resize-y leading-6`} />;
 }
 
-export function EducationRows({ items, onChange }) {
+export function EducationRows({ items, onChange, title = "Education details", pointLabel = "education point", placeholder = "e.g. LLMs, Maths for Gen AI, Software Engineering" }) {
   const normalize = (item) => typeof item === "string" ? { label: "", text: item, includeInPdf: true } : item;
   function update(index, field, value) { onChange(items.map((item, row) => row === index ? { ...normalize(item), [field]: value } : item)); }
   function move(from, to) { const next = [...items]; const [item] = next.splice(from, 1); next.splice(to, 0, item); onChange(next); }
   return <div className="space-y-2">
-    <div className="flex items-center justify-between gap-2"><h3 className={styles.groupTitle}>Education details</h3><button type="button" disabled={items.length >= 16} onClick={() => onChange([...items, { id: crypto.randomUUID(), label: "", text: "", includeInPdf: true }])} className={styles.addButton}><Plus className="h-3.5 w-3.5" />Add point</button></div>
-    <RowsTable label="Education points" heading="Label (optional) / Detail">
+    <div className="flex items-center justify-between gap-2"><h3 className={styles.groupTitle}>{title}</h3><button type="button" disabled={items.length >= 16} onClick={() => onChange([...items, { id: crypto.randomUUID(), label: "", text: "", includeInPdf: true }])} className={styles.addButton}><Plus className="h-3.5 w-3.5" />Add point</button></div>
+    <RowsTable label={`${title} rows`} heading="Label (optional) / Detail">
       {items.map((value, index) => {
         const item = normalize(value);
-        const label = `education point ${index + 1}`;
+        const label = `${pointLabel} ${index + 1}`;
         return <EditableRow key={item.id || index} label={label} included={item.includeInPdf} onToggle={(next) => update(index, "includeInPdf", next)} controls={<RowActions stackedOnMobile index={index} length={items.length} onMove={move} onRemove={() => onChange(items.filter((_, row) => row !== index))} label={label} />}>
           <div className="space-y-2">
             <input aria-label={`${label} bold label`} placeholder="Bold label · optional" value={item.label || ""} onChange={(event) => update(index, "label", event.target.value)} className={`${rowInput} font-semibold`} />
-            <GrowingArea label={`${label} text`} value={item.text} onChange={(text) => update(index, "text", text)} placeholder="e.g. LLMs, Maths for Gen AI, Software Engineering" />
+            <GrowingArea label={`${label} text`} value={item.text} onChange={(text) => update(index, "text", text)} placeholder={placeholder} />
           </div>
         </EditableRow>;
       })}

@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { transform } from "next/dist/build/swc/index.js";
 import * as seoData from "../src/app/data/seoData.js";
 import { defaultPdfLayout, defaultResumeDocument, parseResumeDocument } from "../src/lib/resume-schema.js";
-import { defaultResumeSections, resolveResumeSections } from "../src/lib/resume-sections.js";
+import { defaultResumeSections, isCustomResumeSection, isProtectedResumeSection, resolveResumeSections } from "../src/lib/resume-sections.js";
 import { renderPublicProfile } from "../src/lib/public-profile.js";
 
 const sections = ["summary", "experience", "education", "projects", "skills", "achievements"];
@@ -268,18 +268,19 @@ test("legacy resumes gain the canonical section titles and order without mutatin
   assert.equal(document.sections, undefined);
 });
 
-test("saved section titles and order round-trip by stable IDs", () => {
+test("saved section order and optional titles round-trip while protected titles normalize", () => {
   const document = structuredClone(defaultResumeDocument);
   document.sections = [...defaultResumeSections].reverse().map((section) => ({ id: section.id, title: `  Custom ${section.id}  ` }));
   const normalized = parseResumeDocument(document);
-  assert.deepEqual(normalized.sections, document.sections.map((section) => ({ ...section, title: section.title.trim() })));
+  assert.deepEqual(normalized.sections, document.sections.map((section) => ({ ...section, title: isProtectedResumeSection(section.id) ? defaultResumeSections.find(({ id }) => id === section.id).title : section.title.trim() })));
   assert.deepEqual(normalized.experience, document.experience);
   assert.deepEqual(normalized.projects, document.projects);
 });
 
-test("saved section lists reject missing, duplicate and unknown IDs and invalid titles", () => {
+test("saved section lists reject missing protected sections, duplicates, unknown IDs and invalid titles", () => {
   const invalid = [
-    defaultResumeSections.slice(1),
+    defaultResumeSections.filter(({ id }) => id !== "experience"),
+    defaultResumeSections.filter(({ id }) => id !== "projects"),
     [...defaultResumeSections, defaultResumeSections[0]],
     defaultResumeSections.map((section, index) => index === 1 ? defaultResumeSections[0] : section),
     defaultResumeSections.map((section, index) => index === 0 ? { ...section, id: "custom" } : section),
@@ -292,13 +293,13 @@ test("saved section lists reject missing, duplicate and unknown IDs and invalid 
   }
 });
 
-test("draft section resolution preserves valid order and safely fills incomplete legacy lists", () => {
+test("draft section resolution preserves optional removals and appends only missing protected sections", () => {
   const draft = { sections: [{ id: "projects", title: "  Selected work  " }, { id: "summary", title: " " }, { id: "projects", title: "Duplicate" }, { id: "unknown", title: "Unknown" }, null] };
   const before = structuredClone(draft);
   assert.deepEqual(resolveResumeSections(draft), [
-    { id: "projects", title: "Selected work" },
+    { id: "projects", title: "Projects" },
     defaultResumeSections[0],
-    ...defaultResumeSections.filter((section) => !["projects", "summary"].includes(section.id)),
+    defaultResumeSections[1],
   ]);
   assert.deepEqual(draft, before);
   assert.deepEqual(resolveResumeSections({}), defaultResumeSections);
@@ -314,7 +315,7 @@ test("public text honors renamed section order and retains every PDF-excluded se
   document.experience[0].bullets = ["First public point", "Last public point"];
   document.achievements = [{ text: "Public community marker", includeInPdf: false }];
   const rendered = renderPublicProfile(parseResumeDocument(document));
-  const positions = document.sections.map((section) => rendered.indexOf(`### ${section.title}\n`));
+  const positions = resolveResumeSections(document).map((section) => rendered.indexOf(`### ${section.title}\n`));
   assert.ok(positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1])));
   for (const retained of ["First public point", "Last public point", "Public community marker", document.education[0].school, document.projects[0].name, document.skills[0].label]) assert.ok(rendered.includes(retained), retained);
   document.sections[0].title = '<script>alert(1)</script> & **Title**\n# Extra';
@@ -322,6 +323,22 @@ test("public text honors renamed section order and retains every PDF-excluded se
   assert.ok(!escaped.includes("<script>"));
   assert.ok(escaped.includes("### &lt;script&gt;alert(1)&lt;/script&gt; &amp; \\*\\*Title\\*\\* \\# Extra\n"));
 });
+
+async function renderResumeHtml(document) {
+  const source = await readFile(new URL("../src/app/resume/page.js", import.meta.url), "utf8");
+  const { code } = await transform(source, { filename: "resume-page.js", jsc: { target: "es2022", parser: { syntax: "ecmascript", jsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
+  const require = createRequire(import.meta.url);
+  const modules = {
+    "@/app/data/seoData": seoData,
+    "@/lib/resume-content": { getPublishedResume: async () => ({ id: "repository-default", content: document }) },
+    "@/lib/resume-sections": { isCustomResumeSection, resolveResumeSections },
+    "next/image": ({ src, alt }) => createElement("img", { src, alt }),
+    "next/link": (props) => createElement("a", props),
+  };
+  const output = { exports: {} };
+  new Function("require", "module", "exports", code)((name) => modules[name] || require(name), output, output.exports);
+  return renderToStaticMarkup(await output.exports.default());
+}
 
 test("public resume HTML renders custom headings as text, follows section order and shows skills once", async () => {
   const document = structuredClone(defaultResumeDocument);
@@ -331,23 +348,130 @@ test("public resume HTML renders custom headings as text, follows section order 
   document.pdfSections = Object.fromEntries(defaultResumeSections.map((section) => [section.id, false]));
   document.experience[0].bullets.push("Untruncated final point");
   document.experience[0].includeInPdf = false;
-  const source = await readFile(new URL("../src/app/resume/page.js", import.meta.url), "utf8");
-  const { code } = await transform(source, { filename: "resume-page.js", jsc: { target: "es2022", parser: { syntax: "ecmascript", jsx: true }, transform: { react: { runtime: "automatic" } } }, module: { type: "commonjs" } });
-  const require = createRequire(import.meta.url);
-  const modules = {
-    "@/app/data/seoData": seoData,
-    "@/lib/resume-content": { getPublishedResume: async () => ({ id: "repository-default", content: document }) },
-    "@/lib/resume-sections": { resolveResumeSections },
-    "next/image": ({ src, alt }) => createElement("img", { src, alt }),
-    "next/link": (props) => createElement("a", props),
-  };
-  const output = { exports: {} };
-  new Function("require", "module", "exports", code)((name) => modules[name] || require(name), output, output.exports);
-  const html = renderToStaticMarkup(await output.exports.default());
+  const html = await renderResumeHtml(document);
   const headings = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g)].map((match) => match[1]);
   assert.equal(headings[0], "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
-  assert.deepEqual(headings.slice(1), document.sections.slice(1).map((section) => section.title));
+  assert.deepEqual(headings.slice(1), resolveResumeSections(document).slice(1).map((section) => section.title));
   assert.ok(!html.includes('<img src="x"'));
   assert.ok(html.includes("Untruncated final point"));
   assert.equal(html.split("Unique skills label:").length - 1, 1);
+});
+
+test("removed optional sections remain removed after save without deleting their stored content", async () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.sections = [document.sections[3], document.sections[1]];
+  const normalized = parseResumeDocument(document);
+  assert.deepEqual(normalized.sections, [{ id: "projects", title: "Projects" }, { id: "experience", title: "Experience" }]);
+  for (const key of ["summary", "education", "skills", "achievements"]) assert.deepEqual(normalized[key], document[key]);
+  const publicText = renderPublicProfile(normalized);
+  const html = await renderResumeHtml(normalized);
+  assert.deepEqual([...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g)].map((match) => match[1]), ["Projects", "Experience"]);
+  for (const marker of [document.summary, document.achievements[0].text]) assert.ok(!publicText.includes(marker), marker);
+  assert.doesNotMatch(publicText, /### (Summary|Education|Skills|Co-Curricular)/);
+  normalized.sections.push(defaultResumeSections.find(({ id }) => id === "achievements"));
+  assert.ok(renderPublicProfile(parseResumeDocument(normalized)).includes(document.achievements[0].text));
+});
+
+test("custom sections preserve format, content and PDF flags while blank points are discarded", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.sections.splice(1, 0, {
+    id: "custom-certifications", type: "custom", title: " Certifications ", format: "bullets", text: " Alternate paragraph ", includeInPdf: false,
+    items: [{ id: "certificate", label: " Cloud ", text: " Certificate earned ", includeInPdf: false }, { label: " ", text: " " }, { text: "Second certificate" }],
+  });
+  const custom = parseResumeDocument(document).sections[1];
+  assert.deepEqual(custom, {
+    id: "custom-certifications", type: "custom", title: "Certifications", format: "bullets", text: "Alternate paragraph", includeInPdf: false,
+    items: [{ id: "certificate", label: "Cloud", text: "Certificate earned", includeInPdf: false }, { label: "", text: "Second certificate", includeInPdf: true }],
+  });
+  assert.deepEqual(resolveResumeSections({ sections: [custom, ...defaultResumeSections] })[0], custom);
+  document.sections[1].format = "text";
+  assert.equal(parseResumeDocument(document).sections[1].items.length, 2);
+  document.sections[1].format = "bullets";
+  document.sections[1].items = [{ label: "Cloud", text: " " }];
+  assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path[0] === "sections"));
+});
+
+test("switching custom bullets to text preserves incomplete inactive points without blocking save", async () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.sections.push({
+    id: "custom-switch", type: "custom", title: "Research", format: "text", text: "A complete research paragraph.",
+    items: [{ id: "unfinished", label: "Unfinished custom label", text: "", includeInPdf: false }, { id: "completed", label: "Work", text: "Completed inactive custom point" }],
+  });
+  const normalized = parseResumeDocument(document);
+  const custom = normalized.sections.at(-1);
+  assert.deepEqual(custom.items, [
+    { id: "unfinished", label: "Unfinished custom label", text: "", includeInPdf: false },
+    { id: "completed", label: "Work", text: "Completed inactive custom point", includeInPdf: true },
+  ]);
+  for (const rendered of [renderPublicProfile(normalized), await renderResumeHtml(normalized)]) {
+    assert.ok(rendered.includes(custom.text));
+    assert.doesNotMatch(rendered, /Unfinished custom label|Completed inactive custom point/);
+  }
+  custom.format = "bullets";
+  assert.throws(() => parseResumeDocument(normalized), (error) => error.issues.some((issue) => issue.path.join(".") === "sections.6.items.0.text"));
+  custom.items[0].text = "Now complete";
+  assert.equal(parseResumeDocument(normalized).sections.at(-1).text, "A complete research paragraph.");
+});
+
+test("empty optional collections can be saved before or after their section is removed and restored", async () => {
+  for (const id of ["education", "skills"]) {
+    const document = structuredClone(defaultResumeDocument);
+    document[id] = [];
+    assert.deepEqual(parseResumeDocument(document)[id], []);
+    document.sections = document.sections.filter((section) => section.id !== id);
+    const normalized = parseResumeDocument(document);
+    assert.deepEqual(normalized[id], []);
+    const html = await renderResumeHtml(normalized);
+    assert.ok(!html.includes(`>${id === "education" ? "Education" : "Skills"}</h2>`));
+    normalized.sections.push(defaultResumeSections.find((section) => section.id === id));
+    assert.deepEqual(parseResumeDocument(normalized)[id], []);
+  }
+  for (const id of ["experience", "projects"]) {
+    const document = structuredClone(defaultResumeDocument);
+    document[id] = [];
+    assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.join(".") === id));
+  }
+});
+
+test("custom sections and points enforce limits and duplicate protection", () => {
+  const document = structuredClone(defaultResumeDocument);
+  const custom = (index) => ({ id: `custom-${index}`, type: "custom", title: `Section ${index}`, format: "bullets", items: [] });
+  document.sections = [defaultResumeSections[1], defaultResumeSections[3], ...Array.from({ length: 14 }, (_, index) => custom(index))];
+  assert.equal(parseResumeDocument(document).sections.length, 16);
+  document.sections.push(custom(14));
+  assert.throws(() => parseResumeDocument(document));
+  document.sections.pop();
+  document.sections[3].id = document.sections[2].id;
+  assert.throws(() => parseResumeDocument(document));
+  document.sections[3].id = "custom-1";
+  document.sections[2].items = [{ text: " " }, ...Array.from({ length: 16 }, (_, index) => ({ text: `Point ${index}` }))];
+  assert.equal(parseResumeDocument(document).sections[2].items.length, 16);
+  document.sections[2].items.push({ text: "Extra point" });
+  assert.throws(() => parseResumeDocument(document));
+  document.sections[2].items = [];
+  document.sections[2].text = "x".repeat(4001);
+  assert.throws(() => parseResumeDocument(document));
+});
+
+test("custom public sections preserve shared order and ignore PDF flags without rendering markup", async () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.sections = [
+    { id: "custom-research", type: "custom", title: "Research & talks", format: "bullets", items: [{ label: "Publication:", text: '<script>alert("row")</script>', includeInPdf: false }], includeInPdf: false },
+    defaultResumeSections[3],
+    { id: "custom-note", type: "custom", title: "Note", format: "text", text: "Line one\n**Literal** & <b>text</b>", includeInPdf: false },
+    defaultResumeSections[1],
+  ];
+  const normalized = parseResumeDocument(document);
+  const html = await renderResumeHtml(normalized);
+  const text = renderPublicProfile(normalized);
+  assert.deepEqual([...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/g)].map((match) => match[1]), ["Research &amp; talks", "Projects", "Note", "Experience"]);
+  assert.ok(html.includes("<strong>Publication:</strong>"));
+  assert.ok(html.includes("&lt;script&gt;"));
+  assert.ok(!html.includes('<script>alert("row")</script>'));
+  assert.ok(html.includes("whitespace-pre-line"));
+  assert.ok(text.includes('**Publication:** &lt;script&gt;alert("row")&lt;/script&gt;'));
+  assert.ok(text.includes("Line one\n\\*\\*Literal\\*\\* &amp; &lt;b&gt;text&lt;/b&gt;"));
+  assert.ok(text.indexOf("### Research &amp; talks") < text.indexOf("### Projects"));
+  assert.ok(text.indexOf("### Note") < text.indexOf("### Experience"));
+  assert.doesNotMatch(text, /undefined|\[object Object\]/);
 });

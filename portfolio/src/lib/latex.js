@@ -1,6 +1,6 @@
 import resumeTemplate from "../../resume.tex";
 import { defaultPdfLayout } from "./resume-layout.js";
-import { resolveResumeSections } from "./resume-sections.js";
+import { isCustomResumeSection, resolveResumeSections } from "./resume-sections.js";
 
 // Replace characters in one pass so inserted TeX commands are never escaped again.
 function escapeLatex(value = "") {
@@ -71,6 +71,18 @@ function section(title, body) {
   return body ? `\\section{\\textbf{${escapeLatex(title)}}}\n${body}` : "";
 }
 
+function labeledPoint(point) {
+  const label = (point.label || "").trim().replace(/[:\s]+$/, "");
+  return `${label ? `\\textbf{${escapeLatex(label)}:} ` : ""}${escapeLatex(point.text.trim())}`;
+}
+
+function customSectionBody(section) {
+  if (section.format === "text") return escapeLatex(section.text.trim()).replace(/\r?\n/g, "\\par\n");
+  return list(section.items
+    .filter((point) => point.includeInPdf !== false && point.text?.trim())
+    .map((point) => `\\resumeSubItem{}{${labeledPoint(point)}}`), true);
+}
+
 function socialLabel(link) {
   try {
     const url = new URL(link.href);
@@ -107,10 +119,7 @@ export function generateResumeLatex(document) {
   }));
   const education = list(included(document.education).map((item) => {
     const details = included(item.details.map((point) => typeof point === "string" ? { text: point } : point)).filter((point) => point.text.trim());
-    const points = limited(details, item.pdfBulletLimit, layout.educationBulletLimit).map((point) => {
-      const label = (point.label || "").trim().replace(/[:\s]+$/, "");
-      return `${label ? `\\textbf{${escapeLatex(label)}:} ` : ""}${escapeLatex(point.text.trim())}`;
-    });
+    const points = limited(details, item.pdfBulletLimit, layout.educationBulletLimit).map(labeledPoint);
     const right = [item.score, item.dates].filter((value) => value?.trim()).join(" | ");
     return `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(right)}}{}{}\n${bullets(points)}`;
   }));
@@ -136,8 +145,8 @@ export function generateResumeLatex(document) {
     layout: layoutBlock(layout),
     header: header(document.profile),
     sections: resolveResumeSections(document)
-      .filter(({ id }) => document.pdfSections?.[id] !== false)
-      .map(({ id, title }) => section(title, bodies[id]))
+      .filter((item) => isCustomResumeSection(item) ? item.includeInPdf !== false : document.pdfSections?.[item.id] !== false)
+      .map((item) => section(item.title, isCustomResumeSection(item) ? customSectionBody(item) : bodies[item.id]))
       .filter(Boolean)
       .join("\n\n"),
   };

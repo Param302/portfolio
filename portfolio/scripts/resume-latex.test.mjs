@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { register } from "node:module";
 import test from "node:test";
 import { defaultResumeDocument } from "../src/lib/resume-schema.js";
+import { resolveResumeSections } from "../src/lib/resume-sections.js";
 
 // Next bundles .tex as source. Give Node the same module semantics for tests.
 register(`data:text/javascript,${encodeURIComponent(`
@@ -101,7 +102,7 @@ test("all six PDF sections follow saved titles and order while retaining their c
   ];
   const before = structuredClone(document);
   const source = generateResumeLatex(document);
-  const sectionStarts = document.sections.map(({ title }) => source.indexOf(`\\section{\\textbf{${title}}}`));
+  const sectionStarts = resolveResumeSections(document).map(({ title }) => source.indexOf(`\\section{\\textbf{${title}}}`));
   assert.ok(sectionStarts.every((offset, index) => offset >= 0 && (index === 0 || offset > sectionStarts[index - 1])));
   const content = ["Languages:", "Pocket Coder", "IIT Madras", "Gurmat Darbar", "Official Codex Ambassador", "AI Engineer shipping production systems"];
   content.forEach((text, index) => {
@@ -141,7 +142,7 @@ test("renamed and reordered sections still obey PDF visibility by stable ID", ()
   document.pdfSections = { experience: false, achievements: false };
   const source = generateResumeLatex(document);
   for (const omitted of ["Industry work", "Community contributions", "Gurmat Darbar", "Official Codex Ambassador"]) assert.ok(!source.includes(omitted), omitted);
-  for (const retained of ["Profile", "Toolkit", "Academic background", "Selected builds", "Pocket Coder"]) assert.ok(source.includes(retained), retained);
+  for (const retained of ["Profile", "Toolkit", "Academic background", "Projects", "Pocket Coder"]) assert.ok(source.includes(retained), retained);
 });
 
 test("legacy documents retain the original section titles and order", () => {
@@ -169,7 +170,46 @@ test("empty renamed sections are omitted without disturbing the remaining order"
   const source = generateResumeLatex(document);
   assert.doesNotMatch(source, /Empty profile|Empty community|Empty experience/);
   assert.ok(source.indexOf("\\section{\\textbf{Toolkit}}") < source.indexOf("\\section{\\textbf{Education}}"));
-  assert.ok(source.indexOf("\\section{\\textbf{Education}}") < source.indexOf("\\section{\\textbf{Selected builds}}"));
+  assert.ok(source.indexOf("\\section{\\textbf{Education}}") < source.indexOf("\\section{\\textbf{Projects}}"));
+});
+
+test("optional section removal omits its PDF heading and content without changing stored data", () => {
+  const document = fixture();
+  document.sections = document.sections.filter(({ id }) => id === "experience" || id === "projects");
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  assert.equal((source.match(/\\section\{\\textbf\{/g) || []).length, 2);
+  for (const omitted of ["\\section{\\textbf{Summary}}", "Co-Curricular", "IIT Madras", "Languages:", document.summary]) assert.ok(!source.includes(omitted), omitted);
+  assert.deepEqual(document, before);
+});
+
+test("custom sections render escaped text and labelled points in shared order with PDF visibility", () => {
+  const document = fixture();
+  document.sections = [
+    { id: "custom-certificates", type: "custom", title: "Certificates & awards", format: "bullets", items: [{ label: "Cloud: :", text: "AI & ML | 100%" }, { text: "Excluded certificate", includeInPdf: false }, { text: " " }] },
+    { id: "projects", title: "Old projects title" },
+    { id: "custom-statement", type: "custom", title: "Statement", format: "text", text: "First paragraph.\n" + String.raw`\input{private} #1 _` },
+    { id: "experience", title: "Old experience title" },
+    { id: "custom-hidden", type: "custom", title: "Hidden custom title", format: "text", text: "Hidden custom paragraph", includeInPdf: false },
+  ];
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  const titles = [String.raw`Certificates \& awards`, "Projects", "Statement", "Experience"];
+  const positions = titles.map((title) => source.indexOf(`\\section{\\textbf{${title}}}`));
+  assert.ok(positions.every((position, index) => position >= 0 && (index === 0 || position > positions[index - 1])));
+  assert.ok(source.includes(String.raw`\resumeSubItem{}{\textbf{Cloud:} AI \& ML \textbar{} 100\%}`));
+  assert.ok(source.includes("First paragraph.\\par\n" + String.raw`\textbackslash{}input\{private\} \#1 \_`));
+  assert.doesNotMatch(source, /Excluded certificate|Hidden custom|Old projects title|Old experience title|\\input\{private\}|undefined|\[object Object\]/);
+  assert.deepEqual(document, before);
+});
+
+test("empty custom PDF sections vanish when their final point is excluded", () => {
+  const document = fixture();
+  document.sections.push({ id: "custom-empty", type: "custom", title: "Empty custom", format: "bullets", items: [{ text: "Hidden", includeInPdf: false }, { text: " " }] });
+  assert.ok(!generateResumeLatex(document).includes("Empty custom"));
+  document.sections.at(-1).format = "text";
+  document.sections.at(-1).text = " \n ";
+  assert.ok(!generateResumeLatex(document).includes("Empty custom"));
 });
 
 test("education details support optional bold labels, PDF visibility, and legacy strings", () => {
