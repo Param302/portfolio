@@ -2,6 +2,7 @@ import { homeSections, identityAliases, learningResources, siteConfig, socialRes
 
 const link = (label, url) => `[${label}](<${url}>)`;
 const bullets = (items) => items.map((item) => `- ${item}`).join("\n");
+const educationPoint = (item) => typeof item === "string" ? item : `${item.label ? `**${item.label}${item.label.endsWith(":") ? "" : ":"}** ` : ""}${item.text}`;
 
 // Accept only the public, published resume document, never revision or account data.
 export function renderPublicProfile(content) {
@@ -66,7 +67,7 @@ ${content.experience.map((item) => `#### ${item.role} — ${item.company}\n\n${i
 
 ### Education
 
-${content.education.map((item) => `#### ${item.school} — ${item.program}\n\n${item.dates}\n\n${bullets(item.details)}`).join("\n\n")}
+${content.education.map((item) => `#### ${item.school} — ${item.program}\n\n${[item.score, item.dates].filter(Boolean).join(" | ")}\n\n${bullets(item.details.map(educationPoint))}`).join("\n\n")}
 
 ### Projects by ${profile.name}
 

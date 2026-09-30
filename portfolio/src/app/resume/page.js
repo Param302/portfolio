@@ -13,7 +13,13 @@ function Section({ title, children }) {
   return <section className="rounded-3xl border border-prussian-blue/10 bg-bright-snow/70 p-5 dark:border-alice-blue/10 dark:bg-prussian-blue/35 sm:p-7"><h2 className="font-heading text-xl font-semibold sm:text-2xl">{title}</h2><div className="mt-4 space-y-5 font-description text-sm leading-7 sm:text-base">{children}</div></section>;
 }
 
-function Bullets({ items }) { return <ul className="mt-2 list-disc space-y-1 pl-5">{items.map((item) => <li key={item}>{item}</li>)}</ul>; }
+function Bullets({ items }) {
+  return <ul className="mt-2 list-disc space-y-1 pl-5">{items.map((item, index) => (
+    <li key={typeof item === "string" ? `${index}-${item}` : item.id || index}>
+      {typeof item === "string" ? item : <>{item.label && <><strong>{item.label}{item.label.endsWith(":") ? "" : ":"}</strong>{" "}</>}{item.text}</>}
+    </li>
+  ))}</ul>;
+}
 
 function socialDisplay(link) {
   try {
@@ -63,7 +69,7 @@ export default async function ResumePage() {
         <div className="space-y-5">
           <Section title="Summary"><p>{content.summary}</p></Section>
           <Section title="Experience">{content.experience.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.role} | {item.company}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{item.dates}</span></div>{item.link && <a href={item.link} target="_blank" rel="noreferrer" className="text-sm text-sky-surge">{item.link.replace(/^https?:\/\//, "")}</a>}<Bullets items={item.bullets} /></article>)}</Section>
-          <Section title="Education">{content.education.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.school} | {item.program}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{item.dates}</span></div><Bullets items={item.details} /></article>)}</Section>
+          <Section title="Education">{content.education.map((item) => <article key={item.id}><div className="flex flex-col gap-1 sm:flex-row sm:justify-between"><h3 className="font-heading text-lg font-semibold">{item.school} | {item.program}</h3><span className="text-xs uppercase tracking-[0.14em] opacity-60">{[item.score, item.dates].filter(Boolean).join(" | ")}</span></div><Bullets items={item.details} /></article>)}</Section>
           <Section title="Projects">{content.projects.map((project) => <article key={project.id}><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-heading text-lg font-semibold">{project.name} | {project.subtitle}</h3><div className="flex gap-2">{project.links.map((link) => <a key={link.label} href={link.href} target="_blank" rel="noreferrer" className="text-xs text-sky-surge">{link.label}</a>)}</div></div><p className="mt-2">{project.description}</p><p className="mt-1 text-sm opacity-70">{project.skills.join(" · ")}</p><Bullets items={project.bullets} /></article>)}</Section>
           <Section title="Skills">{content.skills.map((group) => <p key={group.label}><strong>{group.label}:</strong> {group.items.join(", ")}</p>)}</Section>
           <Section title="Co-Curricular & Achievements"><Bullets items={content.achievements.map((item) => typeof item === "string" ? item : item.text)} /></Section>

@@ -28,6 +28,19 @@ const achievementSchema = z.preprocess(
   }),
 );
 
+const educationDetailSchema = z.preprocess(
+  (value) => typeof value === "string" ? { text: value } : value,
+  z.object({
+    id: shortText.optional(),
+    label: shortText.default(""),
+    text,
+    includeInPdf: z.boolean().default(true),
+  }).refine((item) => !item.label || Boolean(item.text), {
+    message: "Enter text for this education point.",
+    path: ["text"],
+  }),
+);
+
 const experienceSchema = z.object({
   id: shortText,
   role: shortText,
@@ -77,7 +90,8 @@ export const resumeDocumentSchema = z.object({
     school: shortText,
     program: shortText,
     dates: shortText,
-    details: z.array(text).max(5),
+    score: shortText.default(""),
+    details: z.array(educationDetailSchema).transform((items) => items.filter((item) => item.label || item.text)).pipe(z.array(educationDetailSchema).max(16)),
   })).min(1).max(6),
   projects: z.array(projectSchema).min(1).max(12),
   skills: z.array(z.object({

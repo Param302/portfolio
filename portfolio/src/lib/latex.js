@@ -26,6 +26,11 @@ function bullets(items) {
   return `\\resumeItemListStart\n${lines.map((item) => `\\resumeItem{${escapeLatex(item)}}`).join("\n")}\n\\resumeItemListEnd`;
 }
 
+function educationBullets(lines) {
+  if (!lines.length) return "";
+  return `\\resumeItemListStart\n${lines.map((item) => `\\resumeItem{${item}}`).join("\n")}\n\\resumeItemListEnd`;
+}
+
 function list(items) {
   return items.length ? `\\resumeSubHeadingListStart\n${items.join("\n\n")}\n\\resumeSubHeadingListEnd` : "";
 }
@@ -66,7 +71,15 @@ export function generateResumeLatex(document) {
     const title = `${escapeLatex(item.role)} \\textbar{} ${escapeLatex(item.company)}${item.link ? ` - ${href(item.link, item.link.replace(/^https?:\/\//, "").replace(/\/$/, ""))}` : ""}`;
     return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(cleanLines(item.bullets).slice(0, 3))}`;
   }));
-  const education = list(included(document.education).map((item) => `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.details)}`));
+  const education = list(included(document.education).map((item) => {
+    const details = included(item.details.map((point) => typeof point === "string" ? { text: point } : point)).filter((point) => point.text.trim());
+    const points = details.map((point) => {
+      const label = (point.label || "").trim().replace(/[:\s]+$/, "");
+      return `${label ? `\\textbf{${escapeLatex(label)}:} ` : ""}${escapeLatex(point.text.trim())}`;
+    });
+    const right = [item.score, item.dates].filter((value) => value?.trim()).join(" | ");
+    return `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(right)}}{}{}\n${educationBullets(points)}`;
+  }));
   const projects = list(included(document.projects).map((item) => `\\item
 \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
 \\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}} & ${included(item.links).filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} \\\\

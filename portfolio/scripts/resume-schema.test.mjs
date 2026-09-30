@@ -125,3 +125,62 @@ test("individual PDF exclusions retain achievements and every bullet in public c
   for (const retained of ["Website-only achievement", "Fourth website bullet"]) assert.ok(publicText.includes(retained), retained);
   assert.ok(!publicText.includes("[object Object]"));
 });
+
+test("education rows preserve labels, visibility and IDs and discard only fully blank drafts", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.education[0].details = [
+    "  Legacy diploma  ",
+    { id: "subjects", label: " Core Subjects ", text: " LLMs and GenAI ", includeInPdf: false },
+    { id: "blank", label: "\t", text: "\n", includeInPdf: false },
+    { text: "Unlabelled achievement" },
+  ];
+  assert.deepEqual(parseResumeDocument(document).education[0].details, [
+    { label: "", text: "Legacy diploma", includeInPdf: true },
+    { id: "subjects", label: "Core Subjects", text: "LLMs and GenAI", includeInPdf: false },
+    { label: "", text: "Unlabelled achievement", includeInPdf: true },
+  ]);
+  document.education[0].details = [{ label: "Core Subjects", text: " " }];
+  assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.join(".") === "education.0.details.0.text"));
+});
+
+test("education supports sixteen nonblank rows and enforces its limit after discarding empty drafts", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.education[0].details = ["", ...Array.from({ length: 16 }, (_, index) => `Point ${index + 1}`), { label: "", text: " " }];
+  assert.equal(parseResumeDocument(document).education[0].details.length, 16);
+  document.education[0].details.push("Point 17");
+  assert.throws(() => parseResumeDocument(document), (error) => error.issues.some((issue) => issue.path.join(".") === "education.0.details"));
+});
+
+test("public education retains labelled and excluded points", () => {
+  const document = structuredClone(defaultResumeDocument);
+  document.education[0].details = [
+    { label: "Core Subjects", text: "LLMs and GenAI", includeInPdf: false },
+    { label: "Diplomas:", text: "Programming and Data Science", includeInPdf: true },
+    "A third education point",
+  ];
+  const normalized = parseResumeDocument(document);
+  const publicText = renderPublicProfile(normalized);
+  for (const retained of ["**Core Subjects:** LLMs and GenAI", "**Diplomas:** Programming and Data Science", "A third education point"]) assert.ok(publicText.includes(retained), retained);
+  assert.ok(!publicText.includes("[object Object]"));
+  assert.ok(!publicText.includes("Diplomas::"));
+});
+
+test("education scores round-trip separately while legacy combined dates remain unchanged", () => {
+  const document = structuredClone(defaultResumeDocument);
+  const education = document.education[0];
+  delete education.score;
+  education.dates = "GPA: 8.3 | Sept 2022 - Present";
+  const legacy = parseResumeDocument(document);
+  assert.equal(legacy.education[0].score, "");
+  assert.equal(legacy.education[0].dates, education.dates);
+  assert.ok(renderPublicProfile(legacy).includes(education.dates));
+  education.score = " GPA: 8.3 ";
+  education.dates = "Sept 2022 - Present";
+  const normalized = parseResumeDocument(document);
+  assert.equal(normalized.education[0].score, "GPA: 8.3");
+  assert.equal(normalized.education[0].dates, education.dates);
+  assert.ok(renderPublicProfile(normalized).includes("GPA: 8.3 | Sept 2022 - Present"));
+  education.dates = "";
+  const onlyScore = renderPublicProfile(parseResumeDocument(document));
+  assert.ok(onlyScore.includes("\n\nGPA: 8.3\n\n"));
+});

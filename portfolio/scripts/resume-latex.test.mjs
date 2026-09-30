@@ -156,3 +156,36 @@ test("header social rows preserve editor order and never duplicate a lone link",
   assert.ok(!empty.includes("Hidden:"));
   assert.ok(!empty.includes("Empty:"));
 });
+
+test("education details support optional bold labels, PDF visibility, and legacy strings", () => {
+  const document = fixture();
+  document.education[0].details = [
+    { label: "Core subjects:", text: "LLMs & Gen AI", includeInPdf: true },
+    { label: "Completed diplomas: :", text: "Programming; Data Science" },
+    { label: "Hidden", text: "Excluded detail", includeInPdf: false },
+    { label: "Empty", text: "   " },
+    { label: "", text: "A detail without a label" },
+    "Legacy education detail",
+  ];
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  assert.ok(source.includes(String.raw`\resumeItem{\textbf{Core subjects:} LLMs \& Gen AI}`));
+  assert.ok(source.includes(String.raw`\resumeItem{\textbf{Completed diplomas:} Programming; Data Science}`));
+  assert.ok(source.includes(String.raw`\resumeItem{A detail without a label}`));
+  assert.ok(source.includes(String.raw`\resumeItem{Legacy education detail}`));
+  assert.doesNotMatch(source, /Excluded detail|\\textbf\{Empty:|::|\[object Object\]/);
+  assert.deepEqual(document, before);
+});
+
+test("education joins score and dates without a dangling separator", () => {
+  const document = fixture();
+  const school = document.education[0];
+  school.score = "GPA: 8.3";
+  school.dates = "Sept 2022 - Present";
+  assert.ok(generateResumeLatex(document).includes(String.raw`{GPA: 8.3 \textbar{} Sept 2022 - Present}{}{}`));
+  school.dates = "";
+  assert.ok(generateResumeLatex(document).includes("{GPA: 8.3}{}{}"));
+  school.score = "";
+  school.dates = "Sept 2022 - Present";
+  assert.ok(generateResumeLatex(document).includes("{Sept 2022 - Present}{}{}"));
+});
