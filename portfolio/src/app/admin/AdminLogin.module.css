@@ -56,10 +56,6 @@
 .intro { margin-bottom: 30px; }
 .introTop { display: flex; min-height: 38px; align-items: center; justify-content: space-between; gap: 16px; }
 .adminBadge { display: inline-flex; padding: 6px 10px; border-radius: 7px; background: var(--admin-accent-soft); color: var(--admin-accent); font-size: 11px; font-weight: 650; letter-spacing: 0.12em; text-transform: uppercase; }
-.eyes { display: flex; gap: 3px; transform: rotate(-8deg); }
-.eyes > span { position: relative; display: block; width: 22px; height: 29px; border: 1.5px solid var(--admin-text); border-radius: 50%; background: var(--admin-panel); }
-.eyes > span::after { position: absolute; right: 3px; bottom: 5px; width: 8px; height: 11px; border-radius: 50%; background: var(--admin-text); content: ""; transition: transform 180ms ease; }
-.formWrap:focus-within .eyes > span::after { transform: translate(-4px, 1px); }
 .intro h1 { margin-top: 22px; font-size: clamp(28px, 2.4vw, 34px); font-weight: 650; line-height: 1.15; letter-spacing: -0.045em; }
 .intro p { margin-top: 10px; color: var(--admin-muted); font-size: 14px; line-height: 22px; }
 .form { display: grid; gap: 22px; }
@@ -128,6 +124,5 @@
   .railTrack { animation: none; }
   .motionToggle { display: none; }
   .field input,
-  .submit,
-  .eyes > span::after { transition: none; }
+  .submit { transition: none; }
 }

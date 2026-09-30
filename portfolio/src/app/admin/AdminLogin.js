@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, Moon, Pause, Play, Quote, Sun } from "lucide-react";
 import { useTheme } from "@/app/ThemeContext";
 import { allFeedbacks } from "@/app/data/teachingImpactData";
+import CursorEyes from "./CursorEyes";
 import styles from "./AdminLogin.module.css";
 
 const loginFeedbacks = allFeedbacks.filter((quote) => quote.length >= 40 && quote.length <= 180).slice(0, 16);
@@ -67,7 +68,7 @@ export default function AdminLogin() {
           <div className={styles.intro}>
             <div className={styles.introTop}>
               <span className={styles.adminBadge}>Admin</span>
-              <span className={styles.eyes} aria-hidden="true"><span /><span /></span>
+              <CursorEyes />
             </div>
             <h1>Well, hello there.</h1>
             <p>This corner is just for Param.</p>
