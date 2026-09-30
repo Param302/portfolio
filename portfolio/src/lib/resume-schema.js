@@ -3,6 +3,7 @@ import { z } from "zod";
 const text = z.string().trim().max(2000);
 const shortText = z.string().trim().max(240);
 const url = z.union([z.literal(""), z.string().url()]);
+const bulletList = z.array(text).transform((items) => items.filter(Boolean)).pipe(z.array(text).min(1));
 
 const linkSchema = z.object({
   label: shortText,
@@ -16,7 +17,7 @@ const experienceSchema = z.object({
   dates: shortText,
   link: url.default(""),
   includeInPdf: z.boolean().default(true),
-  bullets: z.array(text).min(1).max(6),
+  bullets: bulletList,
 });
 
 const projectSchema = z.object({
@@ -25,7 +26,7 @@ const projectSchema = z.object({
   subtitle: shortText.default(""),
   description: text,
   includeInPdf: z.boolean().default(true),
-  bullets: z.array(text).min(1).max(6),
+  bullets: bulletList,
   skills: z.array(shortText).max(16),
   image: shortText,
   theme: z.enum(["surface", "brand", "accent"]).default("surface"),

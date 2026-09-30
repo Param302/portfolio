@@ -69,3 +69,29 @@ test("every section can be independently excluded and legacy documents include a
     assert.ok(!generateResumeLatex(document).includes(`\\section{\\textbf{${title}}}`));
   }
 });
+
+test("PDF takes only the first three non-empty bullets per experience and project", () => {
+  const document = fixture();
+  for (const key of ["experience", "projects"]) {
+    document[key].forEach((item, index) => {
+      item.bullets = [" ", ...Array.from({ length: 7 }, (_, point) => `${key}-${index}-point-${point + 1}`), ""];
+    });
+  }
+  const before = structuredClone(document);
+  const source = generateResumeLatex(document);
+  for (const key of ["experience", "projects"]) {
+    document[key].forEach((_, index) => {
+      for (let point = 1; point <= 7; point += 1) assert.equal(source.includes(`${key}-${index}-point-${point}`), point <= 3);
+    });
+  }
+  assert.deepEqual(document, before);
+});
+
+test("education and achievements retain more than three points in the PDF", () => {
+  const document = fixture();
+  document.education[0].details = ["Education one", "Education two", "Education three", "Education four"];
+  document.achievements = ["Achievement one", "Achievement two", "Achievement three", "Achievement four"];
+  const source = generateResumeLatex(document);
+  assert.ok(source.includes("Education four"));
+  assert.ok(source.includes("Achievement four"));
+});

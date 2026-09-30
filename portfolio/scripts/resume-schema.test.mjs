@@ -36,3 +36,19 @@ test("saved PDF exclusions survive normalization without removing website conten
     assert.equal(normalized[section][0].includeInPdf, false);
   }
 });
+
+for (const section of ["experience", "projects"]) {
+  test(`${section} keeps every non-empty bullet for the website and removes draft whitespace`, () => {
+    const document = structuredClone(defaultResumeDocument);
+    const points = Array.from({ length: 9 }, (_, index) => `Point ${index + 1}`);
+    document[section][0].bullets = [" ", ...points.map((point) => `  ${point}  `), "", "\t"];
+    assert.deepEqual(parseResumeDocument(document)[section][0].bullets, points);
+  });
+
+  test(`${section} requires at least one meaningful bullet after normalization`, () => {
+    const document = structuredClone(defaultResumeDocument);
+    document[section][0].bullets = ["", "  ", "\n"];
+    assert.throws(() => parseResumeDocument(document), (error) =>
+      error.issues.some((issue) => issue.path.join(".") === `${section}.0.bullets`));
+  });
+}

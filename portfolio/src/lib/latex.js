@@ -68,7 +68,7 @@ export function generateResumeLatex(document) {
   const included = (items) => items.filter((item) => item.includeInPdf !== false);
   const experiences = list(included(document.experience).map((item) => {
     const title = `${escapeLatex(item.role)} \\textbar{} ${escapeLatex(item.company)}${item.link ? ` - ${href(item.link, item.link.replace(/^https?:\/\//, "").replace(/\/$/, ""))}` : ""}`;
-    return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.bullets)}`;
+    return `\\resumeSubheading{${title}}{${escapeLatex(item.dates)}}{}{}\n${bullets(cleanLines(item.bullets).slice(0, 3))}`;
   }));
   const education = list(included(document.education).map((item) => `\\resumeSubheading{${escapeLatex(`${item.school}, ${item.program}`)}}{${escapeLatex(item.dates)}}{}{}\n${bullets(item.details)}`));
   const projects = list(included(document.projects).map((item) => `\\item
@@ -76,7 +76,7 @@ export function generateResumeLatex(document) {
 \\textbf{${escapeLatex(`${item.name}${item.subtitle ? ` | ${item.subtitle}` : ""}`)}} & ${item.links.filter((link) => link.href).map((link) => href(link.href, link.label)).join(" \\textbar{} ")} \\\\
 \\end{tabular*}
 ${item.skills.length ? `{\\small \\textit{Tools: ${escapeLatex(item.skills.join(", "))}}}\n` : ""}\\vspace{-5pt}
-${bullets(item.bullets)}
+${bullets(cleanLines(item.bullets).slice(0, 3))}
 \\vspace{2pt}`));
   const skills = list(included(document.skills).map((group) => `\\resumeSubItem{\\textbf{${escapeLatex(group.label)}:}}{${escapeLatex(group.items.join(", "))}}`));
   const achievements = list(cleanLines(document.achievements).map((item) => `\\resumeSubItem{}{${escapeLatex(item)}}`));
